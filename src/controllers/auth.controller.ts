@@ -164,7 +164,7 @@ class Auth extends AuthLogic {
           if you did not login to your account, please login to your account and change your password.
           </p>
 
-          <a href="${process.env.APP_NAME}/signin">
+          <a href="${process.env.WEBSITE_END_POINT}/signin">
             Login
             </a>
 
