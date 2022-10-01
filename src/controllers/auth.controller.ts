@@ -6,6 +6,7 @@ import AuthLogic from "../logic/auth.logic";
 import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
 import UserType from "../types/user";
+import MailController from "./mail.controller";
 
 class Auth extends AuthLogic {
   // create user
@@ -47,6 +48,20 @@ class Auth extends AuthLogic {
         },
         "1d"
       );
+
+      // send mail for email verification
+      new MailController().sendHtmlMail({
+        to: email,
+        templet: "normal",
+        subject: "Email Verification",
+        html: `<h1>Email Verification</h1>
+        <p>
+          Please click on the link below to verify your email:
+          </p>
+          <a href="${process.env.API_END_POINT}/auth/verify-email/${secret}">
+            Verify Email
+            </a>`,
+      });
 
       // send response to client
       res.status(200).json({
@@ -116,16 +131,6 @@ class Auth extends AuthLogic {
         role: userData.role,
       });
 
-      //get JWT refresh token
-      const REFRESH_TOKEN: string = await super.getRefreshToken(
-        {
-          _id: userData._id,
-          email: userData.email,
-          role: userData.role,
-        },
-        "7d"
-      );
-
       const userAgent: string =
         req
           ?.get("user-agent")
@@ -134,18 +139,42 @@ class Auth extends AuthLogic {
           .replace(/;/g, "")
           .replace(/ /g, "-") || "unknown-device";
 
-      const updates: any = {
-        ...userData.refreshTokens,
-      };
-      updates[userAgent] = REFRESH_TOKEN;
-
       await UserModel.findByIdAndUpdate(userData._id, {
         isLoggedIn: true,
         isOnline: true,
         lastLogin: new Date(),
-        $set: {
-          refreshTokens: updates,
-        },
+      });
+
+      //send new login detection to mail
+      new MailController().sendHtmlMail({
+        to: userData.email,
+        subject: "New Login",
+        templet: "normal",
+        html: `<h1>New Login</h1>
+        <p>
+          Someone logged in to your account.
+          </p>
+          <p>
+          Device: ${userAgent.replace(/-/g, " ")}
+          </p>
+          <p>
+          Time: ${new Date()}
+
+          <p>
+          if you did not login to your account, please login to your account and change your password.
+          </p>
+
+          <a href="${process.env.APP_NAME}/signin">
+            Login
+            </a>
+
+            <p>
+            Thanks, <br>
+            ${process.env.WEBSITE_NAME}
+
+
+            </p>
+          </p>`,
       });
 
       // send response to client
@@ -153,7 +182,6 @@ class Auth extends AuthLogic {
         status: "SUCCESS",
         message: "User logged in successfully",
         ACCESS_TOKEN,
-        REFRESH_TOKEN,
         data: {
           _id: userData._id,
           displayName: userData.displayName,
@@ -231,6 +259,20 @@ class Auth extends AuthLogic {
         },
         "1d"
       );
+
+      // send mail for email verification
+      new MailController().sendHtmlMail({
+        to: email,
+        templet: "normal",
+        subject: "Email Verification",
+        html: `<h1>Email Verification</h1>
+        <p>
+          Please click on the link below to verify your email:
+          </p>
+          <a href="${process.env.API_END_POINT}/auth/verify-email/${secret}">
+            Verify Email
+            </a>`,
+      });
 
       // send response to client
       res.status(200).json({
@@ -327,6 +369,19 @@ class Auth extends AuthLogic {
         },
       });
 
+      // send mail for email verification
+      new MailController().sendHtmlMail({
+        to: email,
+        subject: "Forgot Password OTP",
+        templet: "normal",
+        html: `<h1>Forgot Password OTP</h1>
+        <p>
+          Please enter the OTP below to reset your password:
+          </p>
+          <h1>${OTP}</h1>
+          `,
+      });
+
       // send response to client
       res.status(200).json({
         status: "SUCCESS",
@@ -404,7 +459,6 @@ class Auth extends AuthLogic {
         isLoggedIn: false,
         isOnline: false,
         token: null,
-        refreshTokens: {},
       });
 
       if (!userData) throw new Error("User not found");
@@ -413,96 +467,6 @@ class Auth extends AuthLogic {
       res.status(200).json({
         status: "SUCCESS",
         message: "Logged out successfully",
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  //get access token
-  public async getAccessTokenController(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<any> {
-    try {
-      // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
-
-      const decodedToken = await super.verifyRefreshToken(
-        req.body.refresh_token
-      );
-
-      const userData: UserType | null = await UserModel.findById(
-        decodedToken?._id
-      ).select("_id email displayName refreshTokens phoneNumber country role");
-
-      if (userData?.blockStatus === "BLOCKED")
-        throw new Error("User is blocked");
-
-      if (!userData) throw new Error("User not found");
-      if (
-        !Object.values(userData.refreshTokens).includes(req.body.refresh_token)
-      ) {
-        return res.status(401).json({
-          status: "FAIL",
-          message: "Invalid refresh token",
-        });
-      }
-
-      // get JWT token
-      const ACCESS_TOKEN: string = await super.getAccessToken({
-        _id: userData._id,
-        email: userData.email,
-        role: userData.role,
-      });
-
-      const tokenLifeTime =
-        (new Date(decodedToken.exp * 1000).getTime() - new Date().getTime()) /
-        1000 /
-        60 /
-        60 /
-        24; // 0-7d
-      //get JWT refresh token if tokenLifeTime is more then 3d and less then 7d
-      const REFRESH_TOKEN: string | undefined =
-        tokenLifeTime < 3 && tokenLifeTime > 0
-          ? await super.getRefreshToken(
-              {
-                _id: userData._id,
-                email: userData.email,
-                role: userData.role,
-              },
-              "7d"
-            )
-          : undefined;
-      //update REFRESH_TOKEN if exist
-      if (REFRESH_TOKEN) {
-        super.storeRefreshToken(req, userData._id, REFRESH_TOKEN);
-      }
-
-      // send response to client
-      res.status(200).json({
-        status: "SUCCESS",
-        message: "Access token generated successfully",
-        ACCESS_TOKEN,
-        REFRESH_TOKEN,
-        data: {
-          _id: userData._id,
-          email: userData.email,
-          displayName: userData.displayName,
-          phoneNumber: userData.phoneNumber,
-          country: userData?.country,
-          role: userData.role,
-        },
       });
     } catch (error) {
       next(error);

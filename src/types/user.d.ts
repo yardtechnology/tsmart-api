@@ -38,5 +38,4 @@ export default interface UserType extends Document {
   store: StoreType;
   encryptPassword(rawPassword: string): string;
   authenticate(rawPassword: string): boolean;
-  refreshTokens: {};
 }

@@ -18,7 +18,6 @@ class Auth extends AuthenticateMiddleware {
     this.forgotPasswordOtpSendRoute();
     this.forgotPasswordOtpVerifyAndChangePasswordRoute();
     this.logoutRoute();
-    this.getAccessTokenRoute();
   }
 
   // create user
@@ -89,15 +88,6 @@ class Auth extends AuthenticateMiddleware {
       "/auth/logout",
       super.isAuthenticated,
       this.authController.logout
-    );
-  }
-
-  //get access token
-  private getAccessTokenRoute(): void {
-    this.router.post(
-      "/auth/get-access-token",
-      this.authController.validateGetAccessTokenFields,
-      this.authController.getAccessTokenController
     );
   }
 }

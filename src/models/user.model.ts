@@ -54,7 +54,6 @@ const userSchema = new Schema<UserType>(
       ref: "Store",
     },
     lastLogin: Date,
-    refreshTokens: {},
   },
   { timestamps: true }
 );
