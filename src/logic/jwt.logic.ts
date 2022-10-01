@@ -2,9 +2,15 @@ import jwt from "jsonwebtoken";
 
 class JWTLogic {
   public async getAccessToken(payload: {}, validity?: string): Promise<string> {
-    const token = jwt.sign(payload, `${process.env.JWT_ACCESS_SECRET}`, {
+    const options = {
       expiresIn: validity,
-    });
+    };
+    !validity && delete options.expiresIn;
+    const token = jwt.sign(
+      payload,
+      `${process.env.JWT_ACCESS_SECRET}`,
+      options
+    );
     return token;
   }
 
