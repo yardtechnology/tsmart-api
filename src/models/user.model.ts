@@ -15,8 +15,8 @@ const userSchema = new Schema<UserType>(
       name: String,
       phone: String,
     },
-    photoURL: String,
-    photoPath: String,
+    avatar: String,
+    avatarPath: String,
     email: {
       type: String,
       unique: true,

@@ -25,7 +25,7 @@ class MediaLogic {
     return new Promise(async (resolve, reject) => {
       try {
         const result = await cloudinary.uploader.upload(file.tempFilePath, {
-          folder: `CGH/${folder || "common"}`,
+          folder: `TSMART/${folder || "common"}`,
         });
         fs.unlinkSync(file.tempFilePath);
         resolve({
@@ -49,7 +49,7 @@ class MediaLogic {
         for (const file of files) {
           // upload media
           const result = await cloudinary.uploader.upload(file.tempFilePath, {
-            folder: `CGH/${folder || "common"}`,
+            folder: `TSMART/${folder || "common"}`,
           });
           // delete temp file
           fs.unlinkSync(file.tempFilePath);

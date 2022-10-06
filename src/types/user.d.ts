@@ -10,8 +10,8 @@ export default interface UserType extends Document {
     name: string;
     phone: string;
   };
-  photoURL: string;
-  photoPath: string;
+  avatar: string;
+  avatarPath: string;
   email: string;
   gender: "MALE" | "FEMALE" | "OTHER";
   encrypted_password: string;
