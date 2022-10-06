@@ -24,7 +24,7 @@ class Category extends AuthenticateMiddleware {
   private createStoreRoute(): void {
     this.router.post(
       "/store/",
-      super.isAuthenticated,
+      super.isAdmin,
       this.storeController.validateCreateStoreFields,
       this.storeController.createStore
     );
@@ -34,7 +34,7 @@ class Category extends AuthenticateMiddleware {
   private updateStoreRoute(): void {
     this.router.put(
       "/store/:storeId",
-      super.isAuthenticated,
+      super.isAdmin,
       this.storeController.validateCreateStoreFields,
       this.storeController.updateStore
     );
@@ -70,7 +70,7 @@ class Category extends AuthenticateMiddleware {
   public removeStoreManagerRoute(): void {
     this.router.put(
       "/store/manager/remove/:storeId",
-      super.isAuthenticated,
+      super.isAdmin,
       this.storeController.removeStoreManager
     );
   }
