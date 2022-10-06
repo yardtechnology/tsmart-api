@@ -38,7 +38,7 @@ class Category extends MediaLogic {
       const categoryData: CategoryType = await new CategoryModel({
         name: req.body?.name,
         description: req.body?.description,
-        imageURL: imageData?.url,
+        image: imageData?.url,
         imagePath: imageData?.path,
         parentCategory: req.body?.parentCategory,
         isActive: req.body?.isActive,
@@ -88,7 +88,7 @@ class Category extends MediaLogic {
         await CategoryModel.findByIdAndUpdate(req.params.categoryId, {
           name: req.body?.name,
           description: req.body?.description,
-          imageURL: imageData?.url,
+          image: imageData?.url,
           imagePath: imageData?.path,
           isFeatured: req.body?.isFeatured,
           parentCategory: req.body?.parentCategory,
