@@ -29,7 +29,7 @@ const userSchema = new Schema<UserType>(
     dateOfBirth: String,
     role: {
       type: String,
-      enum: ["USER", "MANAGER", "ADMIN"],
+      enum: ["USER", "MANAGER", "ADMIN", "TECHNICIAN"],
       default: "USER",
     },
     fcmTokens: {
