@@ -6,8 +6,8 @@
   "scripts": {
     "heroku-postbuild": "npm run build",
     "start": "node build/index.js",
-    "build": "tsc",
-    "dev": "nodemon ./src/index.ts"
+    "build": "rimraf ./build && tsc && rimraf ./src ",
+    "dev": "ts-node-dev --poll ./src/index.ts"
   },
   "license": "ISC",
   "dependencies": {
@@ -26,17 +26,19 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@types/html-pdf": "^3.0.0",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
     "@types/express-fileupload": "^1.2.2",
+    "@types/html-pdf": "^3.0.0",
     "@types/http-errors": "^1.8.2",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/md5": "^2.3.2",
     "@types/node": "^18.0.0",
     "@types/nodemailer": "^6.4.4",
     "@types/uuid": "^8.3.4",
+    "rimraf": "^3.0.2",
     "ts-node": "^10.8.1",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^4.7.4"
   }
 }
