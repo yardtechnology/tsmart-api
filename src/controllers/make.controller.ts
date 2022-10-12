@@ -1,13 +1,12 @@
 import { NextFunction, Response } from "express";
 import { body, param, validationResult } from "express-validator";
+import { BadRequest, InternalServerError } from "http-errors";
 import paginationHelper from "../helper/pagination.helper";
 import MediaLogic from "../logic/media.logic";
-import { DevicesSchema } from "../models";
-import { DEVICE_TYPE } from "../types";
+import { MakeSchema } from "../models";
 import { AuthRequest } from "../types/core";
-import { BadRequest, InternalServerError } from "http-errors";
 
-class DeviceController {
+class MakeController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     let imageData: any | undefined;
     try {
@@ -21,18 +20,19 @@ class DeviceController {
             .replace(/[,]/g, " and ")
         );
       }
-      const { title } = req.body;
+      const { title, deviceId } = req.body;
       const imageFile = req?.files?.image;
-      const filePath = `Device`;
+      const filePath = `Make`;
 
       imageData =
         imageFile && !Array.isArray(imageFile)
           ? await new MediaLogic().uploadMedia(imageFile, filePath)
           : undefined;
-      const createDevice = await DevicesSchema.create({
+      const createDevice = await MakeSchema.create({
         title,
         image: imageData?.url,
         imagePATH: imageData?.path,
+        devices: deviceId ? [deviceId] : [],
       });
       if (!createDevice)
         throw new InternalServerError(
@@ -40,7 +40,7 @@ class DeviceController {
         );
       res.json({
         status: "SUCCESS",
-        message: "Device created successfully.",
+        message: "Make created successfully.",
         data: createDevice,
       });
     } catch (error) {
@@ -53,8 +53,8 @@ class DeviceController {
   async update(req: AuthRequest, res: Response, next: NextFunction) {
     let imageData: any | undefined;
     try {
-      const { deviceId } = req.params;
-      const { title } = req.body;
+      const { makeId } = req.params;
+      const { title, deviceId } = req.body;
 
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -80,14 +80,14 @@ class DeviceController {
         arg.image = imageData?.url;
         arg.imagePATH = imageData?.path;
       }
+      deviceId &&
+        (arg["$addToSet"] = {
+          devices: deviceId,
+        });
 
-      const updateDeviceData = await DevicesSchema.findByIdAndUpdate(
-        deviceId,
-        arg,
-        {
-          runValidators: true,
-        }
-      );
+      const updateDeviceData = await MakeSchema.findByIdAndUpdate(makeId, arg, {
+        runValidators: true,
+      });
       if (!updateDeviceData)
         throw new InternalServerError(
           "Something went wrong, Device is not updated."
@@ -97,7 +97,7 @@ class DeviceController {
       }
       res.json({
         status: "SUCCESS",
-        message: "Device updated successfully",
+        message: "Make updated successfully",
         data: updateDeviceData,
       });
     } catch (error) {
@@ -112,7 +112,7 @@ class DeviceController {
     try {
       const { limit, chunk } = req.query;
       const getAllData = await paginationHelper({
-        model: DevicesSchema,
+        model: MakeSchema,
         query: {},
         chunk: chunk ? Number(chunk) : undefined,
         limit: limit ? Number(limit) : undefined,
@@ -123,7 +123,7 @@ class DeviceController {
       });
       res.status(200).json({
         status: "SUCCESS",
-        message: "All devices found successfully.s",
+        message: "All make found successfully.",
         data: getAllData,
       });
     } catch (error) {
@@ -132,7 +132,7 @@ class DeviceController {
   }
   async deleteData(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { deviceId } = req.params;
+      const { makeId } = req.params;
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         throw new BadRequest(
@@ -143,14 +143,14 @@ class DeviceController {
             .replace(/[,]/g, " and ")
         );
       }
-      const deleteDevice = await DevicesSchema.findByIdAndDelete(deviceId);
+      const deleteDevice = await MakeSchema.findByIdAndDelete(makeId);
       //   delete device image
       deleteDevice?.imagePATH &&
         new MediaLogic().deleteMedia(deleteDevice?.imagePATH);
 
       res.json({
         status: "SUCCESS",
-        message: "Device deleted successfully",
+        message: "Make deleted successfully",
         data: deleteDevice,
       });
     } catch (error) {
@@ -158,14 +158,17 @@ class DeviceController {
     }
   }
 }
-export const DeviceControllerValidation = {
-  create: [body("title").not().isEmpty().withMessage("title is required.")],
+export const MakeControllerValidation = {
+  create: [
+    body("title").not().isEmpty().withMessage("title is required."),
+    body("deviceId").not().isEmpty().withMessage("deviceId is required."),
+  ],
   delete: [
-    param("deviceId").not().isEmpty().withMessage("deviceId is required."),
+    param("makeId").not().isEmpty().withMessage("deviceId is required."),
   ],
   update: [
-    param("deviceId").not().isEmpty().withMessage("deviceId is required."),
+    param("makeId").not().isEmpty().withMessage("deviceId is required."),
   ],
 };
 
-export default DeviceController;
+export default MakeController;
