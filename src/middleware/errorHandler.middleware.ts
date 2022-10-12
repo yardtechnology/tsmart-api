@@ -27,7 +27,7 @@ class ErrorHandlerMiddleware {
           .join(" ")
           .replace(/^\w/, (c) => c.toUpperCase())} is already exist!`
       : err?.message || err?.error?.description || "Something went wrong";
-    console.log({ err });
+    // console.log({ err });
     res.json({
       error: errorMessage,
       status: err.status || 500,
