@@ -1,4 +1,4 @@
-import { Schema, Model, model } from "mongoose";
+import { Model, model, Schema } from "mongoose";
 import { DEVICE_TYPE } from "../types";
 
 const deviceSchema = new Schema<DEVICE_TYPE, Model<DEVICE_TYPE>>(

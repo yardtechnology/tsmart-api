@@ -7,8 +7,16 @@ const modelSchema = new Schema<ModelType>(
     description: String,
     image: String,
     imagePATH: String,
+    device: {
+      type: Schema.Types.ObjectId,
+      ref: "Device",
+    },
+    make: {
+      type: Schema.Types.ObjectId,
+      ref: "Make",
+    },
   },
   { timestamps: true }
 );
 
-export const StoreModel = model<ModelType>("Model", modelSchema);
+export const ModelModel = model<ModelType>("Model", modelSchema);
