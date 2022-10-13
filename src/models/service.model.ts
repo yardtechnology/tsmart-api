@@ -11,4 +11,4 @@ const serviceSchema = new Schema<ServiceType>(
   { timestamps: true }
 );
 
-export const StoreService = model<ServiceType>("Service", serviceSchema);
+export const ServiceModel = model<ServiceType>("Service", serviceSchema);

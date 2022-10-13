@@ -49,7 +49,7 @@ class Category extends AuthenticateMiddleware {
     );
   }
 
-  // get my stores
+  // get all stores
   private getAllStoresRoute(): void {
     this.router.get("/store/all/stores", this.storeController.getAllStores);
   }

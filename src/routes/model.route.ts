@@ -15,6 +15,7 @@ class Model extends AuthenticateMiddleware {
     this.getModelRoute();
     this.getAllModelRoute();
     this.deleteModelRoute();
+    this.getModelByMakeRoute();
   }
 
   // create user
@@ -40,16 +41,12 @@ class Model extends AuthenticateMiddleware {
 
   // get model
   private getModelRoute(): void {
-    this.router.get(
-      "/model/:modelId",
-      super.isAuthenticated,
-      this.modelController.getModel
-    );
+    this.router.get("/model/:modelId", this.modelController.getModel);
   }
 
   // get my categories
   private getAllModelRoute(): void {
-    this.router.get("/categories", this.modelController.getAllModel);
+    this.router.get("/models", this.modelController.getAllModel);
   }
 
   // delete model
@@ -59,6 +56,10 @@ class Model extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.modelController.deleteModel
     );
+  }
+  // get model by make
+  private getModelByMakeRoute(): void {
+    this.router.get("/models/:makeId", this.modelController.getModelsMyMake);
   }
 }
 
