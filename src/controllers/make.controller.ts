@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body, param, validationResult } from "express-validator";
-import { BadRequest, InternalServerError } from "http-errors";
+import { BadRequest, InternalServerError, NotFound } from "http-errors";
 import paginationHelper from "../helper/pagination.helper";
 import MediaLogic from "../logic/media.logic";
 import { MakeSchema } from "../models";
@@ -110,21 +110,32 @@ class MakeController {
   }
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { limit, chunk } = req.query;
+      const { limit, chunk, makeId } = req.query;
+
+      const query: any = {};
+      makeId && (query["_id"] = makeId);
       const getAllData = await paginationHelper({
         model: MakeSchema,
-        query: {},
+        query,
         chunk: chunk ? Number(chunk) : undefined,
         limit: limit ? Number(limit) : undefined,
         select: "",
+        populate: [
+          {
+            path: "devices",
+            select: "-imagePATH",
+          },
+        ],
         sort: {
           createdAt: -1,
         },
       });
       res.status(200).json({
         status: "SUCCESS",
-        message: "All make found successfully.",
-        data: getAllData,
+        message: makeId
+          ? "make found successfully."
+          : "All make found successfully.",
+        data: makeId ? getAllData?.data?.[0] : getAllData,
       });
     } catch (error) {
       next(error);
@@ -147,6 +158,7 @@ class MakeController {
       //   delete device image
       deleteDevice?.imagePATH &&
         new MediaLogic().deleteMedia(deleteDevice?.imagePATH);
+      if (!deleteDevice) throw new NotFound("No make found for delete.");
 
       res.json({
         status: "SUCCESS",
