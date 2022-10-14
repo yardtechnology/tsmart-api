@@ -18,28 +18,28 @@ export default class EvaluationRoutes extends AuthenticateMiddleware {
   private routes() {
     // create
     this.router.post(
-      "/evaluationPrice/",
+      "/evaluation-price/",
       super.isAuthenticated,
       EvaluationPriceControllerValidation.create,
       this.evaluationPriceController.create
     );
     // get all
     this.router.get(
-      "/evaluationPrice",
+      "/evaluation-price",
       super.isAuthenticated,
 
       this.evaluationPriceController.getAll
     );
     // update
     this.router.put(
-      "/evaluationPrice/:evaluationId",
+      "/evaluation-price/:evaluationPriceId",
       super.isAuthenticated,
       EvaluationPriceControllerValidation.update,
       this.evaluationPriceController.update
     );
     // delete
     this.router.delete(
-      "/evaluationPrice/:evaluationPriceId",
+      "/evaluation-price/:evaluationPriceId",
       super.isAuthenticated,
       EvaluationPriceControllerValidation.delete,
       this.evaluationPriceController.deleteData

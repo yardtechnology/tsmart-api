@@ -41,7 +41,7 @@ class EvaluationPriceController {
   async update(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { evaluationPriceId } = req.params;
-      const { evaluationId, modelId } = req.body;
+      const { evaluationId, modelId, price } = req.body;
 
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -57,6 +57,7 @@ class EvaluationPriceController {
       const arg: any = {};
       evaluationId && (arg.evaluation = evaluationId);
       modelId && (arg.model = modelId);
+      price >= 0 && (arg.price = price);
 
       const updateEvaluationPrice =
         await EvaluationPriceSchema.findByIdAndUpdate(evaluationPriceId, arg, {
@@ -78,10 +79,12 @@ class EvaluationPriceController {
   }
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { limit, chunk, modelId, evaluationId } = req.query;
+      const { limit, chunk, modelId, evaluationId, evaluationPriceId } =
+        req.query;
       const query: any = {};
       modelId && (query.model = modelId);
       evaluationId && (query.evaluation = evaluationId);
+      evaluationPriceId && (query._id = evaluationPriceId);
       const getAllData = await paginationHelper({
         model: EvaluationPriceSchema,
         query,
@@ -104,8 +107,10 @@ class EvaluationPriceController {
       });
       res.status(200).json({
         status: "SUCCESS",
-        message: "All evaluation price found successfully.",
-        data: getAllData,
+        message: evaluationPriceId
+          ? "Evaluation price found successfully."
+          : "All evaluation price found successfully.",
+        data: evaluationPriceId ? getAllData?.data?.[0] : getAllData,
       });
     } catch (error) {
       next(error);
@@ -151,19 +156,22 @@ export const EvaluationPriceControllerValidation = {
       .not()
       .isEmpty()
       .withMessage("evaluationId is required."),
-    body("modelId").not().isEmpty().withMessage("evaluationId is required."),
+    body("modelId").not().isEmpty().withMessage("moduleId is required."),
   ],
   delete: [
-    param("evaluationId")
+    param("evaluationPriceId")
       .not()
       .isEmpty()
-      .withMessage("evaluationId is required."),
+      .withMessage("evaluationPriceId is required."),
   ],
   update: [
-    param("evaluationId")
+    param("evaluationPriceId")
       .not()
       .isEmpty()
-      .withMessage("evaluationId is required."),
+      .withMessage("evaluationPriceId is required."),
+    body("price").optional().isNumeric().withMessage("price must be number."),
+    body("evaluationId").optional(),
+    body("modelId").optional(),
   ],
 };
 
