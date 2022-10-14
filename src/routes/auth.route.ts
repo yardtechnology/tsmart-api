@@ -35,7 +35,7 @@ class Auth extends AuthenticateMiddleware {
     this.router.post(
       "/auth/register-technician",
       this.authController.validateTechnicianRegisterFields,
-      this.authController.createUser
+      this.authController.registerTechnician
     );
   }
 

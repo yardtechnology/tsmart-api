@@ -3,7 +3,9 @@ import { body, validationResult } from "express-validator";
 import md5 from "md5";
 import { createOTP } from "../helper/core.helper";
 import AuthLogic from "../logic/auth.logic";
+import { AddressModel } from "../models/address.model";
 import { UserModel } from "../models/user.model";
+import AddressType from "../types/address";
 import { AuthRequest } from "../types/core";
 import UserType from "../types/user";
 import MailController from "./mail.controller";
@@ -79,6 +81,103 @@ class Auth extends AuthLogic {
       res.status(200).json({
         status: "SUCCESS",
         message: "User created successfully",
+        data: {
+          _id: newUser._id,
+          displayName: newUser.displayName,
+          email: newUser.email,
+        },
+      });
+    } catch (error) {
+      // send error to client
+      next(error);
+    }
+  }
+  // create user
+  public async registerTechnician(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      // validator error handler
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        throw new Error(
+          errors
+            .array()
+            .map((errors) => errors.msg)
+            .join()
+            .replace(/[,]/g, " and ")
+        );
+      }
+
+      // get provided user data
+      const {
+        displayName,
+        email,
+        password,
+        confirmPassword,
+        phoneNumber,
+        countryCode,
+        role,
+      } = req.body;
+
+      // save user data to database
+      const newUser: UserType = await new UserModel({
+        displayName,
+        email,
+        password,
+        phoneNumber,
+        countryCode,
+        confirmPassword,
+        role,
+        photoURL: `https://www.gravatar.com/avatar/${md5(email)}?d=identicon`,
+      }).save();
+
+      // save user data to database
+      const addressData: AddressType = await new AddressModel({
+        user: newUser?._id,
+        name: req.body?.name,
+        landmark: req.body?.landmark,
+        email: req.body?.email,
+        phoneNumber: req.body?.phoneNumber,
+        countryCode: req.body?.countryCode,
+        street: req.body?.street,
+        city: req.body?.city,
+        state: req.body?.state,
+        country: req.body?.country,
+        zip: req.body?.zip,
+        isDefault: req.body?.isDefault,
+        type: req.body?.type?.toString()?.toUpperCase(),
+      }).save();
+
+      // create secret
+      const secret: string = await super.getAccessToken(
+        {
+          _id: newUser._id,
+          email: newUser.email,
+        },
+        "1d"
+      );
+
+      // send mail for email verification
+      new MailController().sendHtmlMail({
+        to: email,
+        templet: "normal",
+        subject: "Email Verification",
+        html: `<h1>Email Verification</h1>
+        <p>
+          Please click on the link below to verify your email:
+          </p>
+          <a href="${process.env.API_END_POINT}/auth/verify-email/${secret}">
+            Verify Email
+            </a>`,
+      });
+
+      // send response to client
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Technician register successfully",
         data: {
           _id: newUser._id,
           displayName: newUser.displayName,
@@ -539,6 +638,96 @@ class Auth extends AuthLogic {
         return true;
       })
       .withMessage("Password confirmation does not match"),
+
+    body("name")
+      .not()
+      .isEmpty()
+      .withMessage("name")
+      .isLength({ min: 3 })
+      .withMessage("Name must be at least 3 characters long")
+      .isLength({ max: 20 })
+      .withMessage("Name must be at most 20 characters long"),
+    body("landmark")
+      .optional()
+      .isLength({ min: 5 })
+      .withMessage("Landmark must be at least 5 characters long")
+      .isLength({ max: 25 })
+      .withMessage("Landmark must be at most 25 characters long"),
+    body("street")
+      .optional()
+      .isLength({ min: 5 })
+      .withMessage("Street must be at least 5 characters long")
+      .isLength({ max: 80 })
+      .withMessage("Street must be at most 80 characters long"),
+    body("city")
+      .not()
+      .isEmpty()
+      .withMessage("city")
+      .isLength({ min: 3 })
+      .withMessage("City must be at least 3 characters long")
+      .isLength({ max: 21 })
+      .withMessage("City must be at most 21 characters long"),
+    body("state")
+      .optional()
+      .isLength({ min: 3 })
+      .withMessage("State must be at least 3 characters long")
+      .isLength({ max: 25 })
+      .withMessage("State must be at most 25 characters long"),
+    body("country")
+      .not()
+      .isEmpty()
+      .withMessage("country")
+      .isLength({ min: 3 })
+      .withMessage("Country must be at least 3 characters long")
+      .isLength({ max: 25 })
+      .withMessage("Country must be at most 25 characters long"),
+    body("type")
+      .not()
+      .isEmpty()
+      .withMessage("type")
+      .custom((value) => {
+        if (
+          !["HOME", "WORK", "OTHER"].includes(value?.toString()?.toUpperCase())
+        ) {
+          return false;
+        }
+        return true;
+      })
+      .withMessage("type can only be HOME, WORK and OTHER"),
+    body("email")
+      .not()
+      .isEmpty()
+      .withMessage("email")
+      .isEmail()
+      .withMessage("Please enter a valid email"),
+    body("zip")
+      .not()
+      .isEmpty()
+      .withMessage("zip")
+      .isInt()
+      .isLength({ min: 5 })
+      .withMessage("zip code must be grater then 5 digit")
+      .isLength({ max: 11 })
+      .withMessage("zip code must be at most 11 digit"),
+    body("isDefault")
+      .optional()
+      .isBoolean()
+      .withMessage("isDefault must be a boolean"),
+    body("countryCode")
+      .optional()
+      .isLength({ min: 2 })
+      .withMessage("countryCode must be at least 2 characters long")
+      .isLength({ max: 8 })
+      .withMessage("countryCode must be at most 8 characters long"),
+    body("phoneNumber")
+      .not()
+      .isEmpty()
+      .withMessage("phoneNumber")
+      .isInt()
+      .isLength({ min: 8, max: 16 })
+      .withMessage(
+        "phone number must be grater then 8 digit and less then 16 digit"
+      ),
   ];
 
   // finds validators for the user login request
