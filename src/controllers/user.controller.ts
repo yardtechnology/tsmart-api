@@ -1,5 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body, validationResult } from "express-validator";
+import { NotAcceptable } from "http-errors";
 import MediaLogic from "../logic/media.logic";
 import UserLogic from "../logic/user.logic";
 import { UserModel } from "../models/user.model";
@@ -120,6 +121,39 @@ class User extends MediaLogic {
         status: "SUCCESS",
         message: "User found successfully",
         data: { ...userData?._doc, cartCount },
+      });
+    } catch (error) {
+      // send error to client
+      next(error);
+    }
+  }
+
+  //get all user
+  public async getAllUser(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      // validator error handler
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        throw new NotAcceptable(
+          errors
+            .array()
+            .map((errors) => errors.msg)
+            .join()
+            .replace(/[,]/g, " and ")
+        );
+      }
+      const data = new UserLogic().getAllUsers({
+        chunk: req?.query?.chunk ? Number(req.query.limit) : undefined,
+        limit: req?.query?.limit ? Number(req.query.chunk) : undefined,
+        role: req?.query?.role as string | undefined,
+        status: req?.query?.status as string | undefined,
+      });
+
+      // send response to client
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Users found successfully",
+        data: data,
       });
     } catch (error) {
       // send error to client

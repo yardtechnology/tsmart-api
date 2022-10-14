@@ -223,7 +223,9 @@ class Auth extends AuthLogic {
       // update user status to ACTIVE
       const userData: UserType | null = await UserModel.findOneAndUpdate(
         { _id: decryptedSecret._id },
-        { status: "ACTIVE" }
+        {
+          status: decryptedSecret?.role === "TECHNICIAN" ? "PENDING" : "ACTIVE",
+        }
       );
 
       // check if user exists
