@@ -1,7 +1,7 @@
 import { model, Schema } from "mongoose";
 import ServicePriceType from "../types/servicePrice";
 
-const modelSchema = new Schema<ServicePriceType>(
+const servicePriceSchema = new Schema<ServicePriceType>(
   {
     title: String,
     description: String,
@@ -18,10 +18,6 @@ const modelSchema = new Schema<ServicePriceType>(
     isInStock: Boolean,
     mrp: Number,
     salePrice: Number,
-    device: {
-      type: Schema.Types.ObjectId,
-      ref: "Device",
-    },
     model: {
       type: Schema.Types.ObjectId,
       ref: "Model",
@@ -30,4 +26,7 @@ const modelSchema = new Schema<ServicePriceType>(
   { timestamps: true }
 );
 
-export const ModelModel = model<ServicePriceType>("ServicePrice", modelSchema);
+export const ServicePriceModel = model<ServicePriceType>(
+  "ServicePrice",
+  servicePriceSchema
+);
