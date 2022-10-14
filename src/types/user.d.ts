@@ -20,7 +20,7 @@ export default interface UserType extends Document {
   _password: string;
   token: string;
   dateOfBirth: string;
-  role: "USER" | "MANAGER" | "ADMIN";
+  role: "USER" | "MANAGER" | "ADMIN" | "TECHNICIAN";
   status: "INACTIVE" | "ACTIVE" | "PENDING" | "VERIFIED";
   fcmTokens: {
     web: string;

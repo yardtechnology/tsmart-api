@@ -11,6 +11,7 @@ class Auth extends AuthenticateMiddleware {
     this.router = Router();
     this.authController = new AuthController();
     this.createUserRoute();
+    this.registerTechnician();
     this.loginUserRoute();
     this.verifyEmailRoute();
     this.resendEmailVerificationRoute();
@@ -25,6 +26,15 @@ class Auth extends AuthenticateMiddleware {
     this.router.post(
       "/auth/signup",
       this.authController.validateUserCreationFields,
+      this.authController.createUser
+    );
+  }
+
+  // create user
+  private registerTechnician(): void {
+    this.router.post(
+      "/auth/register-technician",
+      this.authController.validateTechnicianRegisterFields,
       this.authController.createUser
     );
   }

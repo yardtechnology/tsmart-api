@@ -29,14 +29,26 @@ class Auth extends AuthLogic {
       }
 
       // get provided user data
-      const { displayName, email, password, confirmPassword } = req.body;
+      const {
+        displayName,
+        email,
+        password,
+        confirmPassword,
+        phoneNumber,
+        countryCode,
+        role,
+      } = req.body;
+      console.log(req.body);
 
       // save user data to database
       const newUser: UserType = await new UserModel({
         displayName,
         email,
         password,
+        phoneNumber,
+        countryCode,
         confirmPassword,
+        role,
         photoURL: `https://www.gravatar.com/avatar/${md5(email)}?d=identicon`,
       }).save();
 
@@ -484,11 +496,41 @@ class Auth extends AuthLogic {
       .isEmail()
       .withMessage("Invalid mail id")
       .normalizeEmail(),
+    body("confirmPassword", "Confirm password is required")
+      .custom((value, { req }) => {
+        if (value !== req.body.password) {
+          throw new Error("Password confirmation does not match");
+        }
+        return true;
+      })
+      .withMessage("Password confirmation does not match"),
+  ];
+  // finds validators for the user creation request
+  public validateTechnicianRegisterFields = [
+    body("displayName", "display name is required")
+      .isLength({ min: 3 })
+      .withMessage("Display name must be at least 3 characters long")
+      .isLength({ max: 20 })
+      .withMessage("Display name must be at most 20 characters long"),
+    body("email", "Email is required")
+      .isEmail()
+      .withMessage("Invalid mail id")
+      .normalizeEmail(),
+    body("phoneNumber", "phoneNumber is required")
+      .isNumeric()
+      .withMessage("Phone number must be a Number")
+      .isLength({ min: 6, max: 16 })
+      .withMessage("Phone number length must be 6 to 16 "),
+    body("countryCode").not().isEmpty().withMessage("countryCode is Required"),
+    body("password", "Password is required")
+      .isLength({ min: 6 })
+      .withMessage("Password must be at least 6 characters long"),
     body("password", "Password is required")
       .isLength({ min: 6 })
       .withMessage("Password must be at least 6 characters long"),
     body("confirmPassword", "Confirm password is required")
       .custom((value, { req }) => {
+        req.body.role = "TECHNICIAN";
         if (value !== req.body.password) {
           throw new Error("Password confirmation does not match");
         }
