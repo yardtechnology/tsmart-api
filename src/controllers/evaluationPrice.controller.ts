@@ -170,8 +170,11 @@ export const EvaluationPriceControllerValidation = {
       .isEmpty()
       .withMessage("evaluationPriceId is required."),
     body("price").optional().isNumeric().withMessage("price must be number."),
-    body("evaluationId").optional(),
-    body("modelId").optional(),
+    body("evaluationId")
+      .optional()
+      .isMongoId()
+      .withMessage("Need mongoose id."),
+    body("modelId").optional().isMongoId().withMessage("Need mongoose id."),
   ],
 };
 
