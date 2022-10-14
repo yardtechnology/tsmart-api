@@ -7,6 +7,10 @@ export {
   EvaluationControllerValidation,
 } from "./evaluation.controller";
 export {
+  default as EvaluationPriceController,
+  EvaluationPriceControllerValidation,
+} from "./evaluationPrice.controller";
+export {
   default as MakeController,
   MakeControllerValidation,
 } from "./make.controller";

@@ -22,7 +22,7 @@ class EvaluationController {
       }
       const { title, description } = req.body;
       const imageFile = req?.files?.image;
-      const filePath = `Device`;
+      const filePath = `Evaluation`;
 
       imageData =
         imageFile && !Array.isArray(imageFile)
@@ -182,6 +182,18 @@ export const EvaluationControllerValidation = {
       .not()
       .isEmpty()
       .withMessage("evaluationId is required."),
+    body("title")
+      .optional()
+      .isLength({ min: 1 })
+      .withMessage("title must be at least 1 character.")
+      .isLength({ max: 250 })
+      .withMessage("title must be at most 250 character."),
+    body("description")
+      .optional()
+      .isLength({ min: 1 })
+      .withMessage("description must be at least 1 character.")
+      .isLength({ max: 250 })
+      .withMessage("description must be at most 250 character."),
   ],
 };
 
