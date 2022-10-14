@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body, param, validationResult } from "express-validator";
-import { BadRequest, InternalServerError } from "http-errors";
+import { BadRequest, InternalServerError, NotFound } from "http-errors";
 import paginationHelper from "../helper/pagination.helper";
 import MediaLogic from "../logic/media.logic";
 import { EvaluationSchema } from "../models";
@@ -144,17 +144,18 @@ class EvaluationController {
             .replace(/[,]/g, " and ")
         );
       }
-      const deleteDevice = await EvaluationSchema.findByIdAndDelete(
+      const deleteEvaluation = await EvaluationSchema.findByIdAndDelete(
         evaluationId
       );
+      if (!deleteEvaluation) throw new NotFound("Evaluation not found.");
       //   delete device image
-      deleteDevice?.imagePATH &&
-        new MediaLogic().deleteMedia(deleteDevice?.imagePATH);
+      deleteEvaluation?.imagePATH &&
+        new MediaLogic().deleteMedia(deleteEvaluation?.imagePATH);
 
       res.json({
         status: "SUCCESS",
         message: "Evaluation deleted successfully",
-        data: deleteDevice,
+        data: deleteEvaluation,
       });
     } catch (error) {
       next(error);
