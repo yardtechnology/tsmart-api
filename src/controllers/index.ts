@@ -18,3 +18,7 @@ export {
   default as ReviewController,
   ReviewControllerValidation,
 } from "./review.controller";
+export {
+  default as TimingController,
+  TimingControllerValidation,
+} from "./timing.controller";

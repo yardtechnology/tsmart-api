@@ -1,12 +1,12 @@
 import { NextFunction, Response } from "express";
-import { body, oneOf, param, validationResult } from "express-validator";
-import { BadRequest, InternalServerError, NotFound } from "http-errors";
+import { body, param, validationResult } from "express-validator";
+import { BadRequest, InternalServerError } from "http-errors";
 import paginationHelper from "../helper/pagination.helper";
-import { ReviewSchema } from "../models";
+import { TimingSchema } from "../models";
 import { AuthRequest } from "../types/core";
 
 class TimingController {
-  async create(req: AuthRequest, res: Response, next: NextFunction) {
+  async createAndUpdate(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -18,25 +18,36 @@ class TimingController {
             .replace(/[,]/g, " and ")
         );
       }
-      const { comment, ratings, productId, storeId, technicianId } = req.body;
+      const { numberOfRepairers, start, end, storeId, timingId } = req.body;
       const user = req?.currentUser?._id;
-
-      const reviewDevice = await ReviewSchema.create({
-        comment,
-        ratings: +ratings,
-        product: productId,
-        user,
+      const dayOfWeekNumber = start ? new Date(start).getDay() : undefined;
+      const arg: any = {
         store: storeId,
-        technician: technicianId,
-      });
-      if (!reviewDevice)
+      };
+      timingId && (arg["_id"] = timingId);
+      dayOfWeekNumber && (arg["dayOfWeekNumber"] = dayOfWeekNumber);
+
+      const timingCreateAndUpdate = await TimingSchema.findOneAndUpdate(
+        arg,
+        {
+          start,
+          end,
+          numberOfRepairers,
+          dayOfWeekNumber: dayOfWeekNumber,
+        },
+        {
+          upsert: true,
+          new: true,
+        }
+      );
+      if (!timingCreateAndUpdate)
         throw new InternalServerError(
-          "Something went wrong, Review is not created."
+          "Something went wrong, Timing is not created."
         );
       res.json({
         status: "SUCCESS",
-        message: "Review is created successfully.",
-        data: reviewDevice,
+        message: "Timing is created successfully.",
+        data: timingCreateAndUpdate,
       });
     } catch (error) {
       next(error);
@@ -45,45 +56,25 @@ class TimingController {
 
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const {
-        limit,
-        chunk,
-        reviewId,
-        storeId,
-        productId,
-        userId,
-        technicianId,
-      } = req.query;
+      const { limit, chunk, storeId } = req.query;
+      const { start } = req.body;
+
+      const dayOfWeekNumber = start ? new Date(start).getDay() : undefined;
 
       const query: any = {};
-      reviewId && (query["_id"] = reviewId);
+      dayOfWeekNumber && (query["dayOfWeekNumber"] = dayOfWeekNumber);
       storeId && (query["store"] = storeId);
-      productId && (query["product"] = productId);
-      userId && (query["user"] = userId);
-      technicianId && (query["technician"] = technicianId);
+
       const getAllData = await paginationHelper({
-        model: ReviewSchema,
+        model: TimingSchema,
         query,
         chunk: chunk ? Number(chunk) : undefined,
         limit: limit ? Number(limit) : undefined,
-        select: "",
+        select: "-dayOfWeekNumber",
         populate: [
-          {
-            path: "user",
-            select: "displayName email gender role avatar",
-          },
-          {
-            path: "technician",
-            select: "displayName email gender role avatar",
-          },
           {
             path: "store",
             select: "displayName email imageURL",
-          },
-          {
-            path: "product",
-            select:
-              "title shortDescription description mrp images displayImage salePrice",
           },
         ],
         sort: {
@@ -92,83 +83,61 @@ class TimingController {
       });
       res.status(200).json({
         status: "SUCCESS",
-        message: reviewId
-          ? "Review found successfully."
-          : "All Review found successfully.",
-        data: reviewId ? getAllData?.data?.[0] : getAllData,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-  async deleteData(req: AuthRequest, res: Response, next: NextFunction) {
-    try {
-      const { reviewId } = req.params;
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new BadRequest(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
-      const deleteReview = await ReviewSchema.findByIdAndDelete(reviewId);
-      //   delete device image
-      if (!deleteReview) throw new NotFound("Evaluation not found.");
-
-      res.json({
-        status: "SUCCESS",
-        message: "Review deleted successfully",
-        data: deleteReview,
+        message: storeId
+          ? "Timing found successfully."
+          : "All Timing found successfully.",
+        data: storeId ? getAllData?.data?.[0] : getAllData,
       });
     } catch (error) {
       next(error);
     }
   }
 }
-export const ReviewControllerValidation = {
-  create: [
-    body("comment")
+export const TimingControllerValidation = {
+  createAndUpdate: [
+    body("numberOfRepairers")
       .not()
       .isEmpty()
-      .withMessage("comment is required.")
-      .isLength({ min: 3 })
-      .withMessage("comment must be at least 3 character.")
-      .isLength({ max: 700 })
-      .withMessage("comment must be at most 700 characters long"),
-    body("ratings")
-      .not()
-      .isEmpty()
-      .withMessage("rating is required.")
+      .withMessage("numberOfRepairers is required.")
       .isNumeric()
-      .withMessage("Rating must be Number.")
-      .exists()
-      .custom((value, { req }) => value > 0 && value <= 5)
-      .withMessage("rating must be grater than 0 and less than 6."),
-    oneOf(
-      [
-        body("productId")
-          .isMongoId()
-          .withMessage("product id should be mongoose id."),
-        body("storeId")
-          .isMongoId()
-          .withMessage("storeId should be mongoose id."),
-        body("technicianId")
-          .isMongoId()
-          .withMessage("technicianId should be mongoose id."),
-      ],
-      "productId or technicianId or storeId one id is required."
-    ),
-  ],
-  delete: [
-    param("reviewId")
+      .withMessage("numberOfRepairers must be number."),
+    body("storeId")
       .not()
       .isEmpty()
-      .withMessage("reviewId is required.")
+      .withMessage("storeId is required.")
       .isMongoId()
-      .withMessage("reviewId must be mongoose id."),
+      .withMessage("storeId must be mongoes id."),
+    body("timingId")
+      .optional()
+      .exists()
+      .isMongoId()
+      .withMessage("timingId must be mongoes id."),
+
+    body("start")
+      .optional()
+      .exists()
+      // .isISO8601()
+      .toDate()
+      .withMessage("start is invalid date."),
+    body("end")
+      .optional()
+      .exists()
+      // .isISO8601()
+      .toDate()
+      .withMessage("end is invalid date.")
+
+      .custom((value, { req }) => {
+        const endDateDay = new Date(value).getDay();
+        const startDateDay = new Date(req.body.start).getDay();
+        return endDateDay === startDateDay;
+      })
+      .withMessage("Start day and end day have to same day in week."),
+  ],
+  getAll: [
+    param("storeId")
+      .optional()
+      .isMongoId()
+      .withMessage("storeId must be mongoose id."),
   ],
 };
 

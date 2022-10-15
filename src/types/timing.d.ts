@@ -5,5 +5,5 @@ export default interface TIMING_TYPE extends Document {
   numberOfRepairers: number;
   start: Date;
   end: Date;
-  technician: ObjectId;
+  dayOfWeekNumber: Number;
 }

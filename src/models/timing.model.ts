@@ -7,6 +7,10 @@ const timingSchema = new Schema<TIMING_TYPE, Model<TIMING_TYPE>>(
       type: Number,
       default: 0,
     },
+    dayOfWeekNumber: {
+      type: Number,
+      default: 1,
+    },
     start: {
       type: Date,
     },
@@ -17,11 +21,6 @@ const timingSchema = new Schema<TIMING_TYPE, Model<TIMING_TYPE>>(
     store: {
       type: Schema.Types.ObjectId,
       ref: "Store",
-      default: undefined,
-    },
-    technician: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
       default: undefined,
     },
   },

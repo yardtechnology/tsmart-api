@@ -1,0 +1,30 @@
+import { Router } from "express";
+import { TimingController, TimingControllerValidation } from "../controllers";
+import AuthenticateMiddleware from "../middleware/authenticate.middleware";
+
+export default class TimingRoutes extends AuthenticateMiddleware {
+  public router: Router;
+  private timingController: TimingController;
+
+  constructor() {
+    super();
+    this.router = Router();
+    this.timingController = new TimingController();
+    this.routes();
+  }
+  private routes() {
+    // create
+    this.router.post(
+      "/timing/",
+      super.isAuthenticated,
+      TimingControllerValidation.createAndUpdate,
+      this.timingController.createAndUpdate
+    );
+    // get all
+    this.router.get(
+      "/timing",
+      super.isAuthenticated,
+      this.timingController.getAll
+    );
+  }
+}
