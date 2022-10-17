@@ -1,4 +1,8 @@
 export {
+  CouponControllerValidation,
+  default as CouponController,
+} from "./coupon.controller";
+export {
   default as DeviceController,
   DeviceControllerValidation,
 } from "./device.controller";
