@@ -5,7 +5,6 @@ import { createOTP } from "../helper/core.helper";
 import AuthLogic from "../logic/auth.logic";
 import { AddressModel } from "../models/address.model";
 import { UserModel } from "../models/user.model";
-import AddressType from "../types/address";
 import { AuthRequest } from "../types/core";
 import UserType from "../types/user";
 import MailController from "./mail.controller";
@@ -120,42 +119,47 @@ class Auth extends AuthLogic {
         phoneNumber,
         countryCode,
         role,
+        userId,
       } = req.body;
 
       // save user data to database
-      const newUser: UserType = await new UserModel({
-        displayName,
-        email,
-        password,
-        phoneNumber,
-        countryCode,
-        confirmPassword,
-        role,
-        photoURL: `https://www.gravatar.com/avatar/${md5(email)}?d=identicon`,
-      }).save();
+      const newUser: UserType | null = await UserModel.findByIdAndUpdate(
+        userId,
+        {
+          displayName,
+          email,
+          password,
+          phoneNumber,
+          countryCode,
+          confirmPassword,
+          role,
+          photoURL: `https://www.gravatar.com/avatar/${md5(email)}?d=identicon`,
+        },
+        { upsert: true }
+      );
 
       // save user data to database
-      const addressData: AddressType = await new AddressModel({
+      await new AddressModel({
         user: newUser?._id,
-        name: req.body?.name,
+        name: displayName,
         landmark: req.body?.landmark,
-        email: req.body?.email,
-        phoneNumber: req.body?.phoneNumber,
-        countryCode: req.body?.countryCode,
+        email: email,
+        phoneNumber: phoneNumber,
+        countryCode: countryCode,
         street: req.body?.street,
         city: req.body?.city,
         state: req.body?.state,
         country: req.body?.country,
         zip: req.body?.zip,
-        isDefault: req.body?.isDefault,
-        type: req.body?.type?.toString()?.toUpperCase(),
+        isDefault: true,
+        type: req.body?.type?.toString()?.toUpperCase() || "HOME",
       }).save();
 
       // create secret
       const secret: string = await super.getAccessToken(
         {
-          _id: newUser._id,
-          email: newUser.email,
+          _id: newUser?._id,
+          email: newUser?.email,
         },
         "1d"
       );
@@ -179,9 +183,9 @@ class Auth extends AuthLogic {
         status: "SUCCESS",
         message: "Technician register successfully",
         data: {
-          _id: newUser._id,
-          displayName: newUser.displayName,
-          email: newUser.email,
+          _id: newUser?._id,
+          displayName: newUser?.displayName,
+          email: newUser?.email,
         },
       });
     } catch (error) {
@@ -638,15 +642,7 @@ class Auth extends AuthLogic {
         return true;
       })
       .withMessage("Password confirmation does not match"),
-
-    body("name")
-      .not()
-      .isEmpty()
-      .withMessage("name")
-      .isLength({ min: 3 })
-      .withMessage("Name must be at least 3 characters long")
-      .isLength({ max: 20 })
-      .withMessage("Name must be at most 20 characters long"),
+    //address field validation
     body("landmark")
       .optional()
       .isLength({ min: 5 })
@@ -694,12 +690,6 @@ class Auth extends AuthLogic {
         return true;
       })
       .withMessage("type can only be HOME, WORK and OTHER"),
-    body("email")
-      .not()
-      .isEmpty()
-      .withMessage("email")
-      .isEmail()
-      .withMessage("Please enter a valid email"),
     body("zip")
       .not()
       .isEmpty()
@@ -709,25 +699,6 @@ class Auth extends AuthLogic {
       .withMessage("zip code must be grater then 5 digit")
       .isLength({ max: 11 })
       .withMessage("zip code must be at most 11 digit"),
-    body("isDefault")
-      .optional()
-      .isBoolean()
-      .withMessage("isDefault must be a boolean"),
-    body("countryCode")
-      .optional()
-      .isLength({ min: 2 })
-      .withMessage("countryCode must be at least 2 characters long")
-      .isLength({ max: 8 })
-      .withMessage("countryCode must be at most 8 characters long"),
-    body("phoneNumber")
-      .not()
-      .isEmpty()
-      .withMessage("phoneNumber")
-      .isInt()
-      .isLength({ min: 8, max: 16 })
-      .withMessage(
-        "phone number must be grater then 8 digit and less then 16 digit"
-      ),
   ];
 
   // finds validators for the user login request
