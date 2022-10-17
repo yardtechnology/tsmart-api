@@ -45,11 +45,19 @@ class Store extends MediaLogic {
           email: req.body?.email,
           phoneNumber: req.body?.phoneNumber,
           countryCode: req.body?.countryCode,
-          address: req.body?.address,
           imageURL: imageData?.url,
           imagePath: imageData?.path,
           about: req.body?.about,
           createdBy: req.body?.createdBy,
+          address: {
+            state: req.body?.state,
+            city: req.body?.city,
+            street: req.body?.street,
+            zip: req.body?.zip,
+            country: req.body?.country,
+            latitude: req.body?.latitude,
+            longitude: req.body?.longitude,
+          },
         }).save();
       } else {
         // save user data to database
@@ -60,12 +68,20 @@ class Store extends MediaLogic {
           email: req.body?.email,
           phoneNumber: req.body?.phoneNumber,
           countryCode: req.body?.countryCode,
-          address: req.body?.address,
           imageURL: imageData?.url,
           imagePath: imageData?.path,
           about: req.body?.about,
           createdBy: req.body?.createdBy,
           type: "HUB",
+          address: {
+            state: req.body?.state,
+            city: req.body?.city,
+            street: req.body?.street,
+            zip: req.body?.zip,
+            country: req.body?.country,
+            latitude: req.body?.latitude,
+            longitude: req.body?.longitude,
+          },
         }).save();
         await UserModel.updateMany(
           { role: "ADMIN" },
@@ -127,6 +143,13 @@ class Store extends MediaLogic {
           imagePath: imageData?.path,
           about: req.body?.about,
           createdBy: req.body?.createdBy,
+          "address.state": req.body?.state,
+          "address.city": req.body?.city,
+          "address.street": req.body?.street,
+          "address.zip": req.body?.zip,
+          "address.country": req.body?.country,
+          "address.latitude": req.body?.latitude,
+          "address.longitude": req.body?.longitude,
         }
       );
 
@@ -356,6 +379,45 @@ class Store extends MediaLogic {
       .withMessage("About must be at least 5 characters long")
       .isLength({ max: 101 })
       .withMessage("About must be at most 101 characters long"),
+    body("state")
+      .not()
+      .isEmpty()
+      .isLength({ min: 3 })
+      .withMessage("State must be at least 3 characters long")
+      .isLength({ max: 25 })
+      .withMessage("State must be at most 25 characters long"),
+    body("city")
+      .not()
+      .isEmpty()
+      .withMessage("city")
+      .isLength({ min: 3 })
+      .withMessage("City must be at least 3 characters long")
+      .isLength({ max: 21 })
+      .withMessage("City must be at most 21 characters long"),
+    body("street")
+      .not()
+      .isEmpty()
+      .isLength({ min: 5 })
+      .withMessage("Street must be at least 5 characters long")
+      .isLength({ max: 80 })
+      .withMessage("Street must be at most 80 characters long"),
+    body("zip")
+      .not()
+      .isEmpty()
+      .withMessage("zip")
+      .isInt()
+      .isLength({ min: 5 })
+      .withMessage("zip code must be grater then 5 digit")
+      .isLength({ max: 11 })
+      .withMessage("zip code must be at most 11 digit"),
+    body("country")
+      .not()
+      .isEmpty()
+      .withMessage("country")
+      .isLength({ min: 3 })
+      .withMessage("Country must be at least 3 characters long")
+      .isLength({ max: 25 })
+      .withMessage("Country must be at most 25 characters long"),
   ];
 }
 

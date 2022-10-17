@@ -7,10 +7,6 @@ const storeSchema = new Schema<StoreType>(
     email: String,
     phoneNumber: Number,
     countryCode: Number,
-    address: {
-      type: Schema.Types.ObjectId,
-      ref: "Address",
-    },
     imageURL: String,
     imagePath: String,
     about: String,
@@ -21,6 +17,15 @@ const storeSchema = new Schema<StoreType>(
     type: {
       type: String,
       default: "STORE",
+    },
+    address: {
+      state: String,
+      city: String,
+      street: String,
+      country: String,
+      zip: Number,
+      latitude: Number,
+      longitude: Number,
     },
   },
   { timestamps: true }

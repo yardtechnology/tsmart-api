@@ -13,4 +13,13 @@ export default interface StoreType extends Document {
   about: string;
   createdBy: UserType;
   type: "HUB" | "STORE";
+  address: {
+    state: string;
+    city: string;
+    street: string;
+    country: string;
+    zip: number;
+    latitude: number;
+    longitude: number;
+  };
 }
