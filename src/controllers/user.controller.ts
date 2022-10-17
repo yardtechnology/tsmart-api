@@ -281,7 +281,7 @@ class User extends MediaLogic {
         );
       }
       const userData = await UserModel.findByIdAndUpdate(req.params?.userId, {
-        status: req.body?.status !== "REJECTED" ? req.body?.status : "ACTIVE",
+        status: req.body?.status,
       });
       if (!userData) throw new Error("User not found");
       new MailController().sendHtmlMail({
