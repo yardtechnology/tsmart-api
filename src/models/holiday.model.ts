@@ -3,6 +3,10 @@ import HolidayType from "../types/holiday";
 
 const holidaySchema = new Schema<HolidayType>(
   {
+    store: {
+      type: Schema.Types.ObjectId,
+      ref: "Store",
+    },
     date: String,
     title: String,
     description: String,

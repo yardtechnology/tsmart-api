@@ -7,11 +7,12 @@ import HolidayType from "../types/holiday";
 class HolidayLogic {
   /**
    * add to Holiday
-   * @param Props { date:string,title: string, description: string }
+   * @param Props { date:string,storeId:string,title: string, description: string }
    * @returns Promise<HolidayType>
    */
   public add(Props: {
     date: string;
+    storeId: string;
     title: string;
     description: string;
   }): Promise<HolidayType> {
@@ -19,6 +20,7 @@ class HolidayLogic {
       try {
         const HolidayData: HolidayType | null = await new HolidayModel({
           date: Props.date,
+          storeId: Props.storeId,
           title: Props.title,
           description: Props.description,
         }).save();
@@ -30,12 +32,13 @@ class HolidayLogic {
   }
   /**
    * add to Holiday
-   * @param Props { HolidayId: string, date:string,title: string, description: string }
+   * @param Props { HolidayId: string, date:string,storeId:string,title: string, description: string }
    * @returns Promise<HolidayType>
    */
   public update(Props: {
     HolidayId: string;
     date: string;
+    storeId: string;
     title?: string;
     description?: string;
   }): Promise<HolidayType | null> {
@@ -44,6 +47,7 @@ class HolidayLogic {
         const HolidayData: HolidayType | null =
           await HolidayModel.findByIdAndUpdate(Props?.HolidayId, {
             date: Props.date,
+            storeId: Props?.storeId,
             title: Props.title,
             description: Props.description,
           });

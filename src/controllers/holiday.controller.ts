@@ -14,9 +14,10 @@ class Holiday extends HolidayLogic {
     try {
       // validator error handler
       fieldValidateError(req);
-      const { date, title, description } = req.body;
+      const { date, storeId, title, description } = req.body;
       await super.add({
         date,
+        storeId,
         title,
         description,
       });
@@ -39,10 +40,11 @@ class Holiday extends HolidayLogic {
       // validator error handler
       const errors = validationResult(req);
       fieldValidateError(req);
-      const { date, title, description } = req.body;
+      const { date, storeId, title, description } = req.body;
       await super.update({
         HolidayId: req.params?.HolidayId,
         date,
+        storeId,
         title,
         description,
       });
@@ -109,6 +111,12 @@ class Holiday extends HolidayLogic {
 
   public validateCreateHoliday = [
     body("date").not().isEmpty().withMessage("Date is required"),
+    body("storeId")
+      .not()
+      .isEmpty()
+      .withMessage("storeId is required")
+      .isMongoId()
+      .withMessage("Please enter a valid store id"),
     body("title")
       .not()
       .isEmpty()
