@@ -42,6 +42,8 @@ class StoreLogic extends MediaLogic {
     date: Date;
     services: any[];
   }) {
+    const getDayOfWeek = new Date(date).getDay();
+    console.log({ getDayOfWeek });
     const objectFormatSetArray = services?.map(
       (item) => new Types.ObjectId(item)
     );
@@ -58,6 +60,40 @@ class StoreLogic extends MediaLogic {
                 $match: {
                   $expr: {
                     $in: ["$_id", objectFormatSetArray],
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $cond: [
+                {
+                  $eq: [
+                    { $size: "$storeService" },
+                    objectFormatSetArray.length,
+                  ],
+                },
+                true,
+                false,
+              ],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "timings",
+            localField: "_id",
+            foreignField: "store",
+            as: "timing",
+            let: { currentDayOfWeek: getDayOfWeek },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$$currentDayOfWeek", "$dayOfWeekNumber"],
                   },
                 },
               },

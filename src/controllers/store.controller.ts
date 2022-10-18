@@ -352,6 +352,29 @@ class Store extends MediaLogic {
     }
   }
 
+  public async getAllStore(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { services } = req.body as {
+        services: any[];
+      };
+      const getAllStore = await new StoreLogic().getAllStoreByStoreIn({
+        date: new Date(),
+        services,
+      });
+      res.json({
+        status: "SUCCESS",
+        message: "Hub data found successfully",
+        data: getAllStore,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   // finds validators for the user creation request
   public validateCreateStoreFields = [
     body("displayName")

@@ -18,6 +18,7 @@ class Category extends AuthenticateMiddleware {
     this.removeStoreManagerRoute();
     this.getStoreManagersRoute();
     this.getHubDataRoute();
+    this.getStoreRouteIn();
   }
 
   // create store
@@ -90,6 +91,14 @@ class Category extends AuthenticateMiddleware {
       "/store/dashboard/hub",
       super.isAdmin,
       this.storeController.getHubDataController
+    );
+  }
+  //get hub data
+  public getStoreRouteIn(): void {
+    this.router.post(
+      "/store/list",
+      super.isAdmin,
+      this.storeController.getAllStore
     );
   }
 }
