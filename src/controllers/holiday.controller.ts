@@ -1,5 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body, validationResult } from "express-validator";
+import { fieldValidateError } from "../helper";
 import HolidayLogic from "../logic/holiday.logic";
 import { AuthRequest } from "../types/core";
 
@@ -12,16 +13,7 @@ class Holiday extends HolidayLogic {
   ): Promise<any> {
     try {
       // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
       const { date, title, description } = req.body;
       await super.add({
         date,
@@ -46,18 +38,10 @@ class Holiday extends HolidayLogic {
     try {
       // validator error handler
       const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
       const { date, title, description } = req.body;
       await super.update({
-        HolidayId: req.params?.faqId,
+        HolidayId: req.params?.HolidayId,
         date,
         title,
         description,
@@ -128,29 +112,29 @@ class Holiday extends HolidayLogic {
     body("title")
       .not()
       .isEmpty()
-      .withMessage("Question is required")
+      .withMessage("Title is required")
       .isLength({ min: 3 })
-      .withMessage("Question must be at least 3 characters long")
+      .withMessage("Title must be at least 3 characters long")
       .isLength({ max: 101 })
-      .withMessage("Question must be at most 101 characters long"),
+      .withMessage("Title must be at most 101 characters long"),
     body("description")
       .not()
       .isEmpty()
-      .withMessage("Answer is required")
+      .withMessage("Description is required")
       .isLength({ min: 3 })
-      .withMessage("Answer must be at least 3 characters long"),
+      .withMessage("Description must be at least 3 characters long"),
   ];
   public validateUpdateHoliday = [
     body("title")
       .optional()
       .isLength({ min: 3 })
-      .withMessage("Question must be at least 3 characters long")
+      .withMessage("Title must be at least 3 characters long")
       .isLength({ max: 101 })
-      .withMessage("Question must be at most 101 characters long"),
+      .withMessage("Title must be at most 101 characters long"),
     body("description")
       .optional()
       .isLength({ min: 3 })
-      .withMessage("Answer must be at least 3 characters long"),
+      .withMessage("Description must be at least 3 characters long"),
   ];
 }
 

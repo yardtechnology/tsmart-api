@@ -28,7 +28,7 @@ class Holiday extends AuthenticateMiddleware {
   // add to holiday
   private updateHolidayRoute(): void {
     this.router.put(
-      "/holiday/:holidayId",
+      "/holiday/:HolidayId",
       super.isAdmin,
       this.holidayController.validateUpdateHoliday,
       this.holidayController.updateHolidayController
