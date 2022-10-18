@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body, validationResult } from "express-validator";
-import HolidayLogic from "../logic/faq.logic";
+import HolidayLogic from "../logic/holiday.logic";
 import { AuthRequest } from "../types/core";
 
 class Holiday extends HolidayLogic {
@@ -22,10 +22,11 @@ class Holiday extends HolidayLogic {
             .replace(/[,]/g, " and ")
         );
       }
-      const { question, answer } = req.body;
+      const { date, title, description } = req.body;
       await super.add({
-        question,
-        answer,
+        date,
+        title,
+        description,
       });
       res.status(200).json({
         status: "SUCCESS",
@@ -54,11 +55,12 @@ class Holiday extends HolidayLogic {
             .replace(/[,]/g, " and ")
         );
       }
-      const { question, answer } = req.body;
+      const { date, title, description } = req.body;
       await super.update({
         HolidayId: req.params?.faqId,
-        question,
-        answer,
+        date,
+        title,
+        description,
       });
       res.status(200).json({
         status: "SUCCESS",
@@ -122,7 +124,8 @@ class Holiday extends HolidayLogic {
   }
 
   public validateCreateHoliday = [
-    body("question")
+    body("date").not().isEmpty().withMessage("Date is required"),
+    body("title")
       .not()
       .isEmpty()
       .withMessage("Question is required")
@@ -130,7 +133,7 @@ class Holiday extends HolidayLogic {
       .withMessage("Question must be at least 3 characters long")
       .isLength({ max: 101 })
       .withMessage("Question must be at most 101 characters long"),
-    body("answer")
+    body("description")
       .not()
       .isEmpty()
       .withMessage("Answer is required")
@@ -138,13 +141,13 @@ class Holiday extends HolidayLogic {
       .withMessage("Answer must be at least 3 characters long"),
   ];
   public validateUpdateHoliday = [
-    body("question")
+    body("title")
       .optional()
       .isLength({ min: 3 })
       .withMessage("Question must be at least 3 characters long")
       .isLength({ max: 101 })
       .withMessage("Question must be at most 101 characters long"),
-    body("answer")
+    body("description")
       .optional()
       .isLength({ min: 3 })
       .withMessage("Answer must be at least 3 characters long"),
