@@ -1,4 +1,6 @@
+import { Types } from "mongoose";
 import paginationHelper from "../helper/pagination.helper";
+import { StoreModel } from "../models/store.model";
 import { UserModel } from "../models/user.model";
 import MediaLogic from "./media.logic";
 
@@ -31,6 +33,42 @@ class StoreLogic extends MediaLogic {
       select: "-encrypted_password -salt -refreshTokens -verificationInfo",
     });
     return managersData;
+  }
+
+  async getAllStoreByStoreIn({
+    date,
+    services,
+  }: {
+    date: Date;
+    services: any[];
+  }) {
+    const objectFormatSetArray = services?.map(
+      (item) => new Types.ObjectId(item)
+    );
+    try {
+      const getStoreData = await StoreModel.aggregate([
+        {
+          $lookup: {
+            from: "serviceprices",
+            localField: "_id",
+            foreignField: "store",
+            as: "storeService",
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $in: ["$_id", objectFormatSetArray],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ]);
+      return getStoreData;
+    } catch (error) {
+      throw error;
+    }
   }
 }
 
