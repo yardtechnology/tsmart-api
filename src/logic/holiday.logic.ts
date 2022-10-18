@@ -20,7 +20,7 @@ class HolidayLogic {
       try {
         const HolidayData: HolidayType | null = await new HolidayModel({
           date: Props.date,
-          storeId: Props.storeId,
+          store: Props.storeId,
           title: Props.title,
           description: Props.description,
         }).save();
