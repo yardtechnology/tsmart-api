@@ -17,6 +17,9 @@ export interface ProductType<T = ImageType> {
   images: T[];
   store: StoreType;
   variantOf: ProductType;
+  memory: string;
+  color: string;
+  condition: "GOOD" | "BETTER" | "BEST";
   reviews: {
     total: number;
     stars: number;

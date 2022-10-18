@@ -99,8 +99,9 @@ class Product extends ProductLogic {
         isActive: req.body?.isActive,
         stock: req.body?.stock,
         variantOf: req.body?.variantOf,
-        measureType: req.body?.measureType,
-        measureUnit: req.body?.measureUnit,
+        memory: req.body?.memory,
+        color: req.body?.color,
+        condition: req.body?.condition,
         type: req.body?.type,
         images: imagesData,
         moq: req.body?.moq,
@@ -169,8 +170,9 @@ class Product extends ProductLogic {
           isActive: req.body?.isActive,
           stock: req.body?.stock,
           variantOf: req.body?.variantOf,
-          measureType: req.body?.measureType,
-          measureUnit: req.body?.measureUnit,
+          memory: req.body?.memory,
+          color: req.body?.color,
+          condition: req.body?.condition,
           type: req.body?.type,
           $addToSet: {
             images: imagesData,
@@ -476,6 +478,9 @@ class Product extends ProductLogic {
     body("stock").isNumeric().withMessage("Stock must be a number"),
     body("salePrice").isNumeric().withMessage("Sale price must be a number"),
     body("mrp").isNumeric().withMessage("MRP must be a number"),
+    body("condition")
+      .isIn(["GOOD", "BETTER", "BEST"])
+      .withMessage("Condition must be GOOD, BETTER, BEST"),
   ];
 
   /** fields validators for the product variant creation request */
