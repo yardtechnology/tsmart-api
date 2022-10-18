@@ -1,3 +1,4 @@
+export { default as COUPON_TYPE } from "./coupon";
 export { default as DEVICE_TYPE } from "./device";
 export { default as EVALUATION_TYPE } from "./evaluation";
 export { default as EVALUATION_PRICE_TYPE } from "./evaluationPrice";
