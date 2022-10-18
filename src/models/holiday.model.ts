@@ -1,7 +1,7 @@
 import { model, Schema } from "mongoose";
 import HolidayType from "../types/holiday";
 
-const faqSchema = new Schema<HolidayType>(
+const holidaySchema = new Schema<HolidayType>(
   {
     date: String,
     title: String,
@@ -9,4 +9,4 @@ const faqSchema = new Schema<HolidayType>(
   },
   { timestamps: true }
 );
-export const FAQModel = model<HolidayType>("Holiday", faqSchema);
+export const HolidayModel = model<HolidayType>("Holiday", holidaySchema);
