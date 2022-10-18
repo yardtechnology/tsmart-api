@@ -82,6 +82,7 @@ class StoreLogic extends MediaLogic {
             },
           },
         },
+
         {
           $lookup: {
             from: "timings",
@@ -97,6 +98,79 @@ class StoreLogic extends MediaLogic {
                   },
                 },
               },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            bookingDay: {
+              $dayOfMonth: new Date(date),
+            },
+            bookingMonth: {
+              $month: new Date(date),
+            },
+            bookingYear: {
+              $year: new Date(date),
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "holidays",
+            localField: "_id",
+            foreignField: "store",
+            as: "holidays",
+            let: {
+              day: "$bookingDay",
+              month: "$bookingMonth",
+              year: "$bookingYear",
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      {
+                        $eq: [
+                          {
+                            $dayOfMonth: "$date",
+                          },
+                          "$$day",
+                        ],
+                      },
+                      {
+                        $eq: [
+                          {
+                            $month: "$date",
+                          },
+                          "$$month",
+                        ],
+                      },
+                      {
+                        $eq: [
+                          {
+                            $year: "$date",
+                          },
+                          "$$year",
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+              // {
+              //   $addFields: {
+              //     day: {
+              //       $dayOfMonth: "$date",
+              //     },
+              //     month: {
+              //       $month: "$date",
+              //     },
+              //     year: {
+              //       $year: "$date",
+              //     },
+              //   },
+              // },
             ],
           },
         },
