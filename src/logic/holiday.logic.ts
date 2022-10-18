@@ -47,7 +47,7 @@ class HolidayLogic {
         const HolidayData: HolidayType | null =
           await HolidayModel.findByIdAndUpdate(Props?.HolidayId, {
             date: Props.date,
-            storeId: Props?.storeId,
+            store: Props?.storeId,
             title: Props.title,
             description: Props.description,
           });

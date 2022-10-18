@@ -7,7 +7,7 @@ const holidaySchema = new Schema<HolidayType>(
       type: Schema.Types.ObjectId,
       ref: "Store",
     },
-    date: String,
+    date: Date,
     title: String,
     description: String,
   },

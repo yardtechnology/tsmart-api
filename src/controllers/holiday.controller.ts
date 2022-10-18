@@ -110,7 +110,7 @@ class Holiday extends HolidayLogic {
   }
 
   public validateCreateHoliday = [
-    body("date").not().isEmpty().withMessage("Date is required"),
+    body("date").not().isEmpty().withMessage("Date is required").toDate(),
     body("storeId")
       .not()
       .isEmpty()
