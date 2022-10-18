@@ -64,11 +64,12 @@ class CouponController {
   }
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { limit, chunk, code } = req.query;
+      const { limit, chunk, code, couponId } = req.query;
       const { startDate, endDate } = req.body;
 
       const query: any = {};
       code && (query["code"] = code);
+      couponId && (query["_id"] = couponId);
       startDate &&
         endDate &&
         (query["$and"] = [
@@ -95,7 +96,7 @@ class CouponController {
       res.status(200).json({
         status: "SUCCESS",
         message: "All Coupon found successfully.s",
-        data: getAllData,
+        data: code || couponId ? getAllData?.data?.[0] : getAllData,
       });
     } catch (error) {
       next(error);
