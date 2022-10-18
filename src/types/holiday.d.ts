@@ -3,7 +3,7 @@ import StoreType from "./store";
 
 export default interface HolidayType extends Document {
   store: StoreType;
-  date: string;
+  date: Date;
   title: string;
   description: string;
 }

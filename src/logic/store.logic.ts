@@ -43,7 +43,6 @@ class StoreLogic extends MediaLogic {
     services: any[];
   }) {
     const getDayOfWeek = new Date(date).getDay();
-    console.log({ getDayOfWeek });
     const objectFormatSetArray = services?.map(
       (item) => new Types.ObjectId(item)
     );
@@ -158,20 +157,14 @@ class StoreLogic extends MediaLogic {
                   },
                 },
               },
-              // {
-              //   $addFields: {
-              //     day: {
-              //       $dayOfMonth: "$date",
-              //     },
-              //     month: {
-              //       $month: "$date",
-              //     },
-              //     year: {
-              //       $year: "$date",
-              //     },
-              //   },
-              // },
             ],
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $gte: [{ $size: "$holidays" }, 1],
+            },
           },
         },
       ]);
