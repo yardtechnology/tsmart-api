@@ -478,9 +478,9 @@ class Product extends ProductLogic {
     body("stock").isNumeric().withMessage("Stock must be a number"),
     body("salePrice").isNumeric().withMessage("Sale price must be a number"),
     body("mrp").isNumeric().withMessage("MRP must be a number"),
-    body("condition")
-      .isIn(["GOOD", "BETTER", "BEST"])
-      .withMessage("Condition must be GOOD, BETTER, BEST"),
+    // body("condition")
+    //   .isIn(["GOOD", "BETTER", "BEST"])
+    //   .withMessage("Condition must be GOOD, BETTER, BEST"),
   ];
 
   /** fields validators for the product variant creation request */
