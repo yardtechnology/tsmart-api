@@ -69,6 +69,15 @@ class Auth extends AuthenticateMiddleware {
       this.userController.accountStatusChange
     );
   }
+
+  //get all users
+  public getAllUsersRoute(): void {
+    this.router.get(
+      "/users/all",
+      super.isManager,
+      this.userController.getAllUsersController
+    );
+  }
 }
 
 export default Auth;

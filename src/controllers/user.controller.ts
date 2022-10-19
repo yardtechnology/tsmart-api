@@ -325,6 +325,54 @@ class User extends MediaLogic {
     }
   }
 
+  // get all users
+  public async getAllUsersController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      let userData;
+      // save user data to database
+      switch (req.currentUser?.role) {
+        case "ADMIN":
+          userData = await new UserLogic().getAllUsers({
+            chunk: req.query.chunk ? Number(req.query.chunk) : undefined,
+            limit: req.query.limit ? Number(req.query.limit) : undefined,
+            role: req.query.role
+              ? req.query.role?.toString()?.toUpperCase()
+              : undefined,
+            status: req.query.status
+              ? req.query?.status?.toString()?.toUpperCase()
+              : undefined,
+          });
+          break;
+        // case "MANAGER":
+        //   const storeId = await UserModel.findById(req.currentUser._id)
+        //     .select("store")
+        //     .populate("store");
+        //   if (!storeId?.store) throw new Error("manager has no store");
+        //   userData = await new StoreLogic().getAllStoresCustomers({
+        //     chunk: req.query.chunk ? Number(req.query.chunk) : undefined,
+        //     limit: req.query.limit ? Number(req.query.limit) : undefined,
+        //     storeId: storeId?.store?._id,
+        //   });
+        //   break;
+
+        default:
+          throw new Error("You are not authorized to access this route");
+      }
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "User updated successfully",
+        data: userData,
+      });
+    } catch (error) {
+      // send error to client
+      next(error);
+    }
+  }
+
   // field validators for the user creation request
   public validateUpdateUserFields = [
     body("displayName")
