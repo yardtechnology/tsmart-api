@@ -1,3 +1,4 @@
+export { default as ConfigSchema } from "./config.model";
 export { default as CouponSchema } from "./coupon.model";
 export { default as DevicesSchema } from "./device.model";
 export { default as EvaluationSchema } from "./evaluation.model";

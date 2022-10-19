@@ -1,4 +1,8 @@
 export {
+  ConfigControllerValidation,
+  default as ConfigController,
+} from "./config.controller";
+export {
   CouponControllerValidation,
   default as CouponController,
 } from "./coupon.controller";

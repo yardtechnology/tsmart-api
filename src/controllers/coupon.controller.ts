@@ -22,7 +22,7 @@ class CouponController {
         );
       res.json({
         status: "SUCCESS",
-        message: "Device created successfully.",
+        message: "Config created successfully.",
         data: createCoupon,
       });
     } catch (error) {
