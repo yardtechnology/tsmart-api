@@ -80,7 +80,7 @@ class Auth extends AuthLogic {
       res.status(200).json({
         status: "SUCCESS",
         message:
-          "Signup successfully, Check your mail inbox to verify your email",
+          "Signup successfully, check your mail inbox to verify your email to continue login.",
         data: {
           _id: newUser._id,
           displayName: newUser.displayName,
