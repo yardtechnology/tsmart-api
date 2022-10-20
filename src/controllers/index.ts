@@ -19,6 +19,10 @@ export {
   EvaluationPriceControllerValidation,
 } from "./evaluationPrice.controller";
 export {
+  default as JoinOurTeamController,
+  JoinOurTeamControllerValidation,
+} from "./joinOurTeam.controller";
+export {
   default as MakeController,
   MakeControllerValidation,
 } from "./make.controller";
