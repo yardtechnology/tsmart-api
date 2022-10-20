@@ -5,4 +5,6 @@ export default interface COUPON_TYPE extends Document {
   discountPercent: number;
   startDate: Date;
   endDate: Date;
+  maxCashBack: number;
+  users?: objectId[];
 }

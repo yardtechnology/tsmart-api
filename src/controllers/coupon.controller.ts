@@ -11,7 +11,7 @@ class CouponController {
     try {
       fieldValidateError(req);
 
-      //   const { code, discountPercent, startDate, endDate } = req.body;
+      //   const { code, discountPercent, startDate, endDate, maxCashBack } = req.body;
 
       const createCoupon = await CouponSchema.create({
         ...req.body,
@@ -135,6 +135,12 @@ export const CouponControllerValidation = {
       .withMessage("discountPercent is required.")
       .isNumeric()
       .withMessage("discountPercent must be number."),
+    body("maxCashBack")
+      .not()
+      .isEmpty()
+      .withMessage("maxCashBack is required.")
+      .isNumeric()
+      .withMessage("maxCashBack must be number."),
     body("startDate")
       .not()
       .isEmpty()

@@ -17,6 +17,14 @@ const couponSchema = new Schema<COUPON_TYPE, Model<COUPON_TYPE>>(
     endDate: {
       type: Date,
     },
+    maxCashBack: {
+      type: Number,
+    },
+    users: [
+      {
+        type: Schema.Types.ObjectId,
+      },
+    ],
   },
   { timestamps: true }
 );
