@@ -1,24 +1,23 @@
 import { NextFunction, Response } from "express";
-import { body, param, validationResult } from "express-validator";
-import { BadRequest, InternalServerError } from "http-errors";
-import paginationHelper from "../helper/pagination.helper";
+import { body, param } from "express-validator";
+import { InternalServerError } from "http-errors";
+import { Types } from "mongoose";
+import { fieldValidateError } from "../helper";
 import { TimingSchema } from "../models";
 import { AuthRequest } from "../types/core";
 
 class TimingController {
   async createAndUpdate(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new BadRequest(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
-      const { numberOfRepairers, start, end, storeId, timingId } = req.body;
+      fieldValidateError(req);
+      const {
+        numberOfRepairers,
+        start,
+        end,
+        storeId,
+        timingId,
+        durationInMin,
+      } = req.body;
       const user = req?.currentUser?._id;
       const dayOfWeekNumber = start ? new Date(start).getDay() : undefined;
       const arg: any = {
@@ -34,6 +33,7 @@ class TimingController {
           end,
           numberOfRepairers,
           dayOfWeekNumber: dayOfWeekNumber,
+          durationInMin,
         },
         {
           upsert: true,
@@ -56,37 +56,38 @@ class TimingController {
 
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { limit, chunk, storeId } = req.query;
+      const { limit, chunk } = req.query;
+      const { storeId } = req.params;
       const { start } = req.body;
 
       const dayOfWeekNumber = start ? new Date(start).getDay() : undefined;
 
       const query: any = {};
       dayOfWeekNumber && (query["dayOfWeekNumber"] = dayOfWeekNumber);
-      storeId && (query["store"] = storeId);
+      // storeId && (query["store"] = storeId);
 
-      const getAllData = await paginationHelper({
-        model: TimingSchema,
-        query,
-        chunk: chunk ? Number(chunk) : undefined,
-        limit: limit ? Number(limit) : undefined,
-        select: "-dayOfWeekNumber",
-        populate: [
-          {
-            path: "store",
-            select: "displayName email imageURL",
+      const getAllData = await TimingSchema.aggregate([
+        {
+          $match: {
+            store: new Types.ObjectId(storeId),
           },
-        ],
-        sort: {
-          createdAt: -1,
         },
-      });
+        {
+          $project: {
+            timeArray: {
+              $map: {
+                input: "$start",
+              },
+            },
+          },
+        },
+      ]);
       res.status(200).json({
         status: "SUCCESS",
         message: storeId
           ? "Timing found successfully."
           : "All Timing found successfully.",
-        data: storeId ? getAllData?.data?.[0] : getAllData,
+        data: getAllData,
       });
     } catch (error) {
       next(error);
@@ -112,6 +113,11 @@ export const TimingControllerValidation = {
       .exists()
       .isMongoId()
       .withMessage("timingId must be mongoes id."),
+    body("durationInMin")
+      .optional()
+      .exists()
+      .isNumeric()
+      .withMessage("durationInMin should be number."),
 
     body("start")
       .optional()
