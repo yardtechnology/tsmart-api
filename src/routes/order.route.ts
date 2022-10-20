@@ -11,6 +11,9 @@ class Order extends AuthenticateMiddleware {
     this.router = Router();
     this.orderController = new OrderController();
     this.createOrderRoute();
+    this.createMailInOrderRoute();
+    this.createCallOutOrderRoute();
+    this.getOrderDetailsRoute();
   }
 
   // place store service order
@@ -20,6 +23,33 @@ class Order extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.orderController.validateOrderPlaceFields,
       this.orderController.placeOrderController
+    );
+  }
+  // place mail in service order
+  private createMailInOrderRoute(): void {
+    this.router.post(
+      "/order/repair/mail-in",
+      super.isAuthenticated,
+      this.orderController.validateMailInOrderPlaceFields,
+      this.orderController.placeMailInOrderController
+    );
+  }
+  // place mail in service order
+  private createCallOutOrderRoute(): void {
+    this.router.post(
+      "/order/repair/call-out",
+      super.isAuthenticated,
+      this.orderController.validateCallOutOrderPlaceFields,
+      this.orderController.placeCallOutOrderController
+    );
+  }
+  // get order details
+  private getOrderDetailsRoute(): void {
+    this.router.get(
+      "/orders/:orderId",
+      super.isAuthenticated,
+      this.orderController.validateGetOrderDetails,
+      this.orderController.getOrderDetailsController
     );
   }
 }

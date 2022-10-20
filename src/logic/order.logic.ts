@@ -3,6 +3,7 @@ import { OrderModel } from "../models/order.model";
 import { StoreModel } from "../models/store.model";
 import { UserModel } from "../models/user.model";
 import OrderType from "../types/order";
+import { ServicePriceModel } from "./../models/servicePrice.model";
 // import NotificationLogic from "./notification.logic";
 
 class OrderLogic {
@@ -11,17 +12,15 @@ class OrderLogic {
     this._orderId = id;
   }
 
-  /** place order */
+  /** place store service order */
   public async placeStoreServiceOrder({
     userId,
     storeId,
-    addressId,
     serviceTime,
     serviceIds,
   }: {
     userId: string;
     storeId: string;
-    addressId: string;
     serviceTime: Date;
     serviceIds: string[];
   }): Promise<OrderType> {
@@ -37,23 +36,31 @@ class OrderLogic {
           "_id displayName email phoneNumber countryCode imageURL about address"
         );
         if (!storeData) throw new Error("Store not found");
-        // get delivery address data
-        const deliveryAddressData = await AddressModel.findById(
-          addressId
-        ).select(
-          "_id name landmark email phoneNumber countryCode street city state country zip type"
-        );
         const scheduledTime = new Date(serviceTime);
-        if (!deliveryAddressData) throw new Error("Delivery address not found");
+        //remove duplicate service ids
+        const uniqServiceIds = new Set([...serviceIds]);
+        const servicePriceDetails = await ServicePriceModel.find({
+          _id: { $in: serviceIds },
+        });
+        const priceDetails = servicePriceDetails.reduce(
+          (prev: { salePrice: number; mrp: number }, curr) => {
+            return (prev = {
+              salePrice: prev.salePrice + curr?.salePrice,
+              mrp: prev.mrp + curr?.mrp,
+            });
+          },
+          { salePrice: 0, mrp: 0 }
+        );
         const orderData = await new OrderModel({
           user: userData,
           store: storeData,
-          address: deliveryAddressData,
           userID: userId,
           storeID: storeId,
           scheduledTime,
-          service: serviceIds,
+          service: uniqServiceIds,
           type: "BUY",
+          price: priceDetails?.salePrice,
+          mrp: priceDetails?.mrp,
           status: "INITIATED",
         }).save();
         resolve(orderData);
@@ -61,6 +68,137 @@ class OrderLogic {
         reject(error);
       }
     });
+  }
+  /** place mail in service order */
+  public async placeMailInServiceOrder({
+    userId,
+    addressId,
+    serviceIds,
+  }: {
+    userId: string;
+    addressId: string;
+    serviceIds: string[];
+  }): Promise<OrderType> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // get user data
+        const userData = await UserModel.findById(userId).select(
+          "_id displayName email phoneNumber countryCode avatar"
+        );
+        if (!userData) throw new Error("User not found");
+        // get product data
+        const storeData = await StoreModel.findOne({ type: "HUB" }).select(
+          "_id displayName email phoneNumber countryCode imageURL about address"
+        );
+        if (!storeData) throw new Error("Hub not found");
+        // get delivery address data
+        const deliveryAddressData = await AddressModel.findById(
+          addressId
+        ).select(
+          "_id name landmark email phoneNumber countryCode street city state country zip type"
+        );
+        if (!deliveryAddressData) throw new Error("Delivery address not found");
+        //remove duplicate service ids
+        const uniqServiceIds = new Set([...serviceIds]);
+        const servicePriceDetails = await ServicePriceModel.find({
+          _id: { $in: serviceIds },
+        });
+        const priceDetails = servicePriceDetails.reduce(
+          (prev: { salePrice: number; mrp: number }, curr) => {
+            return (prev = {
+              salePrice: prev.salePrice + curr?.salePrice,
+              mrp: prev.mrp + curr?.mrp,
+            });
+          },
+          { salePrice: 0, mrp: 0 }
+        );
+        const orderData = await new OrderModel({
+          user: userData,
+          store: storeData,
+          address: deliveryAddressData,
+          userID: userId,
+          storeID: storeData?._id,
+          service: uniqServiceIds,
+          type: "BUY",
+          price: priceDetails?.salePrice,
+          mrp: priceDetails?.mrp,
+          status: "INITIATED",
+        }).save();
+        resolve(orderData);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+  /** place call out service order */
+  public async placeCallOutOrder({
+    userId,
+    latitude,
+    longitude,
+    serviceIds,
+  }: {
+    userId: string;
+    latitude: number;
+    longitude: number;
+    serviceIds: string[];
+  }): Promise<OrderType> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // get user data
+        const userData = await UserModel.findById(userId).select(
+          "_id displayName email phoneNumber countryCode avatar"
+        );
+        if (!userData) throw new Error("User not found");
+        //remove duplicate service ids
+        const uniqServiceIds = new Set([...serviceIds]);
+        const servicePriceDetails = await ServicePriceModel.find({
+          _id: { $in: serviceIds },
+        });
+        const priceDetails = servicePriceDetails.reduce(
+          (prev: { salePrice: number; mrp: number }, curr) => {
+            return (prev = {
+              salePrice: prev.salePrice + curr?.salePrice,
+              mrp: prev.mrp + curr?.mrp,
+            });
+          },
+          { salePrice: 0, mrp: 0 }
+        );
+        const orderData = await new OrderModel({
+          user: userData,
+          address: {
+            latitude,
+            longitude,
+          },
+          userID: userId,
+          service: uniqServiceIds,
+          type: "BUY",
+          price: priceDetails?.salePrice,
+          mrp: priceDetails?.mrp,
+          status: "INITIATED",
+        }).save();
+        resolve(orderData);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  /**get order details */
+  public async getOrderDetails(orderId: string): Promise<OrderType> {
+    const orderData: OrderType | null = await OrderModel.findById(
+      orderId
+    ).populate([
+      {
+        path: "service",
+        populate: {
+          path: "service",
+        },
+      },
+    ]);
+    if (!orderData) {
+      throw new Error("order not found");
+    }
+    return orderData;
   }
 }
 

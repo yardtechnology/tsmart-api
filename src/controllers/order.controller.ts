@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 import { fieldValidateError } from "../helper";
 import OrderLogic from "../logic/order.logic";
 import { AuthRequest } from "../types/core";
@@ -16,7 +16,6 @@ class Order extends OrderLogic {
       fieldValidateError(req);
       //place Walk in Repairing Order [STORE]
       const orderData = await super.placeStoreServiceOrder({
-        addressId: req.body?.addressId,
         storeId: req.body?.storeId,
         userId: req.currentUser?._id as string,
         serviceTime: req.body?.serviceTime,
@@ -32,14 +31,81 @@ class Order extends OrderLogic {
       next(error);
     }
   }
+  /** make mail in order */
+  public async placeMailInOrderController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      //place Walk in Repairing Order [STORE]
+      const orderData = await super.placeMailInServiceOrder({
+        userId: req.currentUser?._id as string,
+        addressId: req.body?.addressId,
+        serviceIds: req.body?.serviceIds,
+      });
+
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Order placed successfully",
+        data: orderData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  /** make call out order */
+  public async placeCallOutOrderController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      //place Walk in Repairing Order [STORE]
+      const orderData = await super.placeCallOutOrder({
+        userId: req.currentUser?._id as string,
+        latitude: req.body?.latitude,
+        longitude: req.body?.longitude,
+        serviceIds: req.body?.serviceIds,
+      });
+
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Order placed successfully",
+        data: orderData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** get order details*/
+  public async getOrderDetailsController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+
+      const orderData = await super.getOrderDetails(req.params.orderId);
+
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Order details found successfully",
+        data: orderData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   public validateOrderPlaceFields = [
-    body("addressId")
-      .not()
-      .isEmpty()
-      .withMessage("AddressId is required")
-      .isMongoId()
-      .withMessage("Not a valid Address Id"),
     body("storeId")
       .not()
       .isEmpty()
@@ -47,6 +113,22 @@ class Order extends OrderLogic {
       .isMongoId()
       .withMessage("Not a valid Store Id"),
     body("serviceTime").not().isEmpty().withMessage("Service time is required"),
+  ];
+  public validateMailInOrderPlaceFields = [
+    body("addressId")
+      .not()
+      .isEmpty()
+      .withMessage("AddressId is required")
+      .isMongoId()
+      .withMessage("Not a valid Address Id"),
+  ];
+  public validateCallOutOrderPlaceFields = [
+    body("latitude").not().isEmpty().withMessage("latitude is required"),
+    body("longitude").not().isEmpty().withMessage("longitude is required"),
+  ];
+
+  public validateGetOrderDetails = [
+    param("orderId").isMongoId().withMessage("Not a valid order id"),
   ];
 }
 

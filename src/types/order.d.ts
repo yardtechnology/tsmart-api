@@ -55,6 +55,8 @@ export default interface OrderType extends Document {
     otp: number;
   };
   type: "BUY" | "SELL";
+  price: number;
+  mrp: number;
   createdAt: Date;
   updatedAt: Date;
 }

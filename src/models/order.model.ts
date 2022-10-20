@@ -69,6 +69,8 @@ const orderSchema = new Schema<OrderType>(
       otp: Number,
     },
     type: String,
+    price: Number,
+    mrp: Number,
   },
   { timestamps: true }
 );
