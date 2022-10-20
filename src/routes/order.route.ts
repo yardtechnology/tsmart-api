@@ -19,10 +19,10 @@ class Order extends AuthenticateMiddleware {
   // place store service order
   private createOrderRoute(): void {
     this.router.post(
-      "/order/repair/store",
+      "/order/repair/in-store",
       super.isAuthenticated,
       this.orderController.validateOrderPlaceFields,
-      this.orderController.placeOrderController
+      this.orderController.placeInStoreOrderController
     );
   }
   // place mail in service order
@@ -52,6 +52,8 @@ class Order extends AuthenticateMiddleware {
       this.orderController.getOrderDetailsController
     );
   }
+
+  //TODO: add a route for adding extra fees
 }
 
 export default Order;

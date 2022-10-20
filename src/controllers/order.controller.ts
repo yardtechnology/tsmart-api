@@ -6,7 +6,7 @@ import { AuthRequest } from "../types/core";
 
 class Order extends OrderLogic {
   /** make order */
-  public async placeOrderController(
+  public async placeInStoreOrderController(
     req: AuthRequest,
     res: Response,
     next: NextFunction
@@ -15,7 +15,7 @@ class Order extends OrderLogic {
       // validator error handler
       fieldValidateError(req);
       //place Walk in Repairing Order [STORE]
-      const orderData = await super.placeStoreServiceOrder({
+      const orderData = await super.placeInStoreServiceOrder({
         storeId: req.body?.storeId,
         userId: req.currentUser?._id as string,
         serviceTime: req.body?.serviceTime,
@@ -70,6 +70,7 @@ class Order extends OrderLogic {
         userId: req.currentUser?._id as string,
         latitude: req.body?.latitude,
         longitude: req.body?.longitude,
+        street: req.body?.street,
         serviceIds: req.body?.serviceIds,
       });
 
@@ -113,6 +114,9 @@ class Order extends OrderLogic {
       .isMongoId()
       .withMessage("Not a valid Store Id"),
     body("serviceTime").not().isEmpty().withMessage("Service time is required"),
+    body("serviceIds.*")
+      .isMongoId()
+      .withMessage("serviceIds must be a valid service id"),
   ];
   public validateMailInOrderPlaceFields = [
     body("addressId")
@@ -121,10 +125,16 @@ class Order extends OrderLogic {
       .withMessage("AddressId is required")
       .isMongoId()
       .withMessage("Not a valid Address Id"),
+    body("serviceIds.*")
+      .isMongoId()
+      .withMessage("serviceIds must be a valid service id"),
   ];
   public validateCallOutOrderPlaceFields = [
     body("latitude").not().isEmpty().withMessage("latitude is required"),
     body("longitude").not().isEmpty().withMessage("longitude is required"),
+    body("serviceIds.*")
+      .isMongoId()
+      .withMessage("serviceIds must be a valid service id"),
   ];
 
   public validateGetOrderDetails = [

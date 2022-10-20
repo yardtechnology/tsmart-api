@@ -71,6 +71,7 @@ const orderSchema = new Schema<OrderType>(
     type: String,
     price: Number,
     mrp: Number,
+    serviceType: String,
   },
   { timestamps: true }
 );

@@ -57,6 +57,7 @@ export default interface OrderType extends Document {
   type: "BUY" | "SELL";
   price: number;
   mrp: number;
+  serviceType: "IN_STOR" | "MAIL_IN" | "CALL_OUT";
   createdAt: Date;
   updatedAt: Date;
 }

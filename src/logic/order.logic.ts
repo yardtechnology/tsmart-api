@@ -13,7 +13,7 @@ class OrderLogic {
   }
 
   /** place store service order */
-  public async placeStoreServiceOrder({
+  public async placeInStoreServiceOrder({
     userId,
     storeId,
     serviceTime,
@@ -62,6 +62,7 @@ class OrderLogic {
           price: priceDetails?.salePrice,
           mrp: priceDetails?.mrp,
           status: "INITIATED",
+          serviceType: "IN_STOR",
         }).save();
         resolve(orderData);
       } catch (error) {
@@ -123,6 +124,7 @@ class OrderLogic {
           price: priceDetails?.salePrice,
           mrp: priceDetails?.mrp,
           status: "INITIATED",
+          serviceType: "MAIL_IN",
         }).save();
         resolve(orderData);
       } catch (error) {
@@ -135,11 +137,13 @@ class OrderLogic {
     userId,
     latitude,
     longitude,
+    street,
     serviceIds,
   }: {
     userId: string;
     latitude: number;
     longitude: number;
+    street: string;
     serviceIds: string[];
   }): Promise<OrderType> {
     return new Promise(async (resolve, reject) => {
@@ -168,6 +172,7 @@ class OrderLogic {
           address: {
             latitude,
             longitude,
+            street,
           },
           userID: userId,
           service: uniqServiceIds,
@@ -175,6 +180,7 @@ class OrderLogic {
           price: priceDetails?.salePrice,
           mrp: priceDetails?.mrp,
           status: "INITIATED",
+          serviceType: "CALL_OUT",
         }).save();
         resolve(orderData);
       } catch (error) {
