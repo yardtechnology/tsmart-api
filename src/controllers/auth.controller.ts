@@ -79,7 +79,8 @@ class Auth extends AuthLogic {
       // send response to client
       res.status(200).json({
         status: "SUCCESS",
-        message: "User created successfully",
+        message:
+          "Signup successfully, Check your mail inbox to verify your email",
         data: {
           _id: newUser._id,
           displayName: newUser.displayName,
