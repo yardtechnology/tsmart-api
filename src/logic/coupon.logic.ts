@@ -19,24 +19,26 @@ class CouponLogic {
                 users: currentUserId,
               },
             }
-          : {
-              t: 78,
-            };
-        const couponData = await CouponSchema.findOneAndUpdate({
-          _id: couponId,
-          $and: [
-            {
-              startDate: {
-                $gte: new Date(),
+          : {};
+        const couponData = await CouponSchema.findOneAndUpdate(
+          {
+            _id: couponId,
+            $and: [
+              {
+                startDate: {
+                  $gte: new Date(),
+                },
               },
-            },
-            {
-              endDate: {
-                $lte: new Date(),
+              {
+                endDate: {
+                  $lte: new Date(),
+                },
               },
-            },
-          ],
-        });
+            ],
+          },
+          arg,
+          { runValidators: true }
+        );
         if (!couponData) throw new Error("Coupon expire.");
 
         const percentageDiscountCalculate =
