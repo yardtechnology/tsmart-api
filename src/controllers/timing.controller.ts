@@ -76,9 +76,15 @@ class TimingController {
           $addFields: {
             timeArray: {
               $range: [
-                0,
-                { $subtract: [{ $add: [1, "$end"] }, "$start"] },
-                1000 * 60 * 30,
+                "$start",
+                "$end",
+                {
+                  $dateAdd: {
+                    startDate: "$start",
+                    unit: "minute",
+                    amount: 30,
+                  },
+                },
               ],
             },
           },
