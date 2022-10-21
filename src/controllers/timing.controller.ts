@@ -73,11 +73,13 @@ class TimingController {
           },
         },
         {
-          $project: {
+          $addFields: {
             timeArray: {
-              $map: {
-                input: "$start",
-              },
+              $range: [
+                0,
+                { $subtract: [{ $add: [1, "$end"] }, "$start"] },
+                1000 * 60 * 30,
+              ],
             },
           },
         },
