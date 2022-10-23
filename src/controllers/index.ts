@@ -31,6 +31,10 @@ export {
   MakeControllerValidation,
 } from "./make.controller";
 export {
+  default as NotificationController,
+  NotificationControllerValidation,
+} from "./notification.controller";
+export {
   default as ReviewController,
   ReviewControllerValidation,
 } from "./review.controller";
