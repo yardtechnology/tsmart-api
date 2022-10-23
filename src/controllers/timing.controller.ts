@@ -93,6 +93,133 @@ class TimingController {
       next(error);
     }
   }
+  async userGetStoreLeftBookingList(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { limit, chunk } = req.query;
+      const { storeId } = req.params;
+      const { date } = req.body;
+
+      const dayOfWeekNumber = new Date(date || new Date()).getDay();
+
+      const query: any = {};
+      dayOfWeekNumber && (query["dayOfWeekNumber"] = dayOfWeekNumber);
+      // storeId && (query["store"] = storeId);
+
+      const getAllData = await TimingSchema.aggregate([
+        {
+          $match: {
+            $and: [
+              {
+                store: new Types.ObjectId(storeId),
+              },
+              {
+                dayOfWeekNumber: dayOfWeekNumber,
+              },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            startDateForm: {
+              $dateFromParts: {
+                year: new Date(date).getFullYear(),
+                month: new Date(date).getMonth() + 1,
+                day: new Date(date).getDate(),
+                hour: {
+                  $hour: "$start",
+                },
+                minute: {
+                  $minute: "$start",
+                },
+              },
+            },
+            endDateForm: {
+              $dateFromParts: {
+                year: new Date(date).getFullYear(),
+                month: new Date(date).getMonth() + 1,
+                day: new Date(date).getDate(),
+                hour: {
+                  $hour: "$end",
+                },
+                minute: {
+                  $minute: "$end",
+                },
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "orders",
+            localField: "store",
+            foreignField: "storeID",
+            as: "orderHave",
+            let: {
+              startDate: "$startDateForm",
+              endDate: "$endDateForm",
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      {
+                        $eq: ["$serviceType", "IN_STOR"],
+                      },
+                      {
+                        $gte: ["$scheduledTime", new Date(date)],
+                      },
+                      {
+                        $eq: [
+                          { $dayOfWeek: "$scheduledTime" },
+                          dayOfWeekNumber + 1,
+                        ],
+                      },
+
+                      {
+                        $gte: ["$scheduledTime", "$$startDate"],
+                      },
+                      {
+                        $lte: ["$scheduledTime", "$$endDate"],
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            orderHave: {
+              $size: "$orderHave",
+            },
+            leftBooking: {
+              $subtract: [
+                "$numberOfRepairers",
+                {
+                  $size: "$orderHave",
+                },
+              ],
+            },
+          },
+        },
+      ]);
+      res.status(200).json({
+        status: "SUCCESS",
+        message: storeId
+          ? "Timing found successfully."
+          : "All Timing found successfully.",
+        data: getAllData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 export const TimingControllerValidation = {
   createAndUpdate: [

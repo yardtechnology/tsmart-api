@@ -24,7 +24,7 @@ export default class TimingRoutes extends AuthenticateMiddleware {
     this.router.get(
       "/timing/:storeId",
       super.isAuthenticated,
-      this.timingController.getAll
+      this.timingController.userGetStoreLeftBookingList
     );
   }
 }
