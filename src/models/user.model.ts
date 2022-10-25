@@ -7,9 +7,11 @@ const userSchema = new Schema<UserType>(
   {
     displayName: {
       type: String,
-      required: true,
     },
-    phoneNumber: Number,
+    phoneNumber: {
+      type: Number,
+      unique: true,
+    },
     activeOTP: {
       otp: Number,
       createdAt: Date,
@@ -23,7 +25,6 @@ const userSchema = new Schema<UserType>(
     avatarPath: String,
     email: {
       type: String,
-      unique: true,
     },
     gender: String,
     encrypted_password: String,

@@ -34,15 +34,22 @@ class Auth extends AuthLogic {
         createdAt: Date(),
       };
 
-      // save user data to database
-      const newUser: UserType = await new UserModel({
-        activeOTP,
-      }).save();
+      const userData = await UserModel.findOne({ phoneNumber });
+      let newUser;
+      if (!userData) {
+        newUser = await new UserModel({
+          phoneNumber,
+          "country.code": countryCode,
+          role: role,
+          activeOTP,
+        }).save();
+      }
 
       // send response to client
       res.status(200).json({
         status: "SUCCESS",
         message: "Please check you sms inbox for an otp.",
+        data: newUser,
       });
     } catch (error) {
       // send error to client

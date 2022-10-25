@@ -25,7 +25,7 @@ class Auth extends AuthenticateMiddleware {
 
   // send otp
   private sendOTPRoute(): void {
-    this.router.post("/auth/send-opt", this.authController.sendOtp);
+    this.router.post("/auth/send-otp", this.authController.sendOtp);
   }
   // verify otp
   private verifyOTPRoute(): void {
