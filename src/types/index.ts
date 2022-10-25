@@ -8,4 +8,5 @@ export { default as JOIN_OUR_TEAM_TYPE } from "./joinOurTeam";
 export { default as MAKE_TYPE } from "./make";
 export { default as NOTIFICATION_TYPE } from "./notification";
 export { default as REVIEW_TYPE } from "./review";
+export { default as SUPPORT_TYPE } from "./support";
 export { default as TIMING_TYPE } from "./timing";

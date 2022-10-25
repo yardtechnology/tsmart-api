@@ -39,6 +39,10 @@ export {
   ReviewControllerValidation,
 } from "./review.controller";
 export {
+  default as SupportController,
+  SupportControllerValidation,
+} from "./support.controller";
+export {
   default as TimingController,
   TimingControllerValidation,
 } from "./timing.controller";
