@@ -10,6 +10,8 @@ class Auth extends AuthenticateMiddleware {
     super();
     this.router = Router();
     this.authController = new AuthController();
+    this.sendOTPRoute();
+    this.verifyOTPRoute();
     this.createUserRoute();
     this.registerTechnician();
     this.loginUserRoute();
@@ -21,6 +23,14 @@ class Auth extends AuthenticateMiddleware {
     this.logoutRoute();
   }
 
+  // send otp
+  private sendOTPRoute(): void {
+    this.router.post("/auth/send-opt", this.authController.sendOtp);
+  }
+  // verify otp
+  private verifyOTPRoute(): void {
+    this.router.post("/auth/verify-otp", this.authController.verifyOtp);
+  }
   // create user
   private createUserRoute(): void {
     this.router.post(

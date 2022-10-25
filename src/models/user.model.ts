@@ -10,6 +10,10 @@ const userSchema = new Schema<UserType>(
       required: true,
     },
     phoneNumber: Number,
+    activeOTP: {
+      otp: Number,
+      createdAt: Date,
+    },
     country: {
       code: String,
       name: String,

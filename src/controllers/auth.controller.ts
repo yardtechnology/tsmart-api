@@ -5,11 +5,99 @@ import { createOTP } from "../helper/core.helper";
 import AuthLogic from "../logic/auth.logic";
 import { AddressModel } from "../models/address.model";
 import { UserModel } from "../models/user.model";
+import { WhiteListModel } from "../models/whitelist.model";
 import { AuthRequest } from "../types/core";
 import UserType from "../types/user";
 import MailController from "./mail.controller";
 
 class Auth extends AuthLogic {
+  //send otp
+  public async sendOtp(req: Request, res: Response, next: NextFunction) {
+    try {
+      // validator error handler
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        throw new Error(
+          errors
+            .array()
+            .map((errors) => errors.msg)
+            .join()
+            .replace(/[,]/g, " and ")
+        );
+      }
+
+      // get provided user data
+      const { phoneNumber, countryCode, role } = req.body;
+      const WLNU = await WhiteListModel.findOne({ phoneNumber });
+      const activeOTP = {
+        otp: WLNU?.otp || createOTP(4),
+        createdAt: Date(),
+      };
+
+      // save user data to database
+      const newUser: UserType = await new UserModel({
+        activeOTP,
+      }).save();
+
+      // send response to client
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Please check you sms inbox for an otp.",
+      });
+    } catch (error) {
+      // send error to client
+      next(error);
+    }
+  }
+  //verify otp
+  public async verifyOtp(req: Request, res: Response, next: NextFunction) {
+    try {
+      // validator error handler
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        throw new Error(
+          errors
+            .array()
+            .map((errors) => errors.msg)
+            .join()
+            .replace(/[,]/g, " and ")
+        );
+      }
+
+      // get provided user data
+      const { userId, otp } = req.body;
+      const userInfo = await UserModel.findById(userId);
+      if (!userInfo)
+        throw new Error("user does't exist corresponding to given userId.");
+
+      if (
+        !(
+          (new Date().getTime() -
+            new Date(userInfo.activeOTP.createdAt).getTime()) /
+            1000 <=
+          60
+        )
+      ) {
+        // remove OTP from User
+        await UserModel.findByIdAndUpdate(userId, {
+          activeOTP: {},
+        });
+        throw new Error("given opt is expired.");
+      }
+      if (userInfo.activeOTP.otp == otp)
+        throw new Error("given otp is incorrect.");
+
+      // send response to client
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "otp verified successfully.",
+        data: userInfo,
+      });
+    } catch (error) {
+      // send error to client
+      next(error);
+    }
+  }
   // create user
   public async createUser(
     req: Request,
@@ -214,37 +302,44 @@ class Auth extends AuthLogic {
         );
       }
 
-      // get provided user data
-      const { email, password } = req.body;
+      const { userId, otp } = req.body;
+      const userInfo = await UserModel.findById(userId);
+      if (!userInfo)
+        throw new Error("user does't exist corresponding to given userId.");
 
-      // find user by email
-      const userData: UserType | null = await UserModel.findOne({ email });
-
-      // check if user exists
-      if (!userData) {
-        throw new Error("User not found");
+      if (
+        !(
+          (new Date().getTime() -
+            new Date(userInfo.activeOTP.createdAt).getTime()) /
+            1000 <=
+          60
+        )
+      ) {
+        // remove OTP from User
+        await UserModel.findByIdAndUpdate(userId, {
+          activeOTP: {},
+        });
+        throw new Error("given opt is expired.");
       }
-
-      // check if password is correct
-      if (!userData.authenticate(password)) {
-        throw new Error("Password is incorrect");
-      }
+      if (userInfo.activeOTP.otp == otp)
+        throw new Error("given otp is incorrect.");
 
       // check if user is Active or not
-      if (userData.status === "INACTIVE") {
+      if (userInfo.status === "INACTIVE") {
         throw new Error("Email is not verified");
       }
 
       //check is user is blocked or not
-      if (userData.blockStatus === "BLOCKED") {
+      if (userInfo.blockStatus === "BLOCKED") {
         throw new Error("User is blocked");
       }
 
       // get JWT token
       const ACCESS_TOKEN: string = await super.getAccessToken({
-        _id: userData._id,
-        email: userData.email,
-        role: userData.role,
+        _id: userInfo?._id,
+        email: userInfo?.email,
+        role: userInfo?.role,
+        storeId: userInfo?.store,
       });
 
       const userAgent: string =
@@ -255,7 +350,7 @@ class Auth extends AuthLogic {
           .replace(/;/g, "")
           .replace(/ /g, "-") || "unknown-device";
 
-      await UserModel.findByIdAndUpdate(userData._id, {
+      await UserModel.findByIdAndUpdate(userInfo._id, {
         isLoggedIn: true,
         isOnline: true,
         lastLogin: new Date(),
@@ -263,7 +358,7 @@ class Auth extends AuthLogic {
 
       //send new login detection to mail
       new MailController().sendHtmlMail({
-        to: userData.email,
+        to: userInfo.email,
         subject: "New Login",
         templet: "normal",
         html: `<h1>New Login</h1>
@@ -277,7 +372,7 @@ class Auth extends AuthLogic {
           Time: ${new Date()}
 
           <p>
-          if you did not login to your account, please login to your account and change your password.
+          if you did not login to your account, please login to your account and then logout.
           </p>
 
           <a href="${process.env.WEBSITE_END_POINT}/signin">
@@ -299,10 +394,10 @@ class Auth extends AuthLogic {
         message: "User logged in successfully",
         ACCESS_TOKEN,
         data: {
-          _id: userData._id,
-          displayName: userData.displayName,
-          email: userData.email,
-          role: userData.role,
+          _id: userInfo._id,
+          displayName: userInfo.displayName,
+          email: userInfo.email,
+          role: userInfo.role,
         },
       });
     } catch (error) {

@@ -5,6 +5,10 @@ export default interface UserType extends Document {
   _doc: UserType;
   displayName: string;
   phoneNumber: number;
+  activeOTP: {
+    otp: number;
+    createdAt: Date;
+  };
   country: {
     code: string;
     name: string;
