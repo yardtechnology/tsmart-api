@@ -1,6 +1,7 @@
 import { NextFunction, Response } from "express";
 import { body, param } from "express-validator";
 import { fieldValidateError } from "../helper";
+import BillingLogic from "../logic/billing.logic";
 import OrderLogic from "../logic/order.logic";
 import { AuthRequest } from "../types/core";
 
@@ -20,6 +21,9 @@ class Order extends OrderLogic {
         userId: req.currentUser?._id as string,
         serviceTime: req.body?.serviceTime,
         serviceIds: req.body?.serviceIds,
+      });
+      await new BillingLogic().createBill(orderData?._id, {
+        status: "PAID",
       });
 
       res.status(200).json({
@@ -45,6 +49,9 @@ class Order extends OrderLogic {
         userId: req.currentUser?._id as string,
         addressId: req.body?.addressId,
         serviceIds: req.body?.serviceIds,
+      });
+      await new BillingLogic().createBill(orderData?._id, {
+        status: "PAID",
       });
 
       res.status(200).json({
@@ -73,6 +80,9 @@ class Order extends OrderLogic {
         street: req.body?.street,
         serviceIds: req.body?.serviceIds,
       });
+      await new BillingLogic().createBill(orderData?._id, {
+        status: "PAID",
+      });
 
       res.status(200).json({
         status: "SUCCESS",
@@ -95,6 +105,9 @@ class Order extends OrderLogic {
       fieldValidateError(req);
 
       const orderData = await super.getOrderDetails(req.params.orderId);
+      await new BillingLogic().createBill(orderData?._id, {
+        status: "PAID",
+      });
 
       res.status(200).json({
         status: "SUCCESS",

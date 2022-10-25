@@ -4,7 +4,6 @@ import { BillingModel } from "../models/billing.model";
 import { OrderModel } from "../models/order.model";
 import { ProductModel } from "../models/product.model";
 import BillingType from "../types/billing";
-import OrderType from "../types/order";
 import CartLogic from "./cart.logic";
 // import CouponLogic from "./coupon.logic";
 
@@ -15,11 +14,11 @@ class BillingLogic {
   public async createBill(
     orderId: string,
     props?: {
-      razorpay_payment_id: string;
-      razorpay_order_id: string;
-      razorpay_signature: string;
-      payment_order_id: string;
-      status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "FAILED";
+      razorpay_payment_id?: string;
+      razorpay_order_id?: string;
+      razorpay_signature?: string;
+      payment_order_id?: string;
+      status?: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "FAILED";
     }
   ): Promise<BillingType> {
     return new Promise(async (resolve, reject) => {
@@ -27,11 +26,14 @@ class BillingLogic {
         const configData = {
           tax: 15,
         };
-        const orderData: OrderType | null = await OrderModel.findById(orderId);
+        const orderData = await OrderModel.findById(orderId);
         if (!orderData) throw new Error("Order not found while creating bill");
-        const total = orderData.product.salePrice * orderData.quantity;
+        //TODO:calculate after coupon discount price
+        const total = orderData.price;
+        const tax = configData?.tax ? (total * configData.tax) / 100 : 0;
+        const subPrice = total - tax;
         const bill: BillingType = await new BillingModel({
-          order: orderData._id,
+          orders: orderData._id,
           total,
           status: props?.status,
           metadata: {
@@ -40,8 +42,8 @@ class BillingLogic {
             razorpay_order_id: props?.razorpay_order_id,
             razorpay_signature: props?.razorpay_signature,
           },
-          tax: configData?.tax ? (total * configData.tax) / 100 : 0,
-          subTotal: orderData.product.salePrice * orderData.quantity,
+          tax,
+          subPrice,
         }).save();
         await bill.save();
         resolve(bill);
