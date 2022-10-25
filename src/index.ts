@@ -36,7 +36,7 @@ class App {
         {}
       )
       .then(() => {
-        console.log(">>>>>>>>>>>>> DATABASE IS CONNECTED");
+        console.log(">>>>>>>>>>>>> DATABASE IS CONNECTED <<<<<<<<<<<<<<<<");
       })
       .catch((err) => {
         console.log("DB ERROR:", err.message);
@@ -67,7 +67,9 @@ class App {
 
   public listen(): void {
     this.express.listen(this.PORT, () => {
-      console.log(`Listening at port ${this.PORT}`);
+      console.log(
+        `>>>>>>>>>>>>>> Listening at port ${this.PORT}<<<<<<<<<<<<<<`
+      );
     });
   }
 }
