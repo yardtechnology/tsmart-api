@@ -7,6 +7,10 @@ export {
   default as ConfigController,
 } from "./config.controller";
 export {
+  ContactUsControllerValidation,
+  default as ContactUsController,
+} from "./contactUs.controller";
+export {
   CouponControllerValidation,
   default as CouponController,
 } from "./coupon.controller";
