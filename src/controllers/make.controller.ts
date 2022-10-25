@@ -1,6 +1,7 @@
 import { NextFunction, Response } from "express";
-import { body, param, validationResult } from "express-validator";
-import { BadRequest, InternalServerError, NotFound } from "http-errors";
+import { body, param } from "express-validator";
+import { InternalServerError, NotFound } from "http-errors";
+import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import MediaLogic from "../logic/media.logic";
 import { MakeSchema } from "../models";
@@ -10,16 +11,7 @@ class MakeController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     let imageData: any | undefined;
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new BadRequest(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
       const { title, deviceId } = req.body;
       const imageFile = req?.files?.image;
       const filePath = `Make`;
@@ -36,7 +28,7 @@ class MakeController {
       });
       if (!createDevice)
         throw new InternalServerError(
-          "Something went wrong, Device is not created."
+          "Something went wrong, Make is not created."
         );
       res.json({
         status: "SUCCESS",
@@ -56,16 +48,7 @@ class MakeController {
       const { makeId } = req.params;
       const { title, deviceId } = req.body;
 
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new BadRequest(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
 
       const imageFile = req?.files?.image;
       const filePath = `Device`;
@@ -144,16 +127,7 @@ class MakeController {
   async deleteData(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { makeId } = req.params;
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new BadRequest(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
       const deleteDevice = await MakeSchema.findByIdAndDelete(makeId);
       //   delete device image
       deleteDevice?.imagePATH &&

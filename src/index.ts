@@ -36,7 +36,7 @@ class App {
         {}
       )
       .then(() => {
-        console.log("DB CONNECTED");
+        console.log(">>>>>>>>>>>>> DATABASE IS CONNECTED");
       })
       .catch((err) => {
         console.log("DB ERROR:", err.message);

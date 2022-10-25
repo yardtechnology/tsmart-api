@@ -7,6 +7,10 @@ const timingSchema = new Schema<TIMING_TYPE, Model<TIMING_TYPE>>(
       type: Number,
       default: 0,
     },
+    durationInMin: {
+      type: Number,
+      default: 30,
+    },
     dayOfWeekNumber: {
       type: Number,
       default: 1,

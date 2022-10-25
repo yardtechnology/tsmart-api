@@ -1,53 +1,45 @@
 import { NextFunction, Response } from "express";
-import { body, param, validationResult } from "express-validator";
-import { BadRequest, InternalServerError } from "http-errors";
-import paginationHelper from "../helper/pagination.helper";
+import { body, param } from "express-validator";
+import { Types } from "mongoose";
+import { fieldValidateError } from "../helper";
 import { TimingSchema } from "../models";
 import { AuthRequest } from "../types/core";
 
 class TimingController {
   async createAndUpdate(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new BadRequest(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
-      const { numberOfRepairers, start, end, storeId, timingId } = req.body;
+      fieldValidateError(req);
+      const { numberOfRepairers, start, end, storeId, durationInMin } =
+        req.body;
       const user = req?.currentUser?._id;
-      const dayOfWeekNumber = start ? new Date(start).getDay() : undefined;
-      const arg: any = {
-        store: storeId,
-      };
-      timingId && (arg["_id"] = timingId);
-      dayOfWeekNumber && (arg["dayOfWeekNumber"] = dayOfWeekNumber);
+      const dayOfWeekNumber = new Date(start).getDay();
+      const subtract = new Date(end).getTime() - new Date(start).getTime();
+      const divide = Math.floor(subtract / (durationInMin * 60 * 1000));
+      const deleteFirst = await TimingSchema.deleteMany({
+        dayOfWeekNumber: dayOfWeekNumber,
+      });
 
-      const timingCreateAndUpdate = await TimingSchema.findOneAndUpdate(
-        arg,
-        {
-          start,
-          end,
-          numberOfRepairers,
+      const dateArray = new Array(divide).fill(1).map((item, index) => {
+        return {
+          store: storeId,
           dayOfWeekNumber: dayOfWeekNumber,
-        },
-        {
-          upsert: true,
-          new: true,
-        }
-      );
-      if (!timingCreateAndUpdate)
-        throw new InternalServerError(
-          "Something went wrong, Timing is not created."
-        );
+          durationInMin,
+          numberOfRepairers,
+          start: new Date(
+            new Date(start).getTime() + index * (durationInMin * 60 * 1000)
+          ),
+          end: new Date(
+            new Date(start).getTime() +
+              (index + 1) * (durationInMin * 60 * 1000)
+          ),
+        };
+      });
+      const insertData = await TimingSchema.insertMany(dateArray);
+
       res.json({
         status: "SUCCESS",
         message: "Timing is created successfully.",
-        data: timingCreateAndUpdate,
+        data: insertData,
       });
     } catch (error) {
       next(error);
@@ -56,37 +48,173 @@ class TimingController {
 
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { limit, chunk, storeId } = req.query;
+      const { limit, chunk } = req.query;
+      const { storeId } = req.params;
       const { start } = req.body;
 
       const dayOfWeekNumber = start ? new Date(start).getDay() : undefined;
 
       const query: any = {};
       dayOfWeekNumber && (query["dayOfWeekNumber"] = dayOfWeekNumber);
-      storeId && (query["store"] = storeId);
+      // storeId && (query["store"] = storeId);
 
-      const getAllData = await paginationHelper({
-        model: TimingSchema,
-        query,
-        chunk: chunk ? Number(chunk) : undefined,
-        limit: limit ? Number(limit) : undefined,
-        select: "-dayOfWeekNumber",
-        populate: [
-          {
-            path: "store",
-            select: "displayName email imageURL",
+      const getAllData = await TimingSchema.aggregate([
+        {
+          $match: {
+            store: new Types.ObjectId(storeId),
           },
-        ],
-        sort: {
-          createdAt: -1,
         },
-      });
+        {
+          $addFields: {
+            timeArray: {
+              $range: [
+                "$start",
+                "$end",
+                {
+                  $dateAdd: {
+                    startDate: "$start",
+                    unit: "minute",
+                    amount: 30,
+                  },
+                },
+              ],
+            },
+          },
+        },
+      ]);
       res.status(200).json({
         status: "SUCCESS",
         message: storeId
           ? "Timing found successfully."
           : "All Timing found successfully.",
-        data: storeId ? getAllData?.data?.[0] : getAllData,
+        data: getAllData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async userGetStoreLeftBookingList(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { limit, chunk } = req.query;
+      const { storeId } = req.params;
+      const { date } = req.body;
+
+      const dayOfWeekNumber = new Date(date || new Date()).getDay();
+
+      const query: any = {};
+      dayOfWeekNumber && (query["dayOfWeekNumber"] = dayOfWeekNumber);
+      // storeId && (query["store"] = storeId);
+
+      const getAllData = await TimingSchema.aggregate([
+        {
+          $match: {
+            $and: [
+              {
+                store: new Types.ObjectId(storeId),
+              },
+              {
+                dayOfWeekNumber: dayOfWeekNumber,
+              },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            startDateForm: {
+              $dateFromParts: {
+                year: new Date(date).getFullYear(),
+                month: new Date(date).getMonth() + 1,
+                day: new Date(date).getDate(),
+                hour: {
+                  $hour: "$start",
+                },
+                minute: {
+                  $minute: "$start",
+                },
+              },
+            },
+            endDateForm: {
+              $dateFromParts: {
+                year: new Date(date).getFullYear(),
+                month: new Date(date).getMonth() + 1,
+                day: new Date(date).getDate(),
+                hour: {
+                  $hour: "$end",
+                },
+                minute: {
+                  $minute: "$end",
+                },
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "orders",
+            localField: "store",
+            foreignField: "storeID",
+            as: "orderHave",
+            let: {
+              startDate: "$startDateForm",
+              endDate: "$endDateForm",
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      {
+                        $eq: ["$serviceType", "IN_STOR"],
+                      },
+                      {
+                        $gte: ["$scheduledTime", new Date(date)],
+                      },
+                      {
+                        $eq: [
+                          { $dayOfWeek: "$scheduledTime" },
+                          dayOfWeekNumber + 1,
+                        ],
+                      },
+
+                      {
+                        $gte: ["$scheduledTime", "$$startDate"],
+                      },
+                      {
+                        $lte: ["$scheduledTime", "$$endDate"],
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            orderHave: {
+              $size: "$orderHave",
+            },
+            leftBooking: {
+              $subtract: [
+                "$numberOfRepairers",
+                {
+                  $size: "$orderHave",
+                },
+              ],
+            },
+          },
+        },
+      ]);
+      res.status(200).json({
+        status: "SUCCESS",
+        message: storeId
+          ? "Timing found successfully."
+          : "All Timing found successfully.",
+        data: getAllData,
       });
     } catch (error) {
       next(error);
@@ -107,18 +235,26 @@ export const TimingControllerValidation = {
       .withMessage("storeId is required.")
       .isMongoId()
       .withMessage("storeId must be mongoes id."),
-    body("timingId")
+
+    body("durationInMin")
       .optional()
       .exists()
-      .isMongoId()
-      .withMessage("timingId must be mongoes id."),
+      .isNumeric()
+      .withMessage("durationInMin should be number."),
 
     body("start")
       .optional()
       .exists()
-      // .isISO8601()
       .toDate()
-      .withMessage("start is invalid date."),
+      .withMessage("start is invalid date.")
+      .custom((value, { req }) => {
+        if (!req.body?.end || !req.body?.durationInMin) return false;
+        const end = req?.body?.end;
+        const subtract = new Date(end).getTime() - new Date(value).getTime();
+
+        return req.body?.durationInMin * 60 * 1000 < subtract;
+      })
+      .withMessage("Two date distance is smaller than durationInMin"),
     body("end")
       .optional()
       .exists()

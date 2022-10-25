@@ -22,9 +22,9 @@ export default class TimingRoutes extends AuthenticateMiddleware {
     );
     // get all
     this.router.get(
-      "/timing",
+      "/timing/:storeId",
       super.isAuthenticated,
-      this.timingController.getAll
+      this.timingController.userGetStoreLeftBookingList
     );
   }
 }
