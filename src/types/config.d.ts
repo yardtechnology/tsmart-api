@@ -38,4 +38,5 @@ export default interface CONFIG_TYPE extends Document {
     title: string;
     isDismissible: boolean;
   };
+  mailInInstauration: string;
 }

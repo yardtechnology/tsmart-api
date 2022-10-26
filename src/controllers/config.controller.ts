@@ -38,6 +38,7 @@ class ConfigController {
         technicianIosVersion,
         technicianIosTitle,
         technicianIosIsDismissible,
+        mailInInstauration,
       } = req.body;
 
       const createConfig = await ConfigSchema.findOneAndUpdate(
@@ -80,6 +81,7 @@ class ConfigController {
             title: technicianIosTitle,
             isDismissible: technicianIosIsDismissible,
           },
+          mailInInstauration,
         },
         {
           runValidators: true,

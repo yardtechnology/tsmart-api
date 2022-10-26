@@ -90,6 +90,7 @@ const configSchema = new Schema<CONFIG_TYPE, Model<CONFIG_TYPE>>(
         type: Boolean,
       },
     },
+    mailInInstauration: String,
   },
   { timestamps: true }
 );
