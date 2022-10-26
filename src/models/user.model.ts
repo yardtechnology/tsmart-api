@@ -95,4 +95,6 @@ userSchema.methods.encryptPassword = function (rawPassword: string) {
   }
 };
 
-export const UserModel = model<UserType>("User", userSchema);
+const UserModel = model<UserType>("User", userSchema);
+UserModel.syncIndexes();
+export { UserModel };

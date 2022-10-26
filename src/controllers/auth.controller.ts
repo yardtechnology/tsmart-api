@@ -71,7 +71,6 @@ class Auth extends AuthLogic {
         );
       }
 
-      // get provided user data
       const { userId, otp } = req.body;
       const userInfo = await UserModel.findById(userId);
       if (!userInfo)
@@ -94,11 +93,81 @@ class Auth extends AuthLogic {
       if (userInfo.activeOTP.otp == otp)
         throw new Error("given otp is incorrect.");
 
+      // check if user is Active or not
+      if (userInfo.status === "INACTIVE") {
+        throw new Error("Email is not verified");
+      }
+
+      //check is user is blocked or not
+      if (userInfo.blockStatus === "BLOCKED") {
+        throw new Error("User is blocked");
+      }
+
+      // get JWT token
+      const ACCESS_TOKEN: string = await super.getAccessToken({
+        _id: userInfo?._id,
+        email: userInfo?.email,
+        role: userInfo?.role,
+        storeId: userInfo?.store,
+      });
+
+      const userAgent: string =
+        req
+          ?.get("user-agent")
+          ?.split(")")[0]
+          .replace("(", "")
+          .replace(/;/g, "")
+          .replace(/ /g, "-") || "unknown-device";
+
+      await UserModel.findByIdAndUpdate(userInfo._id, {
+        isLoggedIn: true,
+        isOnline: true,
+        lastLogin: new Date(),
+      });
+
+      //send new login detection to mail
+      new MailController().sendHtmlMail({
+        to: userInfo.email,
+        subject: "New Login",
+        templet: "normal",
+        html: `<h1>New Login</h1>
+        <p>
+          Someone logged in to your account.
+          </p>
+          <p>
+          Device: ${userAgent.replace(/-/g, " ")}
+          </p>
+          <p>
+          Time: ${new Date()}
+
+          <p>
+          if you did not login to your account, please login to your account and then logout.
+          </p>
+
+          <a href="${process.env.WEBSITE_END_POINT}/signin">
+            Login
+            </a>
+
+            <p>
+            Thanks, <br>
+            ${process.env.WEBSITE_NAME}
+
+
+            </p>
+          </p>`,
+      });
+
       // send response to client
       res.status(200).json({
         status: "SUCCESS",
-        message: "otp verified successfully.",
-        data: userInfo,
+        message: "User logged in successfully",
+        ACCESS_TOKEN,
+        data: {
+          _id: userInfo._id,
+          displayName: userInfo.displayName,
+          email: userInfo.email,
+          role: userInfo.role,
+        },
       });
     } catch (error) {
       // send error to client
