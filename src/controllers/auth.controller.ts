@@ -34,7 +34,12 @@ class Auth extends AuthLogic {
         createdAt: Date(),
       };
 
-      let newUser = await UserModel.findOne({ phoneNumber });
+      let newUser = await UserModel.findOneAndUpdate(
+        { phoneNumber },
+        {
+          activeOTP,
+        }
+      );
 
       if (!newUser) {
         newUser = await new UserModel({
@@ -107,13 +112,8 @@ class Auth extends AuthLogic {
         });
         throw new Error("given opt is expired.");
       }
-      if (userInfo.activeOTP.otp == otp)
+      if (userInfo.activeOTP.otp !== otp)
         throw new Error("given otp is incorrect.");
-
-      // check if user is Active or not
-      if (userInfo.status === "INACTIVE") {
-        throw new Error("Email is not verified");
-      }
 
       //check is user is blocked or not
       if (userInfo.blockStatus === "BLOCKED") {
@@ -182,6 +182,7 @@ class Auth extends AuthLogic {
         data: {
           _id: userInfo._id,
           displayName: userInfo.displayName,
+          phoneNumber: userInfo.phoneNumber,
           email: userInfo.email,
           role: userInfo.role,
         },
