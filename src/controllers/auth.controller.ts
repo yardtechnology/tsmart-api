@@ -28,15 +28,15 @@ class Auth extends AuthLogic {
 
       // get provided user data
       const { phoneNumber, countryCode, role } = req.body;
-      const WLNU = await WhiteListModel.findOne({ phoneNumber });
+      const whiteListedUserData = await WhiteListModel.findOne({ phoneNumber });
       const activeOTP = {
-        otp: WLNU?.otp || createOTP(4),
+        otp: whiteListedUserData?.otp || createOTP(4),
         createdAt: Date(),
       };
 
-      const userData = await UserModel.findOne({ phoneNumber });
-      let newUser;
-      if (!userData) {
+      let newUser = await UserModel.findOne({ phoneNumber });
+
+      if (!newUser) {
         newUser = await new UserModel({
           phoneNumber,
           "country.code": countryCode,
@@ -49,7 +49,12 @@ class Auth extends AuthLogic {
       res.status(200).json({
         status: "SUCCESS",
         message: "Please check you sms inbox for an otp.",
-        data: newUser,
+        data: {
+          _id: newUser?._id,
+          phoneNumber: newUser?.phoneNumber,
+          countryCode: newUser?.country?.code,
+          role: newUser?.role,
+        },
       });
     } catch (error) {
       // send error to client
@@ -75,7 +80,19 @@ class Auth extends AuthLogic {
       const userInfo = await UserModel.findById(userId);
       if (!userInfo)
         throw new Error("user does't exist corresponding to given userId.");
-
+      console.log(userInfo);
+      console.log(
+        (new Date().getTime() -
+          new Date(userInfo.activeOTP.createdAt).getTime()) /
+          1000,
+        60
+      );
+      console.log(
+        (new Date().getTime() -
+          new Date(userInfo.activeOTP.createdAt).getTime()) /
+          1000 <=
+          60
+      );
       if (
         !(
           (new Date().getTime() -
@@ -378,44 +395,37 @@ class Auth extends AuthLogic {
         );
       }
 
-      const { userId, otp } = req.body;
-      const userInfo = await UserModel.findById(userId);
-      if (!userInfo)
-        throw new Error("user does't exist corresponding to given userId.");
+      // get provided user data
+      const { email, password } = req.body;
 
-      if (
-        !(
-          (new Date().getTime() -
-            new Date(userInfo.activeOTP.createdAt).getTime()) /
-            1000 <=
-          60
-        )
-      ) {
-        // remove OTP from User
-        await UserModel.findByIdAndUpdate(userId, {
-          activeOTP: {},
-        });
-        throw new Error("given opt is expired.");
+      // find user by email
+      const userData: UserType | null = await UserModel.findOne({ email });
+
+      // check if user exists
+      if (!userData) {
+        throw new Error("User not found");
       }
-      if (userInfo.activeOTP.otp == otp)
-        throw new Error("given otp is incorrect.");
+
+      // check if password is correct
+      if (!userData.authenticate(password)) {
+        throw new Error("Password is incorrect");
+      }
 
       // check if user is Active or not
-      if (userInfo.status === "INACTIVE") {
+      if (userData.status === "INACTIVE") {
         throw new Error("Email is not verified");
       }
 
       //check is user is blocked or not
-      if (userInfo.blockStatus === "BLOCKED") {
+      if (userData.blockStatus === "BLOCKED") {
         throw new Error("User is blocked");
       }
 
       // get JWT token
       const ACCESS_TOKEN: string = await super.getAccessToken({
-        _id: userInfo?._id,
-        email: userInfo?.email,
-        role: userInfo?.role,
-        storeId: userInfo?.store,
+        _id: userData._id,
+        email: userData.email,
+        role: userData.role,
       });
 
       const userAgent: string =
@@ -426,7 +436,7 @@ class Auth extends AuthLogic {
           .replace(/;/g, "")
           .replace(/ /g, "-") || "unknown-device";
 
-      await UserModel.findByIdAndUpdate(userInfo._id, {
+      await UserModel.findByIdAndUpdate(userData._id, {
         isLoggedIn: true,
         isOnline: true,
         lastLogin: new Date(),
@@ -434,7 +444,7 @@ class Auth extends AuthLogic {
 
       //send new login detection to mail
       new MailController().sendHtmlMail({
-        to: userInfo.email,
+        to: userData.email,
         subject: "New Login",
         templet: "normal",
         html: `<h1>New Login</h1>
@@ -446,20 +456,15 @@ class Auth extends AuthLogic {
           </p>
           <p>
           Time: ${new Date()}
-
           <p>
-          if you did not login to your account, please login to your account and then logout.
+          if you did not login to your account, please login to your account and change your password.
           </p>
-
           <a href="${process.env.WEBSITE_END_POINT}/signin">
             Login
             </a>
-
             <p>
             Thanks, <br>
             ${process.env.WEBSITE_NAME}
-
-
             </p>
           </p>`,
       });
@@ -470,10 +475,10 @@ class Auth extends AuthLogic {
         message: "User logged in successfully",
         ACCESS_TOKEN,
         data: {
-          _id: userInfo._id,
-          displayName: userInfo.displayName,
-          email: userInfo.email,
-          role: userInfo.role,
+          _id: userData._id,
+          displayName: userData.displayName,
+          email: userData.email,
+          role: userData.role,
         },
       });
     } catch (error) {
