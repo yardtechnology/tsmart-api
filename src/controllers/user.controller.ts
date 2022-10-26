@@ -37,6 +37,11 @@ class User extends MediaLogic {
           : undefined;
       // get provided user data
       const { displayName, gender, phoneNumber } = req.body;
+      const faceVideoFile = req.files?.faceVideo;
+      const faceVideoData: any | undefined =
+        faceVideoFile && !Array.isArray(faceVideoFile)
+          ? await super.uploadMedia(faceVideoFile, filePath)
+          : undefined;
 
       // save user data to database
       const updatedUser: UserType | null = await UserModel.findByIdAndUpdate(
@@ -52,6 +57,16 @@ class User extends MediaLogic {
           "fcmTokens.ios": req.body?.fcmTokenIos || req.body?.fcmTokens?.ios,
           "fcmTokens.web": req.body?.fcmTokenWeb || req.body?.fcmTokens?.web,
           isOnline: req?.body?.isOnline,
+          faceVideo: faceVideoData?.url,
+          faceVideoPATH: faceVideoData?.path,
+          latitude: req.body?.latitude,
+          longitude: req.body?.longitude,
+          location: req.body?.location,
+          deviceType: { $AddToSet: req.body?.deviceType },
+          makeType: { $AddToSet: req.body?.makeType },
+          isAcademicCourses: req.body?.isAcademicCourses,
+          experience: req.body?.experience,
+          age: req.body?.age,
         }
       );
 
@@ -59,6 +74,10 @@ class User extends MediaLogic {
       avatarData?.path &&
         updatedUser?.avatarPath &&
         super.deleteMedia(updatedUser?.avatarPath);
+      // delete previous face video
+      faceVideoData?.path &&
+        updatedUser?.faceVideoPATH &&
+        super.deleteMedia(updatedUser?.faceVideoPATH);
 
       if (!updatedUser) throw new Error("User not found");
 

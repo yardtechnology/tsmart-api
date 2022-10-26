@@ -42,4 +42,24 @@ export default interface UserType extends Document {
   store: StoreType;
   encryptPassword(rawPassword: string): string;
   authenticate(rawPassword: string): boolean;
+  faceVideo: string;
+  faceVideoPATH: string;
+  latitude: number;
+  longitude: number;
+  location: string;
+  deviceType: [
+    {
+      type: Schema.Types.ObjectId;
+      ref: "Device";
+    }
+  ];
+  makeType: [
+    {
+      type: Schema.Types.ObjectId;
+      ref: "Make";
+    }
+  ];
+  isAcademicCourses: boolean;
+  experience: number;
+  age: number;
 }

@@ -59,6 +59,26 @@ const userSchema = new Schema<UserType>(
       ref: "Store",
     },
     lastLogin: Date,
+    faceVideo: String,
+    faceVideoPATH: String,
+    latitude: Number,
+    longitude: Number,
+    location: String,
+    deviceType: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Device",
+      },
+    ],
+    makeType: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Make",
+      },
+    ],
+    isAcademicCourses: Boolean,
+    experience: Number,
+    age: Number,
   },
   { timestamps: true }
 );
