@@ -85,19 +85,6 @@ class Auth extends AuthLogic {
       const userInfo = await UserModel.findById(userId);
       if (!userInfo)
         throw new Error("user does't exist corresponding to given userId.");
-      console.log(userInfo);
-      console.log(
-        (new Date().getTime() -
-          new Date(userInfo.activeOTP.createdAt).getTime()) /
-          1000,
-        60
-      );
-      console.log(
-        (new Date().getTime() -
-          new Date(userInfo.activeOTP.createdAt).getTime()) /
-          1000 <=
-          60
-      );
       if (
         !(
           (new Date().getTime() -
