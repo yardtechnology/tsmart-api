@@ -10,13 +10,19 @@ class Payment extends StripeLogic {
     next: NextFunction
   ): Promise<any> {
     try {
+      const { email, id } = req.body?.token;
+      const { amount, currency } = req.body;
       const data: any = await super.paymentSession({
-        amount: 100,
-        email: "lalit@gmail.com",
+        amount,
+        source: id,
+        email,
+        currency,
       });
       console.log({ data });
       res.json({
-        clientSecret: data.client_secret,
+        status: "SUCCESS",
+        message: "Charged Successfully",
+        data,
       });
     } catch (error) {
       // send error to client
