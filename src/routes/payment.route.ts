@@ -18,6 +18,7 @@ class Payment extends AuthenticateMiddleware {
     this.router.post(
       "/payment",
       super.isAuthenticated,
+      this.orderController.validatePaymentFields,
       this.orderController.createPaymentController
     );
   }
