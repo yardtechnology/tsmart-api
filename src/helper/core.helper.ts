@@ -32,3 +32,8 @@ export const toMonth = (month: number) => {
       return "Dec";
   }
 };
+
+export const getTimeDeference = (time1: Date, time2: Date) => {
+  var diff = (time2.getTime() - time1.getTime()) / 1000;
+  return Math.abs(Math.round(diff));
+};

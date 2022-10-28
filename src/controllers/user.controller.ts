@@ -1,11 +1,13 @@
 import { NextFunction, Response } from "express";
 import { body, validationResult } from "express-validator";
 import { NotAcceptable } from "http-errors";
+import { getTimeDeference } from "../helper/core.helper";
 import MediaLogic from "../logic/media.logic";
 import UserLogic from "../logic/user.logic";
 import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
 import UserType from "../types/user";
+import { OnlineRecordSchema } from "./../models/onlineRecord.model";
 import MailController from "./mail.controller";
 
 class User extends MediaLogic {
@@ -388,6 +390,55 @@ class User extends MediaLogic {
       });
     } catch (error) {
       // send error to client
+      next(error);
+    }
+  }
+
+  //online record
+  public async onlineRecordController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      //find last online record
+      const lastOnlineRecord = await OnlineRecordSchema.find({})
+        .sort({
+          createdAt: -1,
+        })
+        .limit(1)
+        .populate("user");
+      let onlineReportData;
+      if (lastOnlineRecord.length && !lastOnlineRecord[0]?.endTime) {
+        const endTime = new Date();
+        onlineReportData = await OnlineRecordSchema.findByIdAndUpdate(
+          lastOnlineRecord[0]?._id,
+          {
+            endTime,
+            totalSeconds: getTimeDeference(
+              endTime,
+              lastOnlineRecord[0]?.startTime
+            ),
+          },
+          {
+            new: true,
+          }
+        );
+      } else {
+        onlineReportData = await new OnlineRecordSchema({
+          user: req.currentUser?._id,
+          startTime: new Date(),
+        }).save();
+      }
+      await UserModel.findByIdAndUpdate(req.currentUser?._id, {
+        isOnDuty: !lastOnlineRecord[0]?.user?.isOnDuty,
+      });
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Online record saved successfully",
+        data: onlineReportData,
+      });
+    } catch (error) {
       next(error);
     }
   }

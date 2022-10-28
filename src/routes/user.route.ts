@@ -16,6 +16,7 @@ class Auth extends AuthenticateMiddleware {
     this.changeBlockStatusRoute();
     this.statusChangeRoute();
     this.getAllUsersRoute();
+    this.onDutyRecordRoute();
   }
 
   // create user
@@ -77,6 +78,14 @@ class Auth extends AuthenticateMiddleware {
       "/users/all",
       super.isManager,
       this.userController.getAllUsersController
+    );
+  }
+  //is on duty status change | online record maintaining
+  public onDutyRecordRoute(): void {
+    this.router.put(
+      "/user/is-on-duty",
+      super.isAuthenticated,
+      this.userController.onlineRecordController
     );
   }
 }

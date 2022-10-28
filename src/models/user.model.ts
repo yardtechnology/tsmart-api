@@ -44,6 +44,7 @@ const userSchema = new Schema<UserType>(
     },
     isLoggedIn: Boolean,
     isOnline: Boolean,
+    isOnDuty: Boolean,
     blockStatus: String,
     status: {
       type: String,

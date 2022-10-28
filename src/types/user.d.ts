@@ -33,6 +33,7 @@ export default interface UserType extends Document {
   };
   isLoggedIn: boolean;
   isOnline: boolean;
+  isOnDuty: boolean;
   blockStatus: "BLOCKED" | "UNBLOCKED";
   lastLogin: Date;
   verificationInfo: {
