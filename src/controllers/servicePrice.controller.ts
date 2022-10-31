@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
-import { body, validationResult } from "express-validator";
-import { NotAcceptable } from "http-errors";
+import { body } from "express-validator";
+import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import MediaLogic from "../logic/media.logic";
 import { ServicePriceModel } from "../models/servicePrice.model";
@@ -16,17 +16,18 @@ class ServicePrice extends MediaLogic {
   ): Promise<any> {
     try {
       // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new NotAcceptable(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
-
+      fieldValidateError(req);
+      const {
+        title,
+        description,
+        mrp,
+        salePrice,
+        storeId,
+        serviceId,
+        modelId,
+        type,
+        isMostPopular,
+      } = req.body;
       // upload servicePrice picture
       const imageFile = req.files?.image;
       const filePath = `${req.currentUser?._id}`;
@@ -37,15 +38,17 @@ class ServicePrice extends MediaLogic {
 
       // save servicePrice data to database
       const servicePriceData: ServicePriceType = await new ServicePriceModel({
-        title: req.body?.title,
-        description: req.body?.description,
+        title: title,
+        description: description,
         image: imageData?.url,
         imagePath: imageData?.path,
-        mrp: req.body?.mrp,
-        salePrice: req.body?.salePrice,
-        model: req.body?.modelId,
-        store: req.body?.storeId,
-        service: req.body?.serviceId,
+        mrp: mrp,
+        salePrice: salePrice,
+        model: modelId,
+        store: storeId,
+        service: serviceId,
+        type,
+        isMostPopular,
       }).save();
 
       // send response to client
@@ -68,16 +71,7 @@ class ServicePrice extends MediaLogic {
   ): Promise<any> {
     try {
       // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
 
       // upload servicePrice image
       const imageFile = req.files?.image;
@@ -154,15 +148,23 @@ class ServicePrice extends MediaLogic {
     next: NextFunction
   ): Promise<any> {
     try {
-      const servicePriceData = await paginationHelper({
-        model: ServicePriceModel,
-        query: {},
-        select: "-imagePATH",
-        sort: { createdAt: -1 },
-        populate: ["store", "model", "service"],
-        limit: req.query.limit ? Number(req.query.limit) : undefined,
-        chunk: req.query.chunk ? Number(req.query.chunk) : undefined,
-      });
+      const servicePriceData = await ServicePriceModel.aggregate([
+        //   {
+        //   $group:{
+        //     _id:
+        //   }
+        // }
+      ]);
+
+      // paginationHelper({
+      //   model: ServicePriceModel,
+      //   query: {},
+      //   select: "-imagePATH",
+      //   sort: { createdAt: -1 },
+      //   populate: ["store", "model", "service"],
+      //   limit: req.query.limit ? Number(req.query.limit) : undefined,
+      //   chunk: req.query.chunk ? Number(req.query.chunk) : undefined,
+      // });
 
       // send response to client
       res.status(200).json({
@@ -278,6 +280,15 @@ class ServicePrice extends MediaLogic {
       .withMessage("serviceId is required")
       .isMongoId()
       .withMessage("please enter a valid store id"),
+    body("type")
+      .not()
+      .isEmpty()
+      .withMessage("type is required, ex-Stander, Premium"),
+    body("isMostPopular")
+      .optional()
+      .exists()
+      .isBoolean()
+      .withMessage("isMostPopular must be boolean."),
   ];
 }
 

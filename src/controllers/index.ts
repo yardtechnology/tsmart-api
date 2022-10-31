@@ -47,6 +47,10 @@ export {
   ServicePropertyControllerValidation,
 } from "./serviceProperty.controller";
 export {
+  default as ServicePropertyValueController,
+  ServicePropertyValueControllerValidation,
+} from "./servicePropertyValue.controller";
+export {
   default as SupportController,
   SupportControllerValidation,
 } from "./support.controller";

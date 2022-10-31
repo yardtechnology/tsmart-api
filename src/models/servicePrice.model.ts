@@ -1,7 +1,10 @@
-import { model, Schema } from "mongoose";
+import { model, Model, Schema } from "mongoose";
 import ServicePriceType from "../types/servicePrice";
 
-const servicePriceSchema = new Schema<ServicePriceType>(
+const servicePriceSchema = new Schema<
+  ServicePriceType,
+  Model<ServicePriceType>
+>(
   {
     title: String,
     description: String,
@@ -22,11 +25,16 @@ const servicePriceSchema = new Schema<ServicePriceType>(
       type: Schema.Types.ObjectId,
       ref: "Model",
     },
+    type: String,
+    isMostPopular: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
 
-export const ServicePriceModel = model<ServicePriceType>(
-  "ServicePrice",
-  servicePriceSchema
-);
+export const ServicePriceModel = model<
+  ServicePriceType,
+  Model<ServicePriceType>
+>("ServicePrice", servicePriceSchema);
