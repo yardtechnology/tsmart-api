@@ -1,6 +1,7 @@
 import { NextFunction, Response } from "express";
-import { body, oneOf, param, validationResult } from "express-validator";
-import { BadRequest, InternalServerError, NotFound } from "http-errors";
+import { body, oneOf, param } from "express-validator";
+import { InternalServerError, NotFound } from "http-errors";
+import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import { ReviewSchema } from "../models";
 import { AuthRequest } from "../types/core";
@@ -8,16 +9,7 @@ import { AuthRequest } from "../types/core";
 class ReviewController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new BadRequest(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
       const { comment, ratings, productId, storeId, technicianId } = req.body;
       const user = req?.currentUser?._id;
 
@@ -104,16 +96,7 @@ class ReviewController {
   async deleteData(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { reviewId } = req.params;
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new BadRequest(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
       const deleteReview = await ReviewSchema.findByIdAndDelete(reviewId);
       //   delete device image
       if (!deleteReview) throw new NotFound("Evaluation not found.");

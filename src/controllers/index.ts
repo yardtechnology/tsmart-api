@@ -43,6 +43,14 @@ export {
   ReviewControllerValidation,
 } from "./review.controller";
 export {
+  default as ServicePropertyController,
+  ServicePropertyControllerValidation,
+} from "./serviceProperty.controller";
+export {
+  default as ServicePropertyValueController,
+  ServicePropertyValueControllerValidation,
+} from "./servicePropertyValue.controller";
+export {
   default as SupportController,
   SupportControllerValidation,
 } from "./support.controller";

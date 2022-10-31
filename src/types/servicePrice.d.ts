@@ -14,4 +14,6 @@ export default interface ServicePriceType extends Document {
   isInStock: boolean;
   mrp: number;
   salePrice: number;
+  type?: string;
+  isMostPopular: boolean;
 }

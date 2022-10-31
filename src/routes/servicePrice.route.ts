@@ -10,62 +10,41 @@ class ServicePrice extends AuthenticateMiddleware {
     super();
     this.router = Router();
     this.servicePriceController = new ServicePriceController();
-    this.createServicePriceRoute();
-    this.updateServicePriceRoute();
-    this.getServicePriceRoute();
-    this.getAllServicePriceRoute();
-    this.deleteServicePriceRoute();
-    this.getServicePriceByModelRoute();
+    this.routes();
   }
 
   // create service price
-  private createServicePriceRoute(): void {
+
+  private routes() {
     this.router.post(
       "/service-price",
-      super.isManager,
+      // super.isManager,
+      super.isAuthenticated,
       this.servicePriceController.validateCreateServicePriceFields,
       this.servicePriceController.createServicePrice
     );
-  }
 
-  // update servicePrice
-  private updateServicePriceRoute(): void {
     this.router.put(
       "/service-price/:servicePriceId",
       super.isAuthenticated,
       this.servicePriceController.updateServicePrice
     );
-  }
-
-  // get servicePrice
-  private getServicePriceRoute(): void {
     this.router.get(
       "/service-price/:servicePriceId",
       this.servicePriceController.getServicePrice
     );
-  }
-
-  // get all service price
-  private getAllServicePriceRoute(): void {
     this.router.get(
       "/service-prices",
       this.servicePriceController.getAllServicePrice
     );
-  }
-
-  // delete servicePrice
-  private deleteServicePriceRoute(): void {
+    this.router.get(
+      "/service-prices/:modelId",
+      this.servicePriceController.getServicePricesByModel
+    );
     this.router.delete(
       "/service-price/:servicePriceId",
       super.isAuthenticated,
       this.servicePriceController.deleteServicePrice
-    );
-  }
-  // get servicePrice by make
-  private getServicePriceByModelRoute(): void {
-    this.router.get(
-      "/service-prices/:modelId",
-      this.servicePriceController.getServicePricesByModel
     );
   }
 }

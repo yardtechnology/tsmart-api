@@ -9,5 +9,7 @@ export { default as JoinOurTeamSchema } from "./joinOurTeam.model";
 export { default as MakeSchema } from "./make.model";
 export { default as NotificationSchema } from "./notification.model";
 export { default as ReviewSchema } from "./review.model";
+export { ServicePropertySchema } from "./serviceProperty.model";
+export { ServicePropertyValueSchema } from "./servicePropertyValue.model";
 export { default as SupportSchema } from "./support.model";
 export { default as TimingSchema } from "./timing.model";
