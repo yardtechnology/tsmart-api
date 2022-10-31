@@ -2,7 +2,7 @@ import { AddressModel } from "../models/address.model";
 import { OrderModel } from "../models/order.model";
 import { StoreModel } from "../models/store.model";
 import { UserModel } from "../models/user.model";
-import OrderType from "../types/order";
+import OrderType, { OrderStatus } from "../types/order";
 import { ServicePriceModel } from "./../models/servicePrice.model";
 // import NotificationLogic from "./notification.logic";
 
@@ -185,6 +185,33 @@ class OrderLogic {
         resolve(orderData);
       } catch (error) {
         reject(error);
+      }
+    });
+  }
+
+  /**
+   * update order status and ETA update
+   */
+  public async updateOrderStatus({
+    orderId,
+    status,
+    eta,
+  }: {
+    orderId: string;
+    status?: OrderStatus;
+    eta?: Date;
+  }): Promise<OrderType> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const orderData = await OrderModel.findByIdAndUpdate(orderId, {
+          status,
+          ETA: eta,
+        });
+        if (!orderData) throw new Error("Order not found");
+
+        resolve(orderData);
+      } catch (err) {
+        reject(err);
       }
     });
   }

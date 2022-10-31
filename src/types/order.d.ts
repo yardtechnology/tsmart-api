@@ -1,10 +1,27 @@
 import { Document } from "mongoose";
 import AddressType from "./address";
 import BillingType from "./billing";
+import { OrderStatus } from "./order.d";
 import ProductType from "./product";
 import ServicePriceType from "./servicePrice";
 import StoreType from "./store";
 import UserType from "./user";
+
+export type OrderStatus =
+  | "INITIATED"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "CONFIRMED"
+  | "PACKED"
+  | "SHIPPED"
+  | "OUT_FOR_DELIVERY"
+  | "DELIVERED"
+  | "RECEIVED"
+  | "PAID"
+  | "TECHNICIAN_ASSIGNED"
+  | "TECHNICIAN_REACHED"
+  | "REPAIRED"
+  | "ADD_ON_SERVICE";
 
 export default interface OrderType extends Document {
   user: UserType;
@@ -14,21 +31,7 @@ export default interface OrderType extends Document {
   billing: BillingType;
   address: AddressType;
   ETA: Date;
-  status:
-    | "INITIATED"
-    | "COMPLETED"
-    | "CANCELLED"
-    | "CONFIRMED"
-    | "PACKED"
-    | "SHIPPED"
-    | "OUT_FOR_DELIVERY"
-    | "DELIVERED"
-    | "RECEIVED"
-    | "PAID"
-    | "TECHNICIAN_ASSIGNED"
-    | "TECHNICIAN_REACHED"
-    | "REPAIRED"
-    | "ADD_ON_SERVICE";
+  status: OrderStatus;
   trackingNumber: string;
   totalPrice: number;
   totalMrp: number;

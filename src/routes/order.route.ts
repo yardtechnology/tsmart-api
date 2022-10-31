@@ -14,6 +14,7 @@ class Order extends AuthenticateMiddleware {
     this.createMailInOrderRoute();
     this.createCallOutOrderRoute();
     this.getOrderDetailsRoute();
+    this.updateOrderStatusRoute();
   }
 
   // place store service order
@@ -50,6 +51,16 @@ class Order extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.orderController.validateGetOrderDetails,
       this.orderController.getOrderDetailsController
+    );
+  }
+
+  //order status and ETA update
+  private updateOrderStatusRoute(): void {
+    this.router.put(
+      "/orders/:orderId/status",
+      super.isAuthenticated,
+      this.orderController.validateUpdateOrderStatus,
+      this.orderController.updateOrderStatusController
     );
   }
 

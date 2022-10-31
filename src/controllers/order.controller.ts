@@ -4,6 +4,8 @@ import { fieldValidateError } from "../helper";
 import BillingLogic from "../logic/billing.logic";
 import OrderLogic from "../logic/order.logic";
 import { AuthRequest } from "../types/core";
+import { OrderStatus } from "../types/order";
+import MailController from "./mail.controller";
 
 class Order extends OrderLogic {
   /** make order */
@@ -119,6 +121,52 @@ class Order extends OrderLogic {
     }
   }
 
+  /**
+   * order status and ETA update
+   */
+  public async updateOrderStatusController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      const orderData = await super.updateOrderStatus({
+        orderId: req.params.orderId,
+        status: req.body.status as OrderStatus,
+        eta: new Date(req.body.eta as string),
+      });
+      //send mail to user to notify about order status
+      new MailController().sendMail({
+        to: orderData.user.email,
+        subject: "Order status updated",
+        text: `
+        Hi ${orderData.user.displayName},
+        ${
+          (req.body.status || orderData?.status?.replace(/_/g, " ")) &&
+          `Your order ${orderData.id} has been updated to ${
+            req.body.status || orderData?.status?.replace(/_/g, " ")
+          }.`
+        }
+        ${
+          orderData?.ETA &&
+          `We will deliver your order by ${new Date(
+            orderData?.ETA
+          ).toLocaleString()}.`
+        }
+        Thanks,`,
+      });
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Order status updated",
+        data: orderData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public validateOrderPlaceFields = [
     body("storeId")
       .not()
@@ -152,6 +200,31 @@ class Order extends OrderLogic {
 
   public validateGetOrderDetails = [
     param("orderId").isMongoId().withMessage("Not a valid order id"),
+  ];
+  public validateUpdateOrderStatus = [
+    param("orderId").isMongoId().withMessage("Not a valid order id"),
+    body("status")
+      .isIn([
+        "INITIATED",
+        "COMPLETED",
+        "CANCELLED",
+        "CONFIRMED",
+        "PACKED",
+        "SHIPPED",
+        "OUT_FOR_DELIVERY",
+        "DELIVERED",
+        "RECEIVED",
+        "PAID",
+        "TECHNICIAN_ASSIGNED",
+        "TECHNICIAN_REACHED",
+        "REPAIRED",
+        "ADD_ON_SERVICE",
+      ])
+      .withMessage("not a valid status"),
+    body("eta")
+      .optional()
+      .custom((value) => !isNaN(new Date(value).getMonth()))
+      .withMessage("not a valid date"),
   ];
 }
 
