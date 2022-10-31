@@ -20,6 +20,7 @@ export default class TimingRoutes extends AuthenticateMiddleware {
       TimingControllerValidation.createAndUpdate,
       this.timingController.createAndUpdate
     );
+
     // get all
     this.router.get(
       "/timing/:storeId",

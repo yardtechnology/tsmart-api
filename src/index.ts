@@ -68,7 +68,7 @@ class App {
   public listen(): void {
     this.express.listen(this.PORT, () => {
       console.log(
-        `>>>>>>>>>>>>>> Listening at port ${this.PORT}<<<<<<<<<<<<<<`
+        `>>>>>>>>>>>>>> Listening at port ${this.PORT} <<<<<<<<<<<<<<`
       );
     });
   }
