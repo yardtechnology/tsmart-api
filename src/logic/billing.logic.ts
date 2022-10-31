@@ -11,36 +11,43 @@ class BillingLogic {
   /**
    *create bill of an order
    */
-  public async createBill(
-    orderId: string,
-    props?: {
-      razorpay_payment_id?: string;
-      razorpay_order_id?: string;
-      razorpay_signature?: string;
-      payment_order_id?: string;
-      status?: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "FAILED";
-    }
-  ): Promise<BillingType> {
+  public async createBill({
+    orderIds,
+    price,
+    mrp,
+    razorpay_payment_id,
+    razorpay_order_id,
+    razorpay_signature,
+    payment_order_id,
+    status,
+  }: {
+    orderIds: string | string[];
+    price: number;
+    mrp?: number;
+    razorpay_payment_id?: string;
+    razorpay_order_id?: string;
+    razorpay_signature?: string;
+    payment_order_id?: string;
+    status?: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "FAILED";
+  }): Promise<BillingType> {
     return new Promise(async (resolve, reject) => {
       try {
         const configData = {
           tax: 15,
         };
-        const orderData = await OrderModel.findById(orderId);
-        if (!orderData) throw new Error("Order not found while creating bill");
         //TODO:calculate after coupon discount price
-        const total = orderData.price;
+        const total = price;
         const tax = configData?.tax ? (total * configData.tax) / 100 : 0;
         const subPrice = total - tax;
         const bill: BillingType = await new BillingModel({
-          orders: orderData._id,
+          orders: orderIds,
           total,
-          status: props?.status,
+          status,
           metadata: {
-            payment_order_id: props?.payment_order_id,
-            razorpay_payment_id: props?.razorpay_payment_id,
-            razorpay_order_id: props?.razorpay_order_id,
-            razorpay_signature: props?.razorpay_signature,
+            payment_order_id,
+            razorpay_payment_id,
+            razorpay_order_id,
+            razorpay_signature,
           },
           tax,
           subPrice,

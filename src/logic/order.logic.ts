@@ -1,5 +1,6 @@
 import { AddressModel } from "../models/address.model";
 import { OrderModel } from "../models/order.model";
+import { ProductModel } from "../models/product.model";
 import { StoreModel } from "../models/store.model";
 import { UserModel } from "../models/user.model";
 import OrderType, { OrderStatus } from "../types/order";
@@ -187,6 +188,47 @@ class OrderLogic {
         reject(error);
       }
     });
+  }
+  /**
+   * order product
+   */
+  public async orderProduct({
+    userId,
+    productId,
+    quantity,
+    billingId,
+    shippedTo,
+    status,
+  }: {
+    userId: string;
+    productId: string;
+    quantity: number;
+    billingId?: string;
+    shippedTo: string;
+    status: "PENDING" | "INITIATED";
+  }) {
+    const userData = await UserModel.findById(userId);
+    if (!userData) throw new Error("User not found");
+    const productData = await ProductModel.findById(productId);
+    if (!productData) throw new Error("Product not found");
+    const storeData = await StoreModel.findById(productData.store);
+    if (!storeData) throw new Error("Store not found");
+    const deliveryAddressData = await AddressModel.findById(shippedTo);
+    if (!deliveryAddressData) throw new Error("Delivery address not found");
+    const orderData = await new OrderModel({
+      user: userId,
+      store: storeData,
+      product: productData,
+      quantity: quantity,
+      billing: billingId,
+      shippedTo: deliveryAddressData,
+      status: status,
+      price: productData.salePrice * Number(quantity),
+      mrp: productData.mrp * Number(quantity),
+    }).save();
+    //TODO: add order notifications
+
+    return orderData;
   }
 
   /**

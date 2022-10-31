@@ -2,9 +2,11 @@ import { NextFunction, Response } from "express";
 import { body, param } from "express-validator";
 import { fieldValidateError } from "../helper";
 import BillingLogic from "../logic/billing.logic";
+import CartLogic from "../logic/cart.logic";
 import OrderLogic from "../logic/order.logic";
+import { OrderModel } from "../models/order.model";
 import { AuthRequest } from "../types/core";
-import { OrderStatus } from "../types/order";
+import OrderType, { OrderStatus } from "../types/order";
 import MailController from "./mail.controller";
 
 class Order extends OrderLogic {
@@ -24,8 +26,10 @@ class Order extends OrderLogic {
         serviceTime: req.body?.serviceTime,
         serviceIds: req.body?.serviceIds,
       });
-      await new BillingLogic().createBill(orderData?._id, {
-        status: "PAID",
+      await new BillingLogic().createBill({
+        orderIds: orderData?._id,
+        status: "PENDING",
+        price: orderData?.price,
       });
 
       res.status(200).json({
@@ -52,8 +56,10 @@ class Order extends OrderLogic {
         addressId: req.body?.addressId,
         serviceIds: req.body?.serviceIds,
       });
-      await new BillingLogic().createBill(orderData?._id, {
-        status: "PAID",
+      await new BillingLogic().createBill({
+        orderIds: orderData?._id,
+        status: "PENDING",
+        price: orderData?.price,
       });
 
       res.status(200).json({
@@ -82,8 +88,10 @@ class Order extends OrderLogic {
         street: req.body?.street,
         serviceIds: req.body?.serviceIds,
       });
-      await new BillingLogic().createBill(orderData?._id, {
-        status: "PAID",
+      await new BillingLogic().createBill({
+        orderIds: orderData?._id,
+        status: "PENDING",
+        price: orderData?.price,
       });
 
       res.status(200).json({
@@ -107,9 +115,9 @@ class Order extends OrderLogic {
       fieldValidateError(req);
 
       const orderData = await super.getOrderDetails(req.params.orderId);
-      await new BillingLogic().createBill(orderData?._id, {
-        status: "PAID",
-      });
+      // await new BillingLogic().createBill(orderData?._id, {
+      //   status: "PAID",
+      // });
 
       res.status(200).json({
         status: "SUCCESS",
@@ -167,6 +175,96 @@ class Order extends OrderLogic {
     }
   }
 
+  /**
+   * order single product
+   */
+  public async placeProductOrderController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      //place order for product
+      const orderData = await super.orderProduct({
+        productId: req.body?.productId,
+        userId: req.currentUser?._id as string,
+        quantity: req.body?.quantity,
+        shippedTo: req.body?.addressId,
+        status: "PENDING",
+      });
+      const billingData = await new BillingLogic().createBill({
+        orderIds: orderData?._id,
+        status: "PENDING",
+        price: orderData?.price,
+      });
+      //add billing id in order data
+      OrderModel.findByIdAndUpdate(orderData?._id, {
+        billing: billingData?._id,
+      });
+
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Order placed successfully",
+        data: orderData,
+      });
+    } catch (error) {
+      console.log({ error });
+      next(error);
+    }
+  }
+
+  /**
+   * order card item
+   */
+  public async placeCartOrderController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      //place order for product
+      const cartItemList = await new CartLogic().getCartItems(
+        req.currentUser?._id
+      );
+      let orderedItems: OrderType[] = [];
+      for (const cartItem of cartItemList.products) {
+        const orderData = await super.orderProduct({
+          productId: cartItem?.product?._id,
+          userId: req.currentUser?._id as string,
+          quantity: cartItem?.quantity,
+          shippedTo: req.body?.addressId,
+          status: "PENDING",
+        });
+        //add order item to array
+        orderedItems.push(orderData);
+      }
+      const orderIds = orderedItems?.map((item) => item?._id);
+      const price = orderedItems.reduce((acc, item) => acc + item.price, 0);
+      const billingData = await new BillingLogic().createBill({
+        orderIds,
+        status: "PENDING",
+        price,
+      });
+      //add billing id in order data
+      OrderModel.updateMany([{ _id: { $in: orderIds } }], {
+        billing: billingData?._id,
+      });
+
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Orders placed successfully",
+        data: orderedItems,
+      });
+    } catch (error) {
+      console.log({ error });
+      next(error);
+    }
+  }
+
   public validateOrderPlaceFields = [
     body("storeId")
       .not()
@@ -196,6 +294,34 @@ class Order extends OrderLogic {
     body("serviceIds.*")
       .isMongoId()
       .withMessage("serviceIds must be a valid service id"),
+  ];
+  public validateProductOrderPlaceFields = [
+    body("productId")
+      .not()
+      .isEmpty()
+      .withMessage("productId is required")
+      .isString()
+      .withMessage("productId must be a string"),
+    body("quantity")
+      .not()
+      .isEmpty()
+      .withMessage("quantity is required")
+      .isNumeric()
+      .withMessage("quantity must be a number"),
+    body("addressId")
+      .not()
+      .isEmpty()
+      .withMessage("AddressId is required")
+      .isString()
+      .withMessage("AddressId must be a string"),
+  ];
+  public validateCartOrderPlaceFields = [
+    body("addressId")
+      .not()
+      .isEmpty()
+      .withMessage("AddressId is required")
+      .isString()
+      .withMessage("AddressId must be a string"),
   ];
 
   public validateGetOrderDetails = [
