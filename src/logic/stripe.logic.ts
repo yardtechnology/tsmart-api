@@ -21,12 +21,9 @@ class StripeLogic {
   }): Promise<any> {
     return new Promise<any>(async (resolve, reject) => {
       try {
-        const stripe = new Stripe(
-          "sk_test_ynNJNFQPgl35riWoTTRrYkrV00nXAXJieo",
-          {
-            apiVersion: "2022-08-01",
-          }
-        );
+        const stripe = new Stripe(process.env.STRIPE_KEY as string, {
+          apiVersion: "2022-08-01",
+        });
         const stripeCustomerData = await stripe.customers.create({
           email: Props?.email,
           source: Props?.source,
