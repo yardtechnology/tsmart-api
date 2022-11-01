@@ -369,7 +369,6 @@ class ServicePrice extends MediaLogic {
     try {
       const role = req?.currentUser?.role;
       fieldValidateError(req);
-      console.log({ role });
 
       const { model } = req.params;
 
