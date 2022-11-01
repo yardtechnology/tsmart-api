@@ -1,6 +1,7 @@
 import { NextFunction, Response } from "express";
-import { body, validationResult } from "express-validator";
+import { body } from "express-validator";
 import { Types } from "mongoose";
+import { fieldValidateError } from "../helper";
 import MediaLogic from "../logic/media.logic";
 import StoreLogic from "../logic/store.logic";
 import { StoreModel } from "../models/store.model";
@@ -19,16 +20,7 @@ class Store extends MediaLogic {
   ): Promise<any> {
     try {
       // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
 
       // upload user profile picture
       const imageFile = req.files?.image;
@@ -93,7 +85,7 @@ class Store extends MediaLogic {
       }
 
       // send response to client
-      res.status(200).json({
+      res.json({
         status: "SUCCESS",
         message: "Store created successfully",
         data: storeData,
@@ -112,16 +104,7 @@ class Store extends MediaLogic {
   ): Promise<any> {
     try {
       // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
 
       // upload store image
       const imageFile = req.files?.image;
@@ -226,7 +209,7 @@ class Store extends MediaLogic {
 
   // TODO: DELETE STORE
 
-  // assign store manager
+  // Assign store manager
   public async assignStoreManager(
     req: AuthRequest,
     res: Response,
@@ -382,7 +365,7 @@ class Store extends MediaLogic {
     next: NextFunction
   ) {
     try {
-      const { serviceId, modelId } = req.body;
+      const { serviceId, modelId, date } = req.body;
 
       const getStore = await StoreModel.aggregate([
         {
@@ -414,6 +397,170 @@ class Store extends MediaLogic {
             $expr: {
               $gte: [{ $size: "$servicePrices" }, 1],
             },
+          },
+        },
+        {
+          $lookup: {
+            from: "holidays",
+            localField: "_id",
+            foreignField: "store",
+            as: "holidays",
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      {
+                        $eq: [
+                          {
+                            $year: "$date",
+                          },
+                          {
+                            $year: new Date(date),
+                          },
+                        ],
+                      },
+                      {
+                        $eq: [
+                          {
+                            $month: "$date",
+                          },
+                          {
+                            $month: new Date(date),
+                          },
+                        ],
+                      },
+                      {
+                        $eq: [
+                          {
+                            $dayOfMonth: "$date",
+                          },
+                          {
+                            $dayOfMonth: new Date(date),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+
+        {
+          $match: {
+            $expr: {
+              $lt: [{ $size: "$holidays" }, 1],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "timings",
+            localField: "_id",
+            foreignField: "store",
+            as: "timing",
+            pipeline: [
+              {
+                $addFields: {
+                  startDateForm: {
+                    $dateFromParts: {
+                      year: new Date(date).getFullYear(),
+                      month: new Date(date).getMonth() + 1,
+                      day: new Date(date).getDate(),
+                      hour: {
+                        $hour: "$start",
+                      },
+                      minute: {
+                        $minute: "$start",
+                      },
+                    },
+                  },
+                  endDateForm: {
+                    $dateFromParts: {
+                      year: new Date(date).getFullYear(),
+                      month: new Date(date).getMonth() + 1,
+                      day: new Date(date).getDate(),
+                      hour: {
+                        $hour: "$end",
+                      },
+                      minute: {
+                        $minute: "$end",
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                $lookup: {
+                  from: "orders",
+                  localField: "store",
+                  foreignField: "storeID",
+                  as: "orderHave",
+                  let: {
+                    startDate: "$startDateForm",
+                    endDate: "$endDateForm",
+                    dayOfWeekNumber: "$dayOfWeekNumber",
+                  },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $and: [
+                            {
+                              $eq: ["$serviceType", "IN_STOR"],
+                            },
+                            {
+                              $gte: ["$scheduledTime", "$$startDate"],
+                            },
+                            {
+                              $lte: ["$scheduledTime", "$$endDate"],
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                $addFields: {
+                  orderHave: {
+                    $size: "$orderHave",
+                  },
+                  leftBooking: {
+                    $subtract: [
+                      "$numberOfRepairers",
+                      {
+                        $size: "$orderHave",
+                      },
+                    ],
+                  },
+                },
+              },
+              {
+                $match: {
+                  $expr: {
+                    $gte: ["$leftBooking", 1],
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $gte: [{ $size: "$timing" }, 1],
+            },
+          },
+        },
+        {
+          $project: {
+            timing: 0,
+            holidays: 0,
+            servicePrices: 0,
           },
         },
       ]);
