@@ -7,10 +7,8 @@ export default interface BillingType extends Document {
   tax?: number;
   total: number;
   metadata?: {
-    payment_order_id: string;
-    razorpay_payment_id: string;
-    razorpay_order_id: string;
-    razorpay_signature: string;
+    charged_id: string;
+    balance_transaction: string;
   };
   couponDiscount?: {
     coupon: string;
@@ -23,5 +21,6 @@ export default interface BillingType extends Document {
     comment: string;
     tax: number;
   };
+  status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "FAILED";
   createdAt: any;
 }

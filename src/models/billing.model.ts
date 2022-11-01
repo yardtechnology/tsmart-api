@@ -13,10 +13,8 @@ const billingSchema = new Schema<BillingType>(
     subPrice: Number,
     total: Number,
     metadata: {
-      payment_order_id: String,
-      razorpay_payment_id: String,
-      razorpay_order_id: String,
-      razorpay_signature: String,
+      charged_id: String,
+      balance_transaction: String,
     },
     couponDiscount: {
       coupon: String,
@@ -31,6 +29,10 @@ const billingSchema = new Schema<BillingType>(
       amount: Number,
       comment: String,
       tax: Number,
+    },
+    status: {
+      type: String,
+      default: "PENDING",
     },
   },
   { timestamps: true }

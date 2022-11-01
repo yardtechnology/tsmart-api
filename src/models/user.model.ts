@@ -42,9 +42,18 @@ const userSchema = new Schema<UserType>(
       android: String,
       ios: String,
     },
-    isLoggedIn: Boolean,
-    isOnline: Boolean,
-    isOnDuty: Boolean,
+    isLoggedIn: {
+      type: Boolean,
+      default: false,
+    },
+    isOnline: {
+      type: Boolean,
+      default: false,
+    },
+    isOnDuty: {
+      type: Boolean,
+      default: false,
+    },
     blockStatus: String,
     status: {
       type: String,

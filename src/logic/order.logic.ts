@@ -207,7 +207,9 @@ class OrderLogic {
     shippedTo: string;
     status: "PENDING" | "INITIATED";
   }) {
-    const userData = await UserModel.findById(userId);
+    const userData = await UserModel.findById(userId).select(
+      "_id email country phoneNumber role age "
+    );
     if (!userData) throw new Error("User not found");
     const productData = await ProductModel.findById(productId);
     if (!productData) throw new Error("Product not found");
@@ -216,8 +218,10 @@ class OrderLogic {
     const deliveryAddressData = await AddressModel.findById(shippedTo);
     if (!deliveryAddressData) throw new Error("Delivery address not found");
     const orderData = await new OrderModel({
-      user: userId,
+      user: userData,
+      userID: userData._id,
       store: storeData,
+      storeID: storeData?._id,
       product: productData,
       quantity: quantity,
       billing: billingId,

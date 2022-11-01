@@ -59,6 +59,10 @@ class StripeLogic {
           },
         });
         console.log(stripeChargeData);
+        if (stripeChargeData?.status !== "succeeded")
+          throw new Error(
+            "Something went wrong when creating the stripeCharge "
+          );
         resolve(stripeChargeData);
       } catch (error) {
         reject(error);

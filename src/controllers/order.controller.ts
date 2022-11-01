@@ -4,9 +4,11 @@ import { fieldValidateError } from "../helper";
 import BillingLogic from "../logic/billing.logic";
 import CartLogic from "../logic/cart.logic";
 import OrderLogic from "../logic/order.logic";
-import { OrderModel } from "../models/order.model";
+import StripeLogic from "../logic/stripe.logic";
+import { BillingModel } from "../models/billing.model";
 import { AuthRequest } from "../types/core";
 import OrderType, { OrderStatus } from "../types/order";
+import { OrderModel } from "./../models/order.model";
 import MailController from "./mail.controller";
 
 class Order extends OrderLogic {
@@ -26,10 +28,13 @@ class Order extends OrderLogic {
         serviceTime: req.body?.serviceTime,
         serviceIds: req.body?.serviceIds,
       });
-      await new BillingLogic().createBill({
+      const billingData = await new BillingLogic().createBill({
         orderIds: orderData?._id,
         status: "PENDING",
         price: orderData?.price,
+      });
+      await OrderModel?.findByIdAndUpdate(orderData?._id, {
+        billing: billingData?._id,
       });
 
       res.status(200).json({
@@ -56,10 +61,13 @@ class Order extends OrderLogic {
         addressId: req.body?.addressId,
         serviceIds: req.body?.serviceIds,
       });
-      await new BillingLogic().createBill({
+      const billingData = await new BillingLogic().createBill({
         orderIds: orderData?._id,
         status: "PENDING",
         price: orderData?.price,
+      });
+      await OrderModel?.findByIdAndUpdate(orderData?._id, {
+        billing: billingData?._id,
       });
 
       res.status(200).json({
@@ -88,10 +96,13 @@ class Order extends OrderLogic {
         street: req.body?.street,
         serviceIds: req.body?.serviceIds,
       });
-      await new BillingLogic().createBill({
+      const billingData = await new BillingLogic().createBill({
         orderIds: orderData?._id,
         status: "PENDING",
         price: orderData?.price,
+      });
+      await OrderModel?.findByIdAndUpdate(orderData?._id, {
+        billing: billingData?._id,
       });
 
       res.status(200).json({
@@ -265,6 +276,53 @@ class Order extends OrderLogic {
     }
   }
 
+  /**
+   * order payment
+   */
+  public async payOrderAmount(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      //charge amount to the customer\
+      const { email, id } = req.body?.token;
+      const { amount, currency, billingId } = req.body;
+      const billingData = await BillingModel.findById(billingId).populate(
+        "orders"
+      );
+      if (!billingData) throw new Error("billingData not found");
+      const chargedData = await new StripeLogic().paymentSession({
+        amount: billingData?.total,
+        currency: "GBP",
+        source: id,
+        email,
+        name: billingData?.orders[0]?.user?.displayName,
+        address: {
+          country: billingData.orders[0]?.address?.country,
+          line1: billingData?.orders[0]?.address?.street,
+        },
+      });
+      //update payment status on billing
+      await BillingModel.findByIdAndUpdate(billingData?._id, {
+        status: "PAID",
+        metadata: {
+          charged_id: chargedData?.id,
+          balance_transaction: chargedData?.balance_transaction,
+        },
+      });
+      //update payment status on order
+      await OrderModel.findOneAndUpdate(
+        { _id: { $in: billingData?.orders?.map((item) => item?._id) } },
+        { status: "INITIATED" }
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public validateOrderPlaceFields = [
     body("storeId")
       .not()
@@ -322,6 +380,18 @@ class Order extends OrderLogic {
       .withMessage("AddressId is required")
       .isString()
       .withMessage("AddressId must be a string"),
+  ];
+  public validateOrderPaymentFields = [
+    body("billingId")
+      .not()
+      .isEmpty()
+      .withMessage("billingId is required")
+      .isMongoId()
+      .withMessage("not a valid billingId"),
+    body("token.id").not().isEmpty().withMessage("token.id is required"),
+    body("token.email").not().isEmpty().withMessage("token.email is required"),
+    // body("amount").not().isEmpty().withMessage("amount is required"),
+    // body("currency").not().isEmpty().withMessage("currency is required"),
   ];
 
   public validateGetOrderDetails = [

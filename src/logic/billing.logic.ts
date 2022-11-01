@@ -21,7 +21,7 @@ class BillingLogic {
     payment_order_id,
     status,
   }: {
-    orderIds: string | string[];
+    orderIds: string[];
     price: number;
     mrp?: number;
     razorpay_payment_id?: string;
