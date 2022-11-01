@@ -1,5 +1,5 @@
 import { Model } from "mongoose";
-type Pagination = {
+type PAGINATION_FIND_TYPE = {
   model: Model<any>;
   query: any;
   chunk: any;
@@ -8,11 +8,66 @@ type Pagination = {
   populate?: any;
   select?: any;
 };
+type PAGINATION_AGGREGATION_TYPE = {
+  model: Model<any>;
+  query: any[];
+  position?: number;
+  chunk?: any;
+  limit?: any;
+  sort?: any;
+};
 
 export type PaginationResult<T> = {
   data: T[];
   isLastChunk: boolean;
 };
+
+export async function aggregationData<T>({
+  model,
+  query,
+  position,
+  sort,
+  limit,
+  chunk,
+}: PAGINATION_AGGREGATION_TYPE): Promise<PaginationResult<T>> {
+  try {
+    if (limit && chunk && typeof position === "number") {
+      const limitSkipArgs: any[] = [];
+      sort && limitSkipArgs.push({ $sort: sort });
+      const skip =
+        chunk || limit ? Number(limit) * (Number(chunk) - 1) : undefined;
+      const limitData = chunk || limit ? Number(limit) + 1 : undefined;
+      typeof skip === "number" &&
+        limitSkipArgs.push({
+          $skip: skip,
+        });
+      typeof limit === "number" &&
+        limitSkipArgs.push({
+          $limit: limitData,
+        });
+
+      query.splice(position, 0, limitSkipArgs);
+      const compArgs = query.flat();
+
+      const dataGet = await model.aggregate(compArgs);
+
+      const isLastChunk = Boolean(dataGet.length === Number(limitData));
+      if (isLastChunk) dataGet.pop();
+      return {
+        data: dataGet,
+        isLastChunk: !isLastChunk,
+      };
+    } else {
+      const dataGet = await model.aggregate(query);
+      return {
+        data: dataGet,
+        isLastChunk: false,
+      };
+    }
+  } catch (error) {
+    throw error;
+  }
+}
 
 export default <T>({
   model,
@@ -22,7 +77,7 @@ export default <T>({
   sort,
   populate,
   select,
-}: Pagination): Promise<PaginationResult<T>> =>
+}: PAGINATION_FIND_TYPE): Promise<PaginationResult<T>> =>
   new Promise(async (resolve, reject) => {
     try {
       const requiredData: T[] = await model

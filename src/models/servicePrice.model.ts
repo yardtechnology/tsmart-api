@@ -18,7 +18,10 @@ const servicePriceSchema = new Schema<
       type: Schema.Types.ObjectId,
       ref: "Store",
     },
-    isInStock: Boolean,
+    isInStock: {
+      type: Boolean,
+      default: false,
+    },
     mrp: Number,
     salePrice: Number,
     model: {
