@@ -1,5 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body, validationResult } from "express-validator";
+import { Types } from "mongoose";
 import MediaLogic from "../logic/media.logic";
 import StoreLogic from "../logic/store.logic";
 import { StoreModel } from "../models/store.model";
@@ -375,8 +376,62 @@ class Store extends MediaLogic {
     }
   }
 
+  async getStoreListAccordingAvailability(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { serviceId, modelId } = req.body;
+
+      const getStore = await StoreModel.aggregate([
+        {
+          $lookup: {
+            from: "serviceprices",
+            localField: "_id",
+            foreignField: "store",
+            as: "servicePrices",
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      {
+                        $eq: ["$service", new Types.ObjectId(serviceId)],
+                      },
+                      {
+                        $eq: ["$model", new Types.ObjectId(modelId)],
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $gte: [{ $size: "$servicePrices" }, 1],
+            },
+          },
+        },
+      ]);
+
+      res.json({
+        status: "SUCCESS",
+        message: "Store get successfully",
+        data: getStore,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   // finds validators for the user creation request
-  public validateCreateStoreFields = [
+}
+export const storeControlValidator = {
+  assignStoreManager: [
     body("displayName")
       .optional()
       .isLength({ min: 3 })
@@ -441,7 +496,22 @@ class Store extends MediaLogic {
       .withMessage("Country must be at least 3 characters long")
       .isLength({ max: 25 })
       .withMessage("Country must be at most 25 characters long"),
-  ];
-}
+  ],
+  // serviceId, modelId
+  getStoreListAccordingAvailability: [
+    body("serviceId")
+      .not()
+      .isEmpty()
+      .withMessage("serviceId is required.")
+      .isMongoId()
+      .withMessage("serviceId must be mongoose id."),
+    body("modelId")
+      .not()
+      .isEmpty()
+      .withMessage("modelId is required.")
+      .isMongoId()
+      .withMessage("modelId must be mongoose id."),
+  ],
+};
 
 export default Store;

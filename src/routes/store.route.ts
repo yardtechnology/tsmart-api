@@ -1,5 +1,7 @@
 import { Router } from "express";
-import StoreController from "../controllers/store.controller";
+import StoreController, {
+  storeControlValidator,
+} from "../controllers/store.controller";
 import AuthenticateMiddleware from "../middleware/authenticate.middleware";
 
 class Category extends AuthenticateMiddleware {
@@ -10,95 +12,76 @@ class Category extends AuthenticateMiddleware {
     super();
     this.router = Router();
     this.storeController = new StoreController();
-    this.createStoreRoute();
-    this.updateStoreRoute();
-    this.getStoreRoute();
-    this.getAllStoresRoute();
-    this.assignStoreManagerRoute();
-    this.removeStoreManagerRoute();
-    this.getStoreManagersRoute();
-    this.getHubDataRoute();
-    this.getStoreRouteIn();
+    this.routes();
   }
 
   // create store
-  private createStoreRoute(): void {
+
+  private routes() {
     this.router.post(
       "/store/",
       super.isAdmin,
-      this.storeController.validateCreateStoreFields,
+      storeControlValidator.assignStoreManager,
       this.storeController.createStore
     );
-  }
-
-  // update store
-  private updateStoreRoute(): void {
+    // update store
     this.router.put(
       "/store/:storeId",
       super.isAdmin,
-      this.storeController.validateCreateStoreFields,
+      storeControlValidator.assignStoreManager,
       this.storeController.updateStore
     );
-  }
-
-  // get store
-  private getStoreRoute(): void {
+    // get store
     this.router.get(
       "/store/:storeId",
       super.isAuthenticated,
       this.storeController.getStore
     );
-  }
-
-  // get all stores
-  private getAllStoresRoute(): void {
+    // get all stores
     this.router.get("/store/all/stores", this.storeController.getAllStores);
-  }
 
-  // TODO: DELETE STORE
+    // TODO: DELETE STORE
 
-  // assign manager
-  public assignStoreManagerRoute(): void {
+    // assign manager
     this.router.put(
       "/store/manager/assign/:storeId",
       super.isAdmin,
-      this.storeController.validateCreateStoreFields,
+      storeControlValidator.assignStoreManager,
       this.storeController.assignStoreManager
     );
-  }
+    // remove manager
 
-  // remove manager
-  public removeStoreManagerRoute(): void {
     this.router.put(
       "/store/manager/remove/:storeId",
       super.isAdmin,
       this.storeController.removeStoreManager
     );
-  }
 
-  //get store managers
-  public getStoreManagersRoute(): void {
+    //get store managers
     this.router.get(
       "/store/:storeId/managers",
       super.isAdmin,
       this.storeController.getStoreManagersController
     );
-  }
-
-  //get hub data
-  public getHubDataRoute(): void {
+    //get hub data
     this.router.get(
       "/store/dashboard/hub",
       super.isAdmin,
       this.storeController.getHubDataController
     );
-  }
-  //get hub data
-  public getStoreRouteIn(): void {
+    //get hub data
     this.router.post(
       "/store/list",
       super.isAdmin,
       this.storeController.getAllStore
+    );
+
+    // get store list according availability and time
+    this.router.post(
+      "/store/time-availability",
+      super.isAuthenticated,
+      storeControlValidator.getStoreListAccordingAvailability,
+      this.storeController.getStoreListAccordingAvailability
     );
   }
 }
