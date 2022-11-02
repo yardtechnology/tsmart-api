@@ -1,6 +1,9 @@
 import { Document } from "mongoose";
 import CategoryType from "./category";
 import { ImageType } from "./core";
+import DEVICE_TYPE from "./device";
+import MAKE_TYPE from "./make";
+import ModelType from "./model";
 import StoreType from "./store";
 
 export interface ProductType<T = ImageType> {
@@ -24,6 +27,9 @@ export interface ProductType<T = ImageType> {
     total: number;
     stars: number;
   };
+  device: DEVICE_TYPE;
+  make: MAKE_TYPE;
+  model: ModelType;
 }
 
 export default interface index extends ProductType, Document {}

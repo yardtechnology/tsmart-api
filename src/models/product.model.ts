@@ -55,6 +55,18 @@ const productSchema = new Schema<ProductType>(
         default: 0,
       },
     },
+    device: {
+      type: Schema.Types.ObjectId,
+      ref: "Device",
+    },
+    make: {
+      type: Schema.Types.ObjectId,
+      ref: "Make",
+    },
+    model: {
+      type: Schema.Types.ObjectId,
+      ref: "Model",
+    },
   },
   { timestamps: true }
 );

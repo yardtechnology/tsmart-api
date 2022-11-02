@@ -58,7 +58,9 @@ class ProductLogic extends MediaLogic {
           condition: req.body?.condition,
           type: req.body?.type,
           images: imagesData,
-          moq: req.body?.moq,
+          device: req.body?.device,
+          make: req.body?.make,
+          model: req.body?.model,
         }).save();
 
         await ProductModel.findByIdAndUpdate(productData?._id, {

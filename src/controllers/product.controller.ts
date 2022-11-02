@@ -95,7 +95,9 @@ class Product extends ProductLogic {
         condition: req.body?.condition,
         type: req.body?.type,
         images: imagesData,
-        moq: req.body?.moq,
+        device: req.body?.device,
+        make: req.body?.make,
+        model: req.body?.model,
       }).save();
 
       // send response to client
