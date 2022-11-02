@@ -1,7 +1,7 @@
 import { NextFunction, Response } from "express";
 import { body, param } from "express-validator";
 import { Types } from "mongoose";
-import { fieldValidateError } from "../helper";
+import { aggregationData, fieldValidateError } from "../helper";
 import CouponLogic from "../logic/coupon.logic";
 import MediaLogic from "../logic/media.logic";
 import { ServicePriceModel } from "../models/servicePrice.model";
@@ -295,149 +295,14 @@ class ServicePrice extends MediaLogic {
       if (role !== "ADMIN") {
         aggregationQuery.splice(2);
       }
-      const servicePriceData = await ServicePriceModel.aggregate([
-        {
-          $match: {
-            model: new Types.ObjectId(model),
-          },
-        },
-        {
-          $lookup: {
-            from: "servicepropertyvalues",
-            foreignField: "servicePrice",
-            localField: "_id",
-            as: "servicePropertyValue",
-            pipeline: [
-              {
-                $lookup: {
-                  from: "serviceproperties",
-                  foreignField: "_id",
-                  localField: "serviceProperty",
-                  as: "serviceProperty",
-                },
-              },
-              {
-                $unwind: {
-                  path: "$serviceProperty",
-                  preserveNullAndEmptyArrays: true,
-                },
-              },
-            ],
-          },
-        },
-        {
-          $addFields: {
-            isSelect: {
-              $in: ["$_id", checkArrayServicePriceId],
-            },
-          },
-        },
-        {
-          $group: {
-            _id: {
-              service: "$service",
-              model: "$model",
-            },
-            cardSize: {
-              $first: {
-                $cond: [
-                  { $gte: [{ $size: "$servicePropertyValue" }, 1] },
-                  "LONG_CARD",
-                  "NORMAL_CARD",
-                ],
-              },
-            },
-            longCard: {
-              $push: {
-                _id: "$_id",
-                image: "$image",
-                title: "$title",
-                description: "$description",
-                store: "$store",
-
-                isInStock: "$isInStock",
-
-                salePrice: "$salePrice",
-
-                mrp: "$mrp",
-
-                type: "$type",
-                isSelect: "$isSelect",
-
-                isMostPopular: "$isMostPopular",
-                servicePropertyValue: "$servicePropertyValue",
-              },
-            },
-
-            id: {
-              $first: "$_id",
-            },
-            service: {
-              $first: "$service",
-            },
-            model: {
-              $first: "$model",
-            },
-            image: {
-              $first: "$image",
-            },
-            title: {
-              $first: "$title",
-            },
-            description: {
-              $first: "$description",
-            },
-            store: {
-              $first: "$store",
-            },
-            isInStock: {
-              $first: "$isInStock",
-            },
-            salePrice: {
-              $first: "$salePrice",
-            },
-            mrp: {
-              $first: "$mrp",
-            },
-            type: {
-              $first: "$type",
-            },
-            isMostPopular: {
-              $first: "$isMostPopular",
-            },
-            createdAt: {
-              $first: "$createdAt",
-            },
-            isSelect: {
-              $first: "$isSelect",
-            },
-          },
-        },
-        {
-          $project: {
-            longCard: {
-              $cond: [
-                { $eq: ["$cardSize", "LONG_CARD"] },
-                "$longCard",
-                undefined,
-              ],
-            },
-            cardSize: 1,
-            _id: "$id",
-            service: 1,
-            model: 1,
-            title: 1,
-            description: 1,
-            store: 1,
-            isInStock: 1,
-            salePrice: 1,
-            mrp: 1,
-            type: 1,
-            isMostPopular: 1,
-            isSelect: 1,
-          },
-        },
-      ]);
+      const servicePriceData = await aggregationData<ServicePriceType>({
+        model: ServicePriceModel,
+        query: aggregationQuery,
+        position: role !== "ADMIN" ? 1 : 3,
+        sort: { createdAt: -1 },
+        limit: req.query.limit ? Number(req.query.limit) : undefined,
+        chunk: req.query.chunk ? Number(req.query.chunk) : undefined,
+      });
 
       // summery call
 
@@ -469,14 +334,6 @@ class ServicePrice extends MediaLogic {
             })
           : undefined;
 
-      // await aggregationData<ServicePriceType>({
-      //   model: ServicePriceModel,
-      //   query: aggregationQuery,
-      //   position: role !== "ADMIN" ? 1 : 3,
-      //   sort: { createdAt: -1 },
-      //   limit: req.query.limit ? Number(req.query.limit) : undefined,
-      //   chunk: req.query.chunk ? Number(req.query.chunk) : undefined,
-      // });
       res.json({
         success: {
           servicePricesReducer,
