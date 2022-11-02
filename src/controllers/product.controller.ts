@@ -301,51 +301,10 @@ class Product extends ProductLogic {
         },
         {
           $lookup: {
-            from: "cartItems",
-            localField: "_id",
-            foreignField: "product",
-            as: "isInCart",
-            pipeline: [
-              {
-                $match: {
-                  user: new Types.ObjectId(String(userId)),
-                },
-              },
-            ],
-          },
-        },
-        {
-          $addFields: {
-            isInCart: {
-              $gte: [{ $size: "$isInCart" }, 1],
-            },
-          },
-        },
-        {
-          $lookup: {
-            from: "wishlists",
-            localField: "_id",
-            foreignField: "product",
-            as: "isInWishlist",
-            pipeline: [
-              {
-                $match: {
-                  user: new Types.ObjectId(String(userId)),
-                },
-              },
-            ],
-          },
-        },
-        {
-          $addFields: {
-            isInWishlist: {
-              $gte: [{ $size: "$isInWishlist" }, 1],
-            },
-          },
-        },
-        {
-          $group: {
-            _id: "$model",
+            from: "products",
+            localField: "model",
+            foreignField: "model",
+            as: "color",
           },
         },
       ]);
