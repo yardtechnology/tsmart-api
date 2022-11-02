@@ -125,7 +125,9 @@ class User extends MediaLogic {
       // save user data to database
       const userData: UserType | null = await UserModel.findById(
         req.currentUser?._id
-      ).select("-encrypted_password -salt -verificationInfo -refreshTokens");
+      )
+        .populate("store")
+        .select("-encrypted_password -salt -verificationInfo -refreshTokens");
 
       if (!userData) throw new Error("User not found");
 
