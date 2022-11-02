@@ -1,3 +1,4 @@
+import { CouponSchema } from "../models";
 import { BillingModel } from "../models/billing.model";
 // import { ConfigModel } from "../models/config.model";
 // import { CouponModel } from "../models/coupon.models";
@@ -5,9 +6,9 @@ import { OrderModel } from "../models/order.model";
 import { ProductModel } from "../models/product.model";
 import BillingType from "../types/billing";
 import CartLogic from "./cart.logic";
-// import CouponLogic from "./coupon.logic";
+import CouponLogic from "./coupon.logic";
 
-class BillingLogic {
+class BillingLogic extends CouponLogic {
   /**
    *create bill of an order
    */
@@ -75,7 +76,7 @@ class BillingLogic {
     userId?: string;
   }): Promise<{
     amount: number;
-    // couponInfo: any;
+    couponInfo?: any;
   }> {
     const configData = {};
     const productData = await ProductModel.findById(productId);
@@ -83,25 +84,25 @@ class BillingLogic {
     const amount = productData.salePrice * quantity;
     let couponValue = 0;
     let couponData;
-    // if (couponId) {
-    //   couponData = await CouponModel.findById(couponId);
-    //   if (!couponData) throw new Error("Coupon not found");
-    //   couponValue = await super.getCouponValue({
-    //     couponId,
-    //     userId: userId as string,
-    //     amount,
-    //   });
-    // }
+    if (couponId) {
+      couponData = await CouponSchema.findById(couponId);
+      if (!couponData) throw new Error("Coupon not found");
+      couponValue = await super.getCouponDiscount({
+        couponId,
+        currentUserId: userId as string,
+        price: amount,
+      });
+    }
     return {
       amount: amount - couponValue,
-      //   couponInfo: couponData
-      //     ? {
-      //         coupon: couponData?.code,
-      //         benefitAmount: couponValue,
-      //         activeAt: new Date(),
-      //         couponId: couponData?._id,
-      //       }
-      //     : {},
+      couponInfo: couponData
+        ? {
+            coupon: couponData?.code,
+            benefitAmount: couponValue,
+            activeAt: new Date(),
+            couponId: couponData?._id,
+          }
+        : {},
     };
   }
   /**
@@ -115,24 +116,33 @@ class BillingLogic {
     couponId?: string;
   }): Promise<{
     amount: number;
+    couponInfo: any;
   }> {
     const configData = {};
     const cartData = await new CartLogic().getCartItems(userId);
     const amount = cartData?.subTotal;
     let couponValue = 0;
     let couponData;
-    // if (couponId) {
-    //   couponData = await CouponModel.findById(couponId);
-    //   if (!couponData) throw new Error("Coupon not found");
-    //   couponValue = await super.getCouponValue({
-    //     couponId,
-    //     userId: userId as string,
-    //     amount,
-    //   });
-    // }
+    if (couponId) {
+      couponData = await CouponSchema.findById(couponId);
+      if (!couponData) throw new Error("Coupon not found");
+      couponValue = await super.getCouponDiscount({
+        couponId,
+        currentUserId: userId as string,
+        price: amount,
+      });
+    }
     // if (!productData) throw new Error("Product not found");
     return {
       amount: amount - couponValue,
+      couponInfo: couponData
+        ? {
+            coupon: couponData?.code,
+            benefitAmount: couponValue,
+            activeAt: new Date(),
+            couponId: couponData?._id,
+          }
+        : {},
     };
   }
 

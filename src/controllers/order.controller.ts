@@ -6,6 +6,8 @@ import CartLogic from "../logic/cart.logic";
 import OrderLogic from "../logic/order.logic";
 import StripeLogic from "../logic/stripe.logic";
 import { BillingModel } from "../models/billing.model";
+import { CartItemModel } from "../models/cartItem.model";
+import { ProductModel } from "../models/product.model";
 import { AuthRequest } from "../types/core";
 import OrderType, { OrderStatus } from "../types/order";
 import { OrderModel } from "./../models/order.model";
@@ -318,6 +320,108 @@ class Order extends OrderLogic {
         { _id: { $in: billingData?.orders?.map((item) => item?._id) } },
         { status: "INITIATED" }
       );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** order summery */
+  public async productOrderSummery(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      let orderData;
+      let totalMrp;
+      let totalSalePrice;
+      let discount;
+      let billingData;
+      switch (req.query.type?.toString()?.toUpperCase()) {
+        case "PRODUCT":
+          if (!req.query.productId) throw new Error("Product id is required");
+          if (!req.query.quantity) throw new Error("Quantity is required");
+          // get product data
+          const productData = await ProductModel.findById(req.query?.productId);
+          // check if product is available
+          if (!productData) throw new Error("Product not found");
+          let cartItemData;
+          // find cart item
+          cartItemData = await CartItemModel.findOneAndUpdate(
+            {
+              user: req.currentUser?._id,
+              product: req.query.productId,
+            },
+            {
+              quantity: req.query.quantity,
+            },
+            {
+              new: true,
+            }
+          );
+          // if cart item not found create new cart item
+          if (!cartItemData) {
+            //create cart item
+            cartItemData = await new CartItemModel({
+              user: req.currentUser?._id,
+              product: req.query.productId,
+              quantity: req.query.quantity,
+            }).save();
+          }
+          billingData = await new BillingLogic().calculateItemBilling({
+            productId: req.query.productId as string,
+            quantity: Number(req.query.quantity),
+            couponId: req.query.couponId as string,
+            userId: req.currentUser?._id,
+          });
+          cartItemData.total = cartItemData.quantity * productData.salePrice;
+          await cartItemData.populate("product");
+          totalMrp = cartItemData.product?.mrp * cartItemData.quantity;
+          totalSalePrice = billingData.amount;
+          discount = totalMrp - totalSalePrice;
+          orderData = {
+            products: [cartItemData],
+            totalMrp,
+            totalSalePrice,
+            discount,
+            couponInfo: billingData?.couponInfo,
+          };
+          break;
+        case "CART":
+          const cartItem = await new CartLogic().getCartItems(
+            req.currentUser?._id
+          );
+          totalMrp = cartItem.products.reduce(
+            (acc, curr) => (acc += curr.product.mrp * curr.quantity),
+            0
+          );
+          billingData = await new BillingLogic().calculateCartItemBilling({
+            couponId: req.query.couponId as string,
+            userId: req.currentUser?._id,
+          });
+          totalSalePrice = billingData.amount;
+          discount = totalMrp - totalSalePrice;
+          orderData = {
+            products: cartItem.products,
+            totalMrp,
+            totalSalePrice,
+            discount,
+            couponInfo: billingData?.couponInfo,
+          };
+          break;
+
+        default:
+          throw new Error(
+            "Type is required and must be either PRODUCT or CART"
+          );
+      }
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Orders found successfully",
+        data: orderData,
+      });
     } catch (error) {
       next(error);
     }

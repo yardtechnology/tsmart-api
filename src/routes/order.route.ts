@@ -18,6 +18,7 @@ class Order extends AuthenticateMiddleware {
     this.getOrderDetailsRoute();
     this.updateOrderStatusRoute();
     this.createOrderPaymentRoute();
+    this.getOrderSummaryRoute();
   }
 
   // place store service order
@@ -92,6 +93,15 @@ class Order extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.orderController.validateOrderPaymentFields,
       this.orderController.payOrderAmount
+    );
+  }
+
+  //get order summary
+  private getOrderSummaryRoute(): void {
+    this.router.get(
+      "/order/summary",
+      super.isAuthenticated,
+      this.orderController.productOrderSummery
     );
   }
 

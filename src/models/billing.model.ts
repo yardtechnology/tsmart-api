@@ -1,5 +1,6 @@
 import { model, Schema } from "mongoose";
 import BillingType from "../types/billing";
+import { OrderModel } from "./order.model";
 
 const billingSchema = new Schema<BillingType>(
   {
@@ -37,5 +38,20 @@ const billingSchema = new Schema<BillingType>(
   },
   { timestamps: true }
 );
+// if not paid in a day the delete the billing
+billingSchema.index(
+  { createdAt: 1 },
+  { expireAfterSeconds: 60, partialFilterExpression: { status: "PENDING" } }
+);
 
 export const BillingModel = model<BillingType>("Billing", billingSchema);
+BillingModel.watch().on("change", async (data: any) => {
+  try {
+    if (data.operationType === "delete") {
+      console.log(data?.documentKey?._id);
+      await OrderModel.deleteMany({ billing: data?.documentKey?._id });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});

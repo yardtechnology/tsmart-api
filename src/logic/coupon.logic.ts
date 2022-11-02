@@ -10,7 +10,7 @@ class CouponLogic {
     currentUserId?: string;
     couponId: string;
     price: number;
-  }): any {
+  }): Promise<number> {
     return new Promise(async (resolve, reject) => {
       try {
         const arg = currentUserId
@@ -49,10 +49,7 @@ class CouponLogic {
             : couponData.maxCashBack;
         const afterDiscountPriceIs = price - realDiscount;
 
-        resolve({
-          price: afterDiscountPriceIs,
-          discountPrice: realDiscount,
-        });
+        resolve(realDiscount);
       } catch (error) {
         reject(error);
       }
