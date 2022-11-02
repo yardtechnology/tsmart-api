@@ -10,7 +10,10 @@ class CouponLogic {
     currentUserId?: string;
     couponId: string;
     price: number;
-  }): any {
+  }): Promise<{
+    price: number;
+    discountPrice: number;
+  }> {
     return new Promise(async (resolve, reject) => {
       try {
         const arg = currentUserId
@@ -26,12 +29,12 @@ class CouponLogic {
             $and: [
               {
                 startDate: {
-                  $gte: new Date(),
+                  $lte: new Date(),
                 },
               },
               {
                 endDate: {
-                  $lte: new Date(),
+                  $gte: new Date(),
                 },
               },
             ],
