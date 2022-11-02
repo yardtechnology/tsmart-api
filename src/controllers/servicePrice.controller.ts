@@ -383,18 +383,6 @@ class ServicePrice extends MediaLogic {
   //   }
   // }
 
-  async servicePriceSummery(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      const {} = req.body;
-    } catch (error) {
-      next(error);
-    }
-  }
-
   // get servicePrice
   public async deleteServicePrice(
     req: AuthRequest,
