@@ -2,6 +2,7 @@ import { NextFunction, Response } from "express";
 import { body, param } from "express-validator";
 import { Types } from "mongoose";
 import { aggregationData, fieldValidateError } from "../helper";
+import CouponLogic from "../logic/coupon.logic";
 import MediaLogic from "../logic/media.logic";
 import { ServicePriceModel } from "../models/servicePrice.model";
 import { AuthRequest } from "../types/core";
@@ -153,6 +154,13 @@ class ServicePrice extends MediaLogic {
 
       const { model } = req.params;
 
+      const { servicePriceIds, couponId } = req.query;
+      const checkArrayServicePriceId = servicePriceIds
+        ? Array.isArray(servicePriceIds)
+          ? servicePriceIds.map((item) => new Types.ObjectId(String(item)))
+          : [new Types.ObjectId(String(servicePriceIds))]
+        : [];
+
       const aggregationQuery = [
         {
           $match: {
@@ -295,8 +303,42 @@ class ServicePrice extends MediaLogic {
         limit: req.query.limit ? Number(req.query.limit) : undefined,
         chunk: req.query.chunk ? Number(req.query.chunk) : undefined,
       });
+
+      // summery call
+
+      const findSelectedServices = checkArrayServicePriceId?.length
+        ? await ServicePriceModel.find({
+            _id: { $in: checkArrayServicePriceId },
+          })
+        : undefined;
+
+      const servicePricesReducer = findSelectedServices
+        ? findSelectedServices?.reduce(
+            (preserveValue, currentValue) => {
+              preserveValue.mrp = preserveValue.mrp + currentValue.mrp;
+              preserveValue.salePrice =
+                preserveValue.salePrice + currentValue.salePrice;
+              return preserveValue;
+            },
+            {
+              mrp: 0,
+              salePrice: 0,
+            }
+          )
+        : undefined;
+      const couponCalculation =
+        servicePricesReducer?.salePrice && couponId
+          ? await new CouponLogic().getCouponDiscount({
+              price: servicePricesReducer?.salePrice,
+              couponId: String(couponId),
+            })
+          : undefined;
+
       res.json({
         success: {
+          servicePricesReducer,
+          couponCalculation,
+          findSelectedServices,
           data: servicePriceData,
         },
       });

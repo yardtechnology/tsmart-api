@@ -26,12 +26,12 @@ class CouponLogic {
             $and: [
               {
                 startDate: {
-                  $gte: new Date(),
+                  $lte: new Date(),
                 },
               },
               {
                 endDate: {
-                  $lte: new Date(),
+                  $gte: new Date(),
                 },
               },
             ],

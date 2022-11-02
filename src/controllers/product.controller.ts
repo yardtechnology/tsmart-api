@@ -289,6 +289,20 @@ class Product extends ProductLogic {
     }
   }
 
+  // async product optimize
+  async getAllProduct2(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { userId } = req.query;
+      const checkArray = userId ? [userId] : [];
+      const productList = await ProductModel.aggregate([
+        // {
+        // }
+      ]);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   //get all featured products
   public async getAllFeaturedProductsController(
     req: AuthRequest,
