@@ -95,9 +95,7 @@ class Product extends ProductLogic {
         condition: req.body?.condition,
         type: req.body?.type,
         images: imagesData,
-        device: req.body?.device,
-        make: req.body?.make,
-        model: req.body?.model,
+        moq: req.body?.moq,
       }).save();
 
       // send response to client
@@ -290,13 +288,66 @@ class Product extends ProductLogic {
   }
 
   // async product optimize
-  async getAllProduct2(req: AuthRequest, res: Response, next: NextFunction) {
+  async getProductDetails(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { userId } = req.query;
+      const { id } = req.params;
       const checkArray = userId ? [userId] : [];
       const productList = await ProductModel.aggregate([
-        // {
-        // }
+        {
+          $match: {
+            _id: new Types.ObjectId(id),
+          },
+        },
+        {
+          $lookup: {
+            from: "cartItems",
+            localField: "_id",
+            foreignField: "product",
+            as: "isInCart",
+            pipeline: [
+              {
+                $match: {
+                  user: new Types.ObjectId(String(userId)),
+                },
+              },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            isInCart: {
+              $gte: [{ $size: "$isInCart" }, 1],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "wishlists",
+            localField: "_id",
+            foreignField: "product",
+            as: "isInWishlist",
+            pipeline: [
+              {
+                $match: {
+                  user: new Types.ObjectId(String(userId)),
+                },
+              },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            isInWishlist: {
+              $gte: [{ $size: "$isInWishlist" }, 1],
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$model",
+          },
+        },
       ]);
     } catch (error) {
       next(error);
