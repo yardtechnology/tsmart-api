@@ -1,5 +1,7 @@
 import { NextFunction, Response } from "express";
-import { body, validationResult } from "express-validator";
+import { body } from "express-validator";
+import { Types } from "mongoose";
+import { fieldValidateError } from "../helper";
 import MediaLogic from "../logic/media.logic";
 import StoreLogic from "../logic/store.logic";
 import { StoreModel } from "../models/store.model";
@@ -18,16 +20,7 @@ class Store extends MediaLogic {
   ): Promise<any> {
     try {
       // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
 
       // upload user profile picture
       const imageFile = req.files?.image;
@@ -92,7 +85,7 @@ class Store extends MediaLogic {
       }
 
       // send response to client
-      res.status(200).json({
+      res.json({
         status: "SUCCESS",
         message: "Store created successfully",
         data: storeData,
@@ -111,16 +104,7 @@ class Store extends MediaLogic {
   ): Promise<any> {
     try {
       // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
 
       // upload store image
       const imageFile = req.files?.image;
@@ -225,7 +209,7 @@ class Store extends MediaLogic {
 
   // TODO: DELETE STORE
 
-  // assign store manager
+  // Assign store manager
   public async assignStoreManager(
     req: AuthRequest,
     res: Response,
@@ -375,8 +359,226 @@ class Store extends MediaLogic {
     }
   }
 
+  async getStoreListAccordingAvailability(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { serviceId, modelId, date } = req.body;
+
+      const getStore = await StoreModel.aggregate([
+        {
+          $lookup: {
+            from: "serviceprices",
+            localField: "_id",
+            foreignField: "store",
+            as: "servicePrices",
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      {
+                        $eq: ["$service", new Types.ObjectId(serviceId)],
+                      },
+                      {
+                        $eq: ["$model", new Types.ObjectId(modelId)],
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $gte: [{ $size: "$servicePrices" }, 1],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "holidays",
+            localField: "_id",
+            foreignField: "store",
+            as: "holidays",
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      {
+                        $eq: [
+                          {
+                            $year: "$date",
+                          },
+                          {
+                            $year: new Date(date),
+                          },
+                        ],
+                      },
+                      {
+                        $eq: [
+                          {
+                            $month: "$date",
+                          },
+                          {
+                            $month: new Date(date),
+                          },
+                        ],
+                      },
+                      {
+                        $eq: [
+                          {
+                            $dayOfMonth: "$date",
+                          },
+                          {
+                            $dayOfMonth: new Date(date),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+
+        {
+          $match: {
+            $expr: {
+              $lt: [{ $size: "$holidays" }, 1],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "timings",
+            localField: "_id",
+            foreignField: "store",
+            as: "timing",
+            pipeline: [
+              {
+                $addFields: {
+                  startDateForm: {
+                    $dateFromParts: {
+                      year: new Date(date).getFullYear(),
+                      month: new Date(date).getMonth() + 1,
+                      day: new Date(date).getDate(),
+                      hour: {
+                        $hour: "$start",
+                      },
+                      minute: {
+                        $minute: "$start",
+                      },
+                    },
+                  },
+                  endDateForm: {
+                    $dateFromParts: {
+                      year: new Date(date).getFullYear(),
+                      month: new Date(date).getMonth() + 1,
+                      day: new Date(date).getDate(),
+                      hour: {
+                        $hour: "$end",
+                      },
+                      minute: {
+                        $minute: "$end",
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                $lookup: {
+                  from: "orders",
+                  localField: "store",
+                  foreignField: "storeID",
+                  as: "orderHave",
+                  let: {
+                    startDate: "$startDateForm",
+                    endDate: "$endDateForm",
+                    dayOfWeekNumber: "$dayOfWeekNumber",
+                  },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $and: [
+                            {
+                              $eq: ["$serviceType", "IN_STOR"],
+                            },
+                            {
+                              $gte: ["$scheduledTime", "$$startDate"],
+                            },
+                            {
+                              $lte: ["$scheduledTime", "$$endDate"],
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                $addFields: {
+                  orderHave: {
+                    $size: "$orderHave",
+                  },
+                  leftBooking: {
+                    $subtract: [
+                      "$numberOfRepairers",
+                      {
+                        $size: "$orderHave",
+                      },
+                    ],
+                  },
+                },
+              },
+              {
+                $match: {
+                  $expr: {
+                    $gte: ["$leftBooking", 1],
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $gte: [{ $size: "$timing" }, 1],
+            },
+          },
+        },
+        {
+          $project: {
+            timing: 0,
+            holidays: 0,
+            servicePrices: 0,
+          },
+        },
+      ]);
+
+      res.json({
+        status: "SUCCESS",
+        message: "Store get successfully",
+        data: getStore,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   // finds validators for the user creation request
-  public validateCreateStoreFields = [
+}
+export const storeControlValidator = {
+  assignStoreManager: [
     body("displayName")
       .optional()
       .isLength({ min: 3 })
@@ -441,7 +643,22 @@ class Store extends MediaLogic {
       .withMessage("Country must be at least 3 characters long")
       .isLength({ max: 25 })
       .withMessage("Country must be at most 25 characters long"),
-  ];
-}
+  ],
+  // serviceId, modelId
+  getStoreListAccordingAvailability: [
+    body("serviceId")
+      .not()
+      .isEmpty()
+      .withMessage("serviceId is required.")
+      .isMongoId()
+      .withMessage("serviceId must be mongoose id."),
+    body("modelId")
+      .not()
+      .isEmpty()
+      .withMessage("modelId is required.")
+      .isMongoId()
+      .withMessage("modelId must be mongoose id."),
+  ],
+};
 
 export default Store;

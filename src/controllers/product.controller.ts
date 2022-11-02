@@ -1,6 +1,7 @@
 import { NextFunction, Response } from "express";
 import { body, validationResult } from "express-validator";
 import { Types } from "mongoose";
+import { fieldValidateError } from "../helper";
 import { PaginationResult } from "../helper/pagination.helper";
 import MediaLogic from "../logic/media.logic";
 import ProductLogic from "../logic/product.logic";
@@ -32,7 +33,6 @@ class Product extends ProductLogic {
       const userData = await new UserLogic(req.currentUser?._id).getUserData();
       // add store id to product data
       req.body.storeId = userData?.store;
-      console.log({ userData });
 
       // save product data to database
       productData = await super.createAProduct(req);
@@ -57,16 +57,7 @@ class Product extends ProductLogic {
   ): Promise<any> {
     try {
       // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
 
       // upload user profile picture
       const displayImageFile = req.files?.displayImage;
@@ -127,16 +118,7 @@ class Product extends ProductLogic {
   ): Promise<any> {
     try {
       // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
 
       // upload product image
       const displayImageFile = req.files?.displayImage;

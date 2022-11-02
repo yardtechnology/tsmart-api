@@ -1,7 +1,7 @@
 import { NextFunction, Response } from "express";
-import { body } from "express-validator";
-import { fieldValidateError } from "../helper";
-import paginationHelper from "../helper/pagination.helper";
+import { body, param } from "express-validator";
+import { Types } from "mongoose";
+import { aggregationData, fieldValidateError } from "../helper";
 import MediaLogic from "../logic/media.logic";
 import { ServicePriceModel } from "../models/servicePrice.model";
 import { AuthRequest } from "../types/core";
@@ -141,77 +141,205 @@ class ServicePrice extends MediaLogic {
     }
   }
 
-  //   get all servicePrice
+  //   get all servicePrice by role
   public async getAllServicePrice(
     req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<any> {
     try {
-      const servicePriceData = await ServicePriceModel.aggregate([
-        //   {
-        //   $group:{
-        //     _id:
-        //   }
-        // }
-      ]);
+      const role = req?.currentUser?.role;
+      fieldValidateError(req);
 
-      // paginationHelper({
-      //   model: ServicePriceModel,
-      //   query: {},
-      //   select: "-imagePATH",
-      //   sort: { createdAt: -1 },
-      //   populate: ["store", "model", "service"],
-      //   limit: req.query.limit ? Number(req.query.limit) : undefined,
-      //   chunk: req.query.chunk ? Number(req.query.chunk) : undefined,
-      // });
+      const { model } = req.params;
 
-      // send response to client
-      res.status(200).json({
-        status: "SUCCESS",
-        message: "All servicePrice found successfully",
-        data: servicePriceData,
-      });
-    } catch (error) {
-      // send error to client
-      next(error);
-    }
-  }
-  //   get all servicePrice by make
-  public async getServicePricesByModel(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<any> {
-    try {
-      // save user data to database
-      const query = {
-        model: req?.params?.modelId || undefined,
-      };
+      const aggregationQuery = [
+        {
+          $match: {
+            model: new Types.ObjectId(model),
+          },
+        },
+        {
+          $lookup: {
+            from: "servicepropertyvalues",
+            foreignField: "servicePrice",
+            localField: "_id",
+            as: "servicePropertyValue",
+            pipeline: [
+              {
+                $lookup: {
+                  from: "serviceproperties",
+                  foreignField: "_id",
+                  localField: "serviceProperty",
+                  as: "serviceProperty",
+                },
+              },
+              {
+                $unwind: {
+                  path: "$serviceProperty",
+                  preserveNullAndEmptyArrays: true,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $group: {
+            _id: {
+              service: "$service",
+              model: "$model",
+            },
+            cardSize: {
+              $first: {
+                $cond: [
+                  { $gte: [{ $size: "$servicePropertyValue" }, 1] },
+                  "LONG_CARD",
+                  "NORMAL_CARD",
+                ],
+              },
+            },
+            longCard: {
+              $push: {
+                _id: "$_id",
+                image: "$image",
+                title: "$title",
+                description: "$description",
+                store: "$store",
 
-      !req.params.modelId && delete query.model;
+                isInStock: "$isInStock",
 
-      const servicePriceData = await paginationHelper({
+                salePrice: "$salePrice",
+
+                mrp: "$mrp",
+
+                type: "$type",
+
+                isMostPopular: "$isMostPopular",
+                servicePropertyValue: "$servicePropertyValue",
+              },
+            },
+
+            id: {
+              $first: "$_id",
+            },
+            service: {
+              $first: "$service",
+            },
+            model: {
+              $first: "$model",
+            },
+            image: {
+              $first: "$image",
+            },
+            title: {
+              $first: "$title",
+            },
+            description: {
+              $first: "$description",
+            },
+            store: {
+              $first: "$store",
+            },
+            isInStock: {
+              $first: "$isInStock",
+            },
+            salePrice: {
+              $first: "$salePrice",
+            },
+            mrp: {
+              $first: "$mrp",
+            },
+            type: {
+              $first: "$type",
+            },
+            isMostPopular: {
+              $first: "$isMostPopular",
+            },
+            createdAt: {
+              $first: "$createdAt",
+            },
+          },
+        },
+        {
+          $project: {
+            longCard: {
+              $cond: [
+                { $eq: ["$cardSize", "LONG_CARD"] },
+                "$longCard",
+                undefined,
+              ],
+            },
+            cardSize: 1,
+            _id: "$id",
+            service: 1,
+            model: 1,
+            title: 1,
+            description: 1,
+            store: 1,
+            isInStock: 1,
+            salePrice: 1,
+            mrp: 1,
+            type: 1,
+            isMostPopular: 1,
+          },
+        },
+      ];
+      if (role !== "ADMIN") {
+        aggregationQuery.splice(2);
+      }
+      const servicePriceData = await aggregationData<ServicePriceType>({
         model: ServicePriceModel,
-        query: query,
-        select: "-imagePATH",
+        query: aggregationQuery,
+        position: role !== "ADMIN" ? 1 : 3,
         sort: { createdAt: -1 },
-        populate: ["store", "model", "service"],
         limit: req.query.limit ? Number(req.query.limit) : undefined,
         chunk: req.query.chunk ? Number(req.query.chunk) : undefined,
       });
-
-      // send response to client
-      res.status(200).json({
-        status: "SUCCESS",
-        message: "All servicePrice found successfully",
-        data: servicePriceData,
+      res.json({
+        success: {
+          data: servicePriceData,
+        },
       });
     } catch (error) {
-      // send error to client
       next(error);
     }
   }
+
+  //   get all servicePrice by make
+  // public async getServicePricesByModel(
+  //   req: AuthRequest,
+  //   res: Response,
+  //   next: NextFunction
+  // ): Promise<any> {
+  //   try {
+  //     // save user data to database
+  //     const query = {
+  //       model: req?.params?.modelId || undefined,
+  //     };
+
+  //     !req.params.modelId && delete query.model;
+
+  //     const servicePriceData = await paginationHelper({
+  //       model: ServicePriceModel,
+  //       query: query,
+  //       select: "-imagePATH",
+  //       sort: { createdAt: -1 },
+  //       populate: ["store", "model", "service"],
+  //       limit: req.query.limit ? Number(req.query.limit) : undefined,
+  //       chunk: req.query.chunk ? Number(req.query.chunk) : undefined,
+  //     });
+
+  //     // send response to client
+  //     res.status(200).json({
+  //       status: "SUCCESS",
+  //       message: "All servicePrice found successfully",
+  //       data: servicePriceData,
+  //     });
+  //   } catch (error) {
+  //     // send error to client
+  //     next(error);
+  //   }
+  // }
 
   // get servicePrice
   public async deleteServicePrice(
@@ -241,9 +369,10 @@ class ServicePrice extends MediaLogic {
       next(error);
     }
   }
+}
 
-  // finds validators for the user creation request
-  public validateCreateServicePriceFields = [
+export const ServicePriceControllerValidation = {
+  createServicePrice: [
     body("mrp")
       .not()
       .isEmpty()
@@ -289,7 +418,15 @@ class ServicePrice extends MediaLogic {
       .exists()
       .isBoolean()
       .withMessage("isMostPopular must be boolean."),
-  ];
-}
+  ],
+  getAllServicePrice: [
+    param("model")
+      .not()
+      .isEmpty()
+      .withMessage("model id is required.")
+      .isMongoId()
+      .withMessage("model must be mongoose id."),
+  ],
+};
 
 export default ServicePrice;

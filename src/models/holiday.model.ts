@@ -1,7 +1,7 @@
-import { model, Schema } from "mongoose";
+import { model, Model, Schema } from "mongoose";
 import HolidayType from "../types/holiday";
 
-const holidaySchema = new Schema<HolidayType>(
+const holidaySchema = new Schema<HolidayType, Model<HolidayType>>(
   {
     store: {
       type: Schema.Types.ObjectId,
@@ -13,4 +13,7 @@ const holidaySchema = new Schema<HolidayType>(
   },
   { timestamps: true }
 );
-export const HolidayModel = model<HolidayType>("Holiday", holidaySchema);
+export const HolidayModel = model<HolidayType, Model<HolidayType>>(
+  "Holiday",
+  holidaySchema
+);

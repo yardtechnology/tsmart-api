@@ -1,5 +1,7 @@
 import { Router } from "express";
-import ServicePriceController from "../controllers/servicePrice.controller";
+import ServicePriceController, {
+  ServicePriceControllerValidation,
+} from "../controllers/servicePrice.controller";
 import AuthenticateMiddleware from "../middleware/authenticate.middleware";
 
 class ServicePrice extends AuthenticateMiddleware {
@@ -20,7 +22,7 @@ class ServicePrice extends AuthenticateMiddleware {
       "/service-price",
       // super.isManager,
       super.isAuthenticated,
-      this.servicePriceController.validateCreateServicePriceFields,
+      ServicePriceControllerValidation.createServicePrice,
       this.servicePriceController.createServicePrice
     );
 
@@ -34,13 +36,15 @@ class ServicePrice extends AuthenticateMiddleware {
       this.servicePriceController.getServicePrice
     );
     this.router.get(
-      "/service-prices",
+      "/service-prices/:model",
+      super.isAuthenticated,
+      ServicePriceControllerValidation.getAllServicePrice,
       this.servicePriceController.getAllServicePrice
     );
-    this.router.get(
-      "/service-prices/:modelId",
-      this.servicePriceController.getServicePricesByModel
-    );
+    // this.router.get(
+    //   "/service-prices/:modelId",
+    //   this.servicePriceController.getServicePricesByModel
+    // );
     this.router.delete(
       "/service-price/:servicePriceId",
       super.isAuthenticated,
