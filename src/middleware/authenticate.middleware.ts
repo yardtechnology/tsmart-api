@@ -32,6 +32,36 @@ class AuthenticateMiddleware extends JWT {
     }
   }
 
+  public async authenticateOrUnAuthenticate(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      if (req) {
+        // extract token from header
+        if (req.headers.authorization) {
+          const decoded = await extractToken(req);
+          req.currentUser = {
+            _id: decoded._id,
+            email: decoded.email,
+            role: decoded.role,
+          };
+        }
+
+        next();
+      } else {
+        throw new Error("User is not authenticated");
+      }
+    } catch (error) {
+      const err = error as Error;
+      res.status(401).json({
+        status: "FAIL",
+        error: err.message,
+      });
+    }
+  }
+
   // is manager authenticated
   public async isManager(
     req: AuthRequest,

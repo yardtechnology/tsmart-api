@@ -67,7 +67,8 @@ class Product extends AuthenticateMiddleware {
   private getProductInformationRoute(): void {
     this.router.get(
       "/product/:productId/info",
-      this.productController.getProductInformation
+      super.authenticateOrUnAuthenticate,
+      this.productController.getProductDetails
     );
   }
 

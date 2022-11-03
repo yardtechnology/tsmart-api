@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { body, validationResult } from "express-validator";
+import { body } from "express-validator";
 import { Types } from "mongoose";
 import { fieldValidateError } from "../helper";
 import { PaginationResult } from "../helper/pagination.helper";
@@ -19,16 +19,7 @@ class Product extends ProductLogic {
   ): Promise<any> {
     try {
       // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
       let productData: ProductType | null = null;
       const userData = await new UserLogic(req.currentUser?._id).getUserData();
       // add store id to product data
@@ -201,34 +192,6 @@ class Product extends ProductLogic {
     }
   }
 
-  /** get product information */
-  public async getProductInformation(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<any> {
-    try {
-      let product;
-      if (req.query.userId) {
-        product = await super.getProductInfoOptimized({
-          Id: req.params.productId,
-          userId: req.query.userId as string,
-        });
-      } else {
-        product = await super.getProductInfo(req.params.productId);
-      }
-      // send response to client
-      res.status(200).json({
-        status: "SUCCESS",
-        message: "Product info fetched successfully",
-        data: product,
-      });
-    } catch (error) {
-      // send error to client
-      next(error);
-    }
-  }
-
   /** delete a product */
   public async deleteAProduct(
     req: AuthRequest,
@@ -287,27 +250,187 @@ class Product extends ProductLogic {
     }
   }
 
-  // async product optimize
+  // async product information
   async getProductDetails(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { userId } = req.query;
-      const { id } = req.params;
-      const checkArray = userId ? [userId] : [];
+      // const { userId } = req.query;
+      const { productId } = req.params;
+      const userId = req?.currentUser?._id;
+
       const productList = await ProductModel.aggregate([
         {
           $match: {
-            _id: new Types.ObjectId(id),
+            _id: new Types.ObjectId(productId),
           },
         },
+        // product in cart or not check
+        {
+          $lookup: {
+            from: "cartitems",
+            localField: "_id",
+            foreignField: "product",
+            as: "isInCart",
+            pipeline: [
+              {
+                $match: {
+                  user: new Types.ObjectId(userId),
+                },
+              },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            isInCart: {
+              $gte: [{ $size: "$isInCart" }, 1],
+            },
+          },
+        },
+        // product in whish list
+        {
+          $lookup: {
+            from: "wishlists",
+            localField: "_id",
+            foreignField: "product",
+            as: "isInWhishList",
+            pipeline: [
+              {
+                $match: {
+                  user: new Types.ObjectId(userId),
+                },
+              },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            isInWhishList: {
+              $gte: [{ $size: "$isInWhishList" }, 1],
+            },
+          },
+        },
+        // color variants
         {
           $lookup: {
             from: "products",
             localField: "model",
             foreignField: "model",
-            as: "color",
+            as: "colorVariants",
+            pipeline: [
+              {
+                $group: {
+                  _id: "$color",
+
+                  id: {
+                    $first: "$_id",
+                  },
+                  count: {
+                    $sum: 1,
+                  },
+                  dataPush: {
+                    $push: {
+                      _id: "$_id",
+                      color: "$color",
+                      memory: "$memory",
+                      condition: "$condition",
+                    },
+                  },
+                },
+              },
+              {
+                $project: {
+                  color: "$_id",
+                  firstId: "$id",
+                  count: 1,
+                  dataPush: 1,
+                },
+              },
+            ],
+          },
+        },
+        // condition variants
+        {
+          $lookup: {
+            from: "products",
+            localField: "model",
+            foreignField: "model",
+            as: "conditionVariants",
+            pipeline: [
+              {
+                $group: {
+                  _id: "$condition",
+                  id: {
+                    $first: "$_id",
+                  },
+                  count: {
+                    $sum: 1,
+                  },
+                  dataPush: {
+                    $push: {
+                      _id: "$_id",
+                      color: "$color",
+                      memory: "$memory",
+                      condition: "$condition",
+                    },
+                  },
+                },
+              },
+              {
+                $project: {
+                  condition: "$_id",
+                  firstId: "$id",
+                  count: 1,
+                  dataPush: 1,
+                },
+              },
+            ],
+          },
+        },
+        // memory variant
+        {
+          $lookup: {
+            from: "products",
+            localField: "model",
+            foreignField: "model",
+            as: "memoryVariants",
+            pipeline: [
+              {
+                $group: {
+                  _id: "$memory",
+                  id: {
+                    $first: "$_id",
+                  },
+
+                  count: {
+                    $sum: 1,
+                  },
+                  dataPush: {
+                    $push: {
+                      _id: "$_id",
+                      color: "$color",
+                      memory: "$memory",
+                      condition: "$condition",
+                    },
+                  },
+                },
+              },
+              {
+                $project: {
+                  condition: "$_id",
+                  firstId: "$id",
+                  count: 1,
+                  dataPush: 1,
+                },
+              },
+            ],
           },
         },
       ]);
+      res.json({
+        status: "SUCCESS",
+        message: "Product details fetched successfully",
+        data: productList?.[0] || {},
+      });
     } catch (error) {
       next(error);
     }
