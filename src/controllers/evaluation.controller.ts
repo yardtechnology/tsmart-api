@@ -1,6 +1,7 @@
 import { NextFunction, Response } from "express";
-import { body, param, validationResult } from "express-validator";
-import { BadRequest, InternalServerError, NotFound } from "http-errors";
+import { body, param } from "express-validator";
+import { InternalServerError, NotFound } from "http-errors";
+import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import MediaLogic from "../logic/media.logic";
 import { EvaluationSchema } from "../models";
@@ -10,16 +11,7 @@ class EvaluationController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     let imageData: any | undefined;
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new BadRequest(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
       const { title, description } = req.body;
       const imageFile = req?.files?.image;
       const filePath = `Evaluation`;
@@ -56,16 +48,7 @@ class EvaluationController {
       const { evaluationId } = req.params;
       const { title, description } = req.body;
 
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new BadRequest(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
 
       const imageFile = req?.files?.image;
       const filePath = `Evaluation`;
@@ -134,16 +117,7 @@ class EvaluationController {
   async deleteData(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { evaluationId } = req.params;
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new BadRequest(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
       const deleteEvaluation = await EvaluationSchema.findByIdAndDelete(
         evaluationId
       );

@@ -1,4 +1,5 @@
 export { default as BusinessServiceSchema } from "./businessService.model";
+export { default as ColorSchema } from "./color.model";
 export { default as ConfigSchema } from "./config.model";
 export { default as ContactUsSchema } from "./contactUs.model";
 export { default as CouponSchema } from "./coupon.model";
