@@ -253,7 +253,6 @@ class Product extends ProductLogic {
   // async product information
   async getProductDetails(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      // const { userId } = req.query;
       const { productId } = req.params;
       const userId = req?.currentUser?._id;
 
@@ -426,6 +425,7 @@ class Product extends ProductLogic {
           },
         },
       ]);
+
       res.json({
         status: "SUCCESS",
         message: "Product details fetched successfully",
