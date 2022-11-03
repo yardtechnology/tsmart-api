@@ -24,6 +24,14 @@ class DashboardController {
       next(error);
     }
   }
+
+  //   async totalRevenue(req: AuthRequest, res: Response, next: NextFunction) {
+  //     try {
+
+  //     } catch (error) {
+  //         next(error);
+  //     }
+  //   }
 }
 
 export const DashboardControllerValidation = {
@@ -58,6 +66,9 @@ export const DashboardControllerValidation = {
         "Status must be among of these INITIATED,COMPLETED, CANCELLED, CONFIRMED, PACKED, SHIPPED, OUT_FOR_DELIVERY,DELIVERED, RECEIVED, PAID, TECHNICIAN_ASSIGNED, TECHNICIAN_REACHED, REPAIRED, ADD_ON_SERVICE "
       ),
   ],
+  //   totalRevenue:[
+
+  //   ]
 };
 
 export default DashboardController;

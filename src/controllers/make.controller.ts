@@ -12,7 +12,7 @@ class MakeController {
     let imageData: any | undefined;
     try {
       fieldValidateError(req);
-      const { title, deviceId } = req.body;
+      const { title, deviceId, serviceType } = req.body;
       const imageFile = req?.files?.image;
       const filePath = `Make`;
 

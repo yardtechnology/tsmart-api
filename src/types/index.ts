@@ -1,4 +1,5 @@
 export { default as BUSINESS_SERVICE_TYPE } from "./businessService";
+export { default as COLOR_TYPE } from "./color";
 export { default as CONFIG_TYPE } from "./config";
 export { default as CONTACT_US_TYPE } from "./contactUs";
 export { default as COUPON_TYPE } from "./coupon";

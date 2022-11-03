@@ -1,4 +1,4 @@
-import { Schema, Model, model } from "mongoose";
+import { Model, model, Schema } from "mongoose";
 import { MAKE_TYPE } from "../types";
 
 const makeSchema = new Schema<MAKE_TYPE, Model<MAKE_TYPE>>(
@@ -19,6 +19,15 @@ const makeSchema = new Schema<MAKE_TYPE, Model<MAKE_TYPE>>(
       {
         type: Schema.Types.ObjectId,
         ref: "Device",
+      },
+    ],
+    type: [
+      {
+        type: String,
+        enum: {
+          values: ["SERVICE", "SELL"],
+          message: "type must be SERVICE or SELL",
+        },
       },
     ],
   },
