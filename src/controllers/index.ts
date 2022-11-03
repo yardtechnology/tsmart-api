@@ -15,6 +15,10 @@ export {
   default as CouponController,
 } from "./coupon.controller";
 export {
+  DashboardControllerValidation,
+  default as DashboardController,
+} from "./dashboard.controller";
+export {
   default as DeviceController,
   DeviceControllerValidation,
 } from "./device.controller";
