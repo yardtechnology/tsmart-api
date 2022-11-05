@@ -47,6 +47,10 @@ export {
   MemoryControllerValidation,
 } from "./memory.controller";
 export {
+  default as ModelController,
+  ModelControllerValidation,
+} from "./model.controller";
+export {
   default as NotificationController,
   NotificationControllerValidation,
 } from "./notification.controller";

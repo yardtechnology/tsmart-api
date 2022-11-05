@@ -1,8 +1,8 @@
 import { Router } from "express";
-import ModelController from "../controllers/model.controller";
+import { ModelController, ModelControllerValidation } from "../controllers";
 import AuthenticateMiddleware from "../middleware/authenticate.middleware";
 
-class Model extends AuthenticateMiddleware {
+export default class ModelRoutes extends AuthenticateMiddleware {
   public router: Router;
   private modelController: ModelController;
 
@@ -10,57 +10,29 @@ class Model extends AuthenticateMiddleware {
     super();
     this.router = Router();
     this.modelController = new ModelController();
-    this.createModelRoute();
-    this.updateModelRoute();
-    this.getModelRoute();
-    this.getAllModelRoute();
-    this.deleteModelRoute();
-    this.getModelByMakeRoute();
+    this.routes();
   }
-
-  // create user
-  private createModelRoute(): void {
+  private routes() {
+    // create
     this.router.post(
+      "/model/create-and-update",
+      super.isAuthenticated,
+      ModelControllerValidation.createAndUpdate,
+      this.modelController.createAndUpdate
+    );
+    // get all
+    this.router.get(
       "/model",
       super.isAuthenticated,
-      this.modelController.validateCreateModelFields,
-      this.modelController.createModel
+      // ModelControllerValidation.getAll,
+      this.modelController.getAll
     );
-  }
-
-  // update model
-  private updateModelRoute(): void {
+    // remove serviceType
     this.router.put(
-      "/model/:modelId",
+      "/model/remove-service-type/:modelId",
       super.isAuthenticated,
-      this.modelController.updateModel
+      // ModelControllerValidation.removeServiceType,
+      this.modelController.removeServiceType
     );
-  }
-
-  //TODO: GET PRODUCTS BY CATEGORY
-
-  // get model
-  private getModelRoute(): void {
-    this.router.get("/model/:modelId", this.modelController.getModel);
-  }
-
-  // get my categories
-  private getAllModelRoute(): void {
-    this.router.get("/models", this.modelController.getAllModel);
-  }
-
-  // delete model
-  private deleteModelRoute(): void {
-    this.router.delete(
-      "/model/:modelId",
-      super.isAuthenticated,
-      this.modelController.deleteModel
-    );
-  }
-  // get model by make
-  private getModelByMakeRoute(): void {
-    this.router.get("/models/:makeId", this.modelController.getModelsMyMake);
   }
 }
-
-export default Model;

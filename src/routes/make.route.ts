@@ -15,31 +15,24 @@ export default class MakeRoutes extends AuthenticateMiddleware {
   private routes() {
     // create
     this.router.post(
-      "/make/",
+      "/make/create-and-update",
       super.isAuthenticated,
-      MakeControllerValidation.create,
-      this.makeController.create
+      MakeControllerValidation.createAndUpdate,
+      this.makeController.createAndUpdate
     );
     // get all
     this.router.get(
       "/make",
       super.isAuthenticated,
-
+      MakeControllerValidation.getAll,
       this.makeController.getAll
     );
-    // update
+    // remove serviceType
     this.router.put(
-      "/make/:makeId",
+      "/make/remove-service-type/:makeId",
       // super.isAuthenticated,
-      MakeControllerValidation.update,
-      this.makeController.update
-    );
-    // delete
-    this.router.delete(
-      "/make/:makeId",
-      super.isAuthenticated,
-      MakeControllerValidation.delete,
-      this.makeController.deleteData
+      MakeControllerValidation.removeServiceType,
+      this.makeController.removeServiceType
     );
   }
 }

@@ -13,7 +13,7 @@ const makeSchema = new Schema<MAKE_TYPE, Model<MAKE_TYPE>>(
       type: String,
       unique: true,
       index: true,
-      require: [true, "Device title is required."],
+      require: [true, "Make title is required."],
     },
     devices: [
       {

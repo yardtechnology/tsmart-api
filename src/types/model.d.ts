@@ -8,4 +8,5 @@ export default interface ModelType extends Document {
   imagePATH: string;
   device: DEVICE_TYPE;
   make: ModelType;
+  type?: [string];
 }

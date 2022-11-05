@@ -15,31 +15,31 @@ export default class DeviceRoutes extends AuthenticateMiddleware {
   private routes() {
     // create
     this.router.post(
-      "/device/",
+      "/device/create-and-update",
       super.isAuthenticated,
-      DeviceControllerValidation.create,
-      this.deviceController.create
+      DeviceControllerValidation.createAndUpdate,
+      this.deviceController.createAndUpdate
     );
     // get all
     this.router.get(
       "/device",
       super.isAuthenticated,
-
+      DeviceControllerValidation.getAll,
       this.deviceController.getAll
     );
     // update
     this.router.put(
-      "/device/:deviceId",
+      "/device/remove-type/:deviceId",
       super.isAuthenticated,
-      DeviceControllerValidation.update,
-      this.deviceController.update
+      DeviceControllerValidation.removeServiceType,
+      this.deviceController.removeServiceType
     );
     // delete
-    this.router.delete(
-      "/device/:deviceId",
-      super.isAuthenticated,
-      DeviceControllerValidation.delete,
-      this.deviceController.deleteData
-    );
+    // this.router.delete(
+    //   "/device/:deviceId",
+    //   super.isAuthenticated,
+    //   DeviceControllerValidation.delete,
+    //   this.deviceController.deleteData
+    // );
   }
 }

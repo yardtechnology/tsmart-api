@@ -15,6 +15,15 @@ const modelSchema = new Schema<ModelType>(
       type: Schema.Types.ObjectId,
       ref: "Make",
     },
+    type: [
+      {
+        type: String,
+        enum: {
+          values: ["SERVICE", "SELL"],
+          message: "type must be SERVICE or SELL",
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

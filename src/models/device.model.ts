@@ -15,6 +15,15 @@ const deviceSchema = new Schema<DEVICE_TYPE, Model<DEVICE_TYPE>>(
       index: true,
       require: [true, "Device title is required."],
     },
+    type: [
+      {
+        type: String,
+        enum: {
+          values: ["SERVICE", "SELL"],
+          message: "type must be SERVICE or SELL",
+        },
+      },
+    ],
   },
   { timestamps: true }
 );
