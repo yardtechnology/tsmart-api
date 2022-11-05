@@ -18,6 +18,7 @@ class Order extends AuthenticateMiddleware {
     this.getOrderDetailsRoute();
     this.updateOrderStatusRoute();
     this.createOrderPaymentRoute();
+    this.createSellOrderRoute();
     this.getOrderSummaryRoute();
   }
 
@@ -46,6 +47,15 @@ class Order extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.orderController.validateCallOutOrderPlaceFields,
       this.orderController.placeCallOutOrderController
+    );
+  }
+  // place mail in service order
+  private createSellOrderRoute(): void {
+    this.router.post(
+      "/order/sell",
+      super.isAuthenticated,
+      this.orderController.validateSellOrderPlaceFields,
+      this.orderController.placeSellOrderController
     );
   }
   // place mail in service order

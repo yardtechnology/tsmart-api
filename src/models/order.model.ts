@@ -52,14 +52,12 @@ const orderSchema = new Schema<OrderType>(
     },
     endImage: String,
     endImagePATH: String,
-    service: {
-      type: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: "ServicePrice",
-        },
-      ],
-    },
+    service: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "ServicePrice",
+      },
+    ],
     scheduledTime: Date,
     technicianImage: String,
     technicianImagePATH: String,

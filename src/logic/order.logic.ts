@@ -58,7 +58,7 @@ class OrderLogic {
           userID: userId,
           storeID: storeId,
           scheduledTime,
-          service: uniqServiceIds,
+          service: Array.from(uniqServiceIds),
           type: "BUY",
           price: priceDetails?.salePrice,
           mrp: priceDetails?.mrp,

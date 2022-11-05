@@ -116,6 +116,41 @@ class Order extends OrderLogic {
       next(error);
     }
   }
+  /** make call out order */
+  public async placeSellOrderController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      //place Walk in Repairing Order [STORE]
+      const orderData = await super.placeCallOutOrder({
+        userId: req.currentUser?._id as string,
+        latitude: req.body?.latitude,
+        longitude: req.body?.longitude,
+        street: req.body?.street,
+        serviceIds: req.body?.serviceIds,
+      });
+      const billingData = await new BillingLogic().createBill({
+        orderIds: orderData?._id,
+        status: "PENDING",
+        price: orderData?.price,
+      });
+      await OrderModel?.findByIdAndUpdate(orderData?._id, {
+        billing: billingData?._id,
+      });
+
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Order placed successfully",
+        data: orderData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   /** get order details*/
   public async getOrderDetailsController(
@@ -526,6 +561,7 @@ class Order extends OrderLogic {
       .custom((value) => !isNaN(new Date(value).getMonth()))
       .withMessage("not a valid date"),
   ];
+  public validateSellOrderPlaceFields = [];
 }
 
 export default Order;
