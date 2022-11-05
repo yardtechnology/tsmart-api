@@ -8,6 +8,7 @@ export { default as EVALUATION_TYPE } from "./evaluation";
 export { default as EVALUATION_PRICE_TYPE } from "./evaluationPrice";
 export { default as JOIN_OUR_TEAM_TYPE } from "./joinOurTeam";
 export { default as MAKE_TYPE } from "./make";
+export { default as MEMORY_TYPE } from "./memory";
 export { default as NOTIFICATION_TYPE } from "./notification";
 export { default as REVIEW_TYPE } from "./review";
 export { default as SERVICE_PROPERTY_TYPE } from "./serviceProperty";

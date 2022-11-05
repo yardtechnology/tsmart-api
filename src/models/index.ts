@@ -8,6 +8,7 @@ export { default as EvaluationSchema } from "./evaluation.model";
 export { default as EvaluationPriceSchema } from "./evaluationPrice.model";
 export { default as JoinOurTeamSchema } from "./joinOurTeam.model";
 export { default as MakeSchema } from "./make.model";
+export { default as MemorySchema } from "./memory.model";
 export { default as NotificationSchema } from "./notification.model";
 export { default as ReviewSchema } from "./review.model";
 export { ServicePropertySchema } from "./serviceProperty.model";
