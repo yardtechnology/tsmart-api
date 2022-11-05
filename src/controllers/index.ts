@@ -3,6 +3,10 @@ export {
   default as BusinessServiceController,
 } from "./businessService.controller";
 export {
+  ColorControllerValidation,
+  default as ColorController,
+} from "./color.controller";
+export {
   ConfigControllerValidation,
   default as ConfigController,
 } from "./config.controller";
@@ -38,6 +42,10 @@ export {
   default as MakeController,
   MakeControllerValidation,
 } from "./make.controller";
+export {
+  default as MemoryController,
+  MemoryControllerValidation,
+} from "./memory.controller";
 export {
   default as NotificationController,
   NotificationControllerValidation,
