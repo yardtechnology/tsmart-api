@@ -34,6 +34,7 @@ class BlogLogic extends MediaLogic {
     return blogData;
   }
   public async updateBlog({
+    blogId,
     title,
     description,
     author,
@@ -41,6 +42,7 @@ class BlogLogic extends MediaLogic {
     tags,
     article,
   }: {
+    blogId: string;
     title: string;
     description: string;
     author: string;
@@ -53,7 +55,7 @@ class BlogLogic extends MediaLogic {
       posterFile && !Array.isArray(posterFile)
         ? await super.uploadMedia(posterFile, filePath)
         : undefined;
-    const blogData = await new BlogModel({
+    const blogData = await BlogModel.findByIdAndUpdate(blogId, {
       title,
       description,
       author,
@@ -61,13 +63,21 @@ class BlogLogic extends MediaLogic {
       posterPath: poster?.path,
       tags,
       article,
-    }).save();
+    });
     poster?.path &&
       blogData?.posterPATH &&
       (await super.deleteMedia(blogData?.posterPATH));
     return blogData;
   }
-  public async deleteBlog(blogId: string) {}
+  public async getBlog(id: string) {
+    const blogData = await BlogModel.findById(id);
+    return blogData;
+  }
+  public async deleteBlog(blogId: string) {
+    //TODO: delete blog comments
+    const blogData = await BlogModel.findByIdAndDelete(blogId);
+    return blogData;
+  }
 }
 
 export default BlogLogic;

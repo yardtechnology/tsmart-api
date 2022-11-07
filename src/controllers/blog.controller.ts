@@ -47,6 +47,7 @@ class Blog extends BlogLogic {
       fieldValidateError(req);
       const { title, description, author, article, tags } = req.body;
       const blogData = await super.updateBlog({
+        blogId: req.params?.blogId,
         title,
         description,
         author,
@@ -86,6 +87,25 @@ class Blog extends BlogLogic {
         status: "SUCCESS",
         message: "Blogs found successfully",
         data: blogs,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  //get blog by id
+  public async getBlogByIdController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      const blogData = await super.getBlog(req.params?.blogId as string);
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Blog fetched successfully",
+        data: blogData,
       });
     } catch (error) {
       next(error);
@@ -141,6 +161,10 @@ class Blog extends BlogLogic {
       .optional()
       .isLength({ min: 11, max: 21 })
       .withMessage("author must be between 5 and 21 characters"),
+    body("tags")
+      .optional()
+      .isArray()
+      .withMessage("tags must be an array of strings"),
   ];
 }
 

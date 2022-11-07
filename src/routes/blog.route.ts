@@ -14,6 +14,7 @@ class Blog extends AuthenticateMiddleware {
     this.updateBlogRoute();
     this.getAllBlogsRoute();
     this.deleteBlogRoute();
+    this.getBlogRoute();
   }
 
   //create blog
@@ -34,6 +35,10 @@ class Blog extends AuthenticateMiddleware {
       this.BlogController.validateUpdateBlogFields,
       this.BlogController.updateBlogController
     );
+  }
+  //get blog
+  private getBlogRoute(): void {
+    this.router.get("/blog/:blogId", this.BlogController.getBlogByIdController);
   }
 
   //get all blogs
