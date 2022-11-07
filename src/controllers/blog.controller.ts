@@ -111,6 +111,48 @@ class Blog extends BlogLogic {
       next(error);
     }
   }
+  //add comment on blog
+  public async addCommentController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      const blogData = await super.addComment({
+        blogId: req.params?.blogId as string,
+        comment: req.body?.comment,
+        commentId: req.body?.commentId as string,
+      });
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "comment added successfully",
+        data: blogData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  //get comments
+  public async getCommentsController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      const blogData = await super.getComments(req.params?.blogId);
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "comment fetched successfully",
+        data: blogData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   //delete blog
   public async deleteBlogController(

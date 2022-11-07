@@ -15,6 +15,8 @@ class Blog extends AuthenticateMiddleware {
     this.getAllBlogsRoute();
     this.deleteBlogRoute();
     this.getBlogRoute();
+    this.addCommentRoute();
+    this.getCommentsRoute();
   }
 
   //create blog
@@ -39,6 +41,22 @@ class Blog extends AuthenticateMiddleware {
   //get blog
   private getBlogRoute(): void {
     this.router.get("/blog/:blogId", this.BlogController.getBlogByIdController);
+  }
+  //add comment
+  private addCommentRoute(): void {
+    this.router.post(
+      "/blog/:blogId/comment",
+      this?.isAuthenticated,
+      this.BlogController.addCommentController
+    );
+  }
+  //get comments
+  private getCommentsRoute(): void {
+    this.router.get(
+      "/blog/:blogId/comments",
+      this?.isAuthenticated,
+      this.BlogController.getCommentsController
+    );
   }
 
   //get all blogs

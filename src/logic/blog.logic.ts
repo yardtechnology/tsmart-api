@@ -1,4 +1,5 @@
 import { BlogModel } from "../models/blog.model";
+import { CommentSchema } from "../models/comment.model";
 import MediaLogic from "./media.logic";
 
 class BlogLogic extends MediaLogic {
@@ -72,6 +73,30 @@ class BlogLogic extends MediaLogic {
   public async getBlog(id: string) {
     const blogData = await BlogModel.findById(id);
     return blogData;
+  }
+  //add comment
+  public async addComment({
+    blogId,
+    commentId,
+    comment,
+  }: {
+    blogId: string;
+    commentId: string;
+    comment: string;
+  }) {
+    const commentData = await new CommentSchema({
+      blogId,
+      commentId,
+      comment,
+    }).save();
+    return commentData;
+  }
+  //get comment
+  public async getComments(blogId: string) {
+    const commentData = await CommentSchema.find({ blogId });
+    if (!commentData) throw new Error("comment not found");
+
+    return commentData;
   }
   public async deleteBlog(blogId: string) {
     //TODO: delete blog comments
