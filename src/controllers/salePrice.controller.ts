@@ -1,161 +1,149 @@
-// import { NextFunction, Response } from "express";
-// import { body, param, query } from "express-validator";
-// import { NotFound } from "http-errors";
-// import { fieldValidateError } from "../helper";
-// import paginationHelper from "../helper/pagination.helper";
-// import MediaLogic from "../logic/media.logic";
-// import { DevicesSchema } from "../models";
-// import { AuthRequest } from "../types/core";
+import { NextFunction, Response } from "express";
+import { body, param, query } from "express-validator";
+import { NotFound } from "http-errors";
+import { fieldValidateError } from "../helper";
+import paginationHelper from "../helper/pagination.helper";
+import { SalePriceModel } from "../models";
+import { AuthRequest } from "../types/core";
 
-// class DeviceController {
-//   async createAndUpdate(req: AuthRequest, res: Response, next: NextFunction) {
-//     let imageData: any | undefined;
-//     try {
-//       fieldValidateError(req);
-//       const { title, type } = req.body;
-//       const imageFile = req?.files?.image;
-//       const filePath = `Device`;
+class SalePriceController {
+  async createAndUpdate(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      fieldValidateError(req);
+      const { price, modelId, memoryId, colorId } = req.body;
+      const createAndUpdateSalePrice = await SalePriceModel.findOneAndUpdate(
+        {
+          model: modelId,
+        },
+        {
+          price,
+          memory: memoryId,
+          color: colorId,
+        },
+        {
+          new: true,
+          runValidators: true,
+          upsert: true,
+        }
+      );
+      if (!createAndUpdateSalePrice)
+        throw new NotFound(
+          `Something went wrong, data not saved. Please try again`
+        );
+      res.json({
+        status: "SUCCESS",
+        message: "SalePrice created successfully.",
+        data: createAndUpdateSalePrice,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
-//       imageData =
-//         imageFile && !Array.isArray(imageFile)
-//           ? await new MediaLogic().uploadMedia(imageFile, filePath)
-//           : undefined;
-//       const createDevice = await DevicesSchema.findOneAndUpdate(
-//         {
-//           type: { $ne: type.toUpperCase() },
-//           title,
-//         },
-//         {
-//           image: imageData?.url,
-//           imagePATH: imageData?.path,
-//           $addToSet: { type: type.toUpperCase() },
-//         },
-//         {
-//           new: true,
-//           runValidators: true,
-//           upsert: true,
-//         }
-//       );
-//       if (!createDevice)
-//         throw new NotFound(
-//           `You are already added on ${type}, You can not add again here.`
-//         );
-//       res.json({
-//         status: "SUCCESS",
-//         message: "Device created successfully.",
-//         data: createDevice,
-//       });
-//     } catch (error) {
-//       if (imageData?.path) {
-//         new MediaLogic().deleteMedia(imageData?.path);
-//       }
-//       next(error);
-//     }
-//   }
+  async getAll(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      fieldValidateError(req);
+      const { modelId } = req.params;
 
-//   async removeServiceType(req: AuthRequest, res: Response, next: NextFunction) {
-//     try {
-//       const { deviceId } = req.params;
-//       const { type } = req.body;
-//       const removeDeviceType = await DevicesSchema.findOneAndUpdate(
-//         { _id: deviceId, type },
-//         {
-//           $pull: {
-//             type: type.toUpperCase(),
-//           },
-//         },
-//         {
-//           new: true,
-//           runValidators: true,
-//         }
-//       );
-//       if (!removeDeviceType)
-//         throw new NotFound("No data found for remove type");
-//       if (!removeDeviceType?.type?.length) {
-//         const deleteDevice = await DevicesSchema.findByIdAndDelete(deviceId);
-//       }
-//       res.json({
-//         status: "SUCCESS",
-//         message: "Remove type successfully.",
-//         data: removeDeviceType,
-//       });
-//     } catch (error) {
-//       next(error);
-//     }
-//   }
+      const { limit, chunk, colorId, memoryId, salePriceId } = req.query;
 
-//   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
-//     try {
-//       const { limit, chunk, deviceId, type } = req.query;
+      const query: any = {
+        model: modelId,
+      };
+      salePriceId && (query["_id"] = salePriceId);
+      colorId && (query["color"] = colorId);
+      memoryId && (query["memory"] = memoryId);
 
-//       const query: any = {};
-//       deviceId && (query["_id"] = deviceId);
-//       type && (query["type"] = type);
+      const getAllData = await paginationHelper({
+        model: SalePriceModel,
+        query,
+        chunk: chunk ? Number(chunk) : undefined,
+        limit: limit ? Number(limit) : undefined,
+        select: "",
+        sort: {
+          createdAt: -1,
+        },
+      });
+      res.json({
+        status: "SUCCESS",
+        message:
+          getAllData?.data?.length === 1
+            ? `SalePrice found successfully`
+            : "All SalePrices found successfully.",
+        data:
+          getAllData?.data?.length === 1 ? getAllData?.data?.[0] : getAllData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async delete(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { _id } = req.params;
+      fieldValidateError(req);
+      const deleteSalePrice = await SalePriceModel.findByIdAndDelete(_id);
+      if (!deleteSalePrice)
+        throw new NotFound("No data found for delete request.");
+      res.json({
+        status: "SUCCESS",
+        message: "SalePrice deleted successfully.",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+export const SalePriceControllerValidation = {
+  createAndUpdate: [
+    body("modelId")
+      .not()
+      .isEmpty()
+      .withMessage("modelId is required.")
+      .isMongoId()
+      .withMessage("modelId must be a valid MongoDB ObjectId."),
+    body("memoryId")
+      .isMongoId()
+      .withMessage("memoryId must be a valid MongoDB ObjectId."),
+    body("colorId")
+      .isMongoId()
+      .withMessage("colorId must be a valid MongoDB ObjectId."),
+    body("price")
+      .optional()
+      .exists()
+      .isNumeric()
+      .withMessage("price must be number"),
+  ],
+  delete: [
+    param("_id")
+      .not()
+      .isEmpty()
+      .withMessage("_id is required.")
+      .isMongoId()
+      .withMessage("_id most be mongoose id"),
+  ],
+  getAll: [
+    query("colorId")
+      .optional()
+      .exists()
+      .isMongoId()
+      .withMessage("colorId most be mongoose id."),
+    query("memoryId")
+      .optional()
+      .exists()
+      .isMongoId()
+      .withMessage("memoryId most be mongoose id."),
+    query("salePriceId")
+      .optional()
+      .exists()
+      .isMongoId()
+      .withMessage("salePriceId most be mongoose id."),
+    param("modelId")
+      .not()
+      .isEmpty()
+      .withMessage("modelId must be required")
+      .isMongoId()
+      .withMessage("salePriceId most be mongoose id."),
+  ],
+};
 
-//       const getAllData = await paginationHelper({
-//         model: DevicesSchema,
-//         query,
-//         chunk: chunk ? Number(chunk) : undefined,
-//         limit: limit ? Number(limit) : undefined,
-//         select: "",
-//         sort: {
-//           createdAt: -1,
-//         },
-//       });
-//       res.status(200).json({
-//         status: "SUCCESS",
-//         message: deviceId
-//           ? `Device found successfully`
-//           : "All devices found successfully.s",
-//         data: deviceId ? getAllData?.data?.[0] : getAllData,
-//       });
-//     } catch (error) {
-//       next(error);
-//     }
-//   }
-// }
-// export const DeviceControllerValidation = {
-//   createAndUpdate: [
-//     body("title").not().isEmpty().withMessage("title is required."),
-//     body("type")
-//       .optional()
-//       .exists()
-//       .custom((value) =>
-//         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
-//       )
-//       .withMessage("type most be SERVICE or SELL."),
-//   ],
-//   removeServiceType: [
-//     param("deviceId")
-//       .not()
-//       .isEmpty()
-//       .withMessage("deviceId is required.")
-//       .isMongoId()
-//       .withMessage("deviceId most be mongoose id"),
-//     body("type")
-//       .not()
-//       .isEmpty()
-//       .withMessage("type must be required.")
-//       .exists()
-//       .custom((value) =>
-//         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
-//       )
-//       .withMessage("type most be SERVICE or SELL."),
-//   ],
-//   getAll: [
-//     query("deviceId")
-//       .optional()
-//       .exists()
-//       .isMongoId()
-//       .withMessage("deviceId most be mongoose id."),
-//     query("type")
-//       .optional()
-//       .exists()
-//       .custom((value) =>
-//         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
-//       )
-//       .withMessage("type most be SERVICE or SELL."),
-//   ],
-// };
-
-// export default DeviceController;
+export default SalePriceController;

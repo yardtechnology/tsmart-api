@@ -59,6 +59,10 @@ export {
   ReviewControllerValidation,
 } from "./review.controller";
 export {
+  default as SalePriceController,
+  SalePriceControllerValidation,
+} from "./salePrice.controller";
+export {
   default as ServicePropertyController,
   ServicePropertyControllerValidation,
 } from "./serviceProperty.controller";
