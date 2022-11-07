@@ -177,6 +177,8 @@ class Order extends OrderLogic {
     }
   }
 
+  //TODO: add extra charges
+
   /**
    * order status and ETA update
    */

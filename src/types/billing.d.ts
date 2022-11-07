@@ -10,6 +10,10 @@ export default interface BillingType extends Document {
     charged_id: string;
     balance_transaction: string;
   };
+  extraChargesMetadata?: {
+    charged_id: string;
+    balance_transaction: string;
+  };
   couponDiscount?: {
     coupon: string;
     benefitAmount: number;
@@ -23,4 +27,5 @@ export default interface BillingType extends Document {
   };
   status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "FAILED";
   createdAt: any;
+  type: "REGULAR" | "EXTRA";
 }
