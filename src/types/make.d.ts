@@ -5,5 +5,5 @@ export default interface MAKE_TYPE extends Document {
   imagePATH: string;
   image: string;
   devices?: ObjectId[];
-  type: ["SERVICE" | "SELL"];
+  type?: [string];
 }

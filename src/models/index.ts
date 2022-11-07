@@ -11,6 +11,7 @@ export { default as MakeSchema } from "./make.model";
 export { default as MemorySchema } from "./memory.model";
 export { default as NotificationSchema } from "./notification.model";
 export { default as ReviewSchema } from "./review.model";
+export { default as SalePriceModel } from "./salePrice.model";
 export { ServicePropertySchema } from "./serviceProperty.model";
 export { ServicePropertyValueSchema } from "./servicePropertyValue.model";
 export { default as SupportSchema } from "./support.model";
