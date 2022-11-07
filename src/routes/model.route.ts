@@ -24,14 +24,14 @@ export default class ModelRoutes extends AuthenticateMiddleware {
     this.router.get(
       "/model",
       super.isAuthenticated,
-      // ModelControllerValidation.getAll,
+      ModelControllerValidation.getAll,
       this.modelController.getAll
     );
     // remove serviceType
     this.router.put(
       "/model/remove-service-type/:modelId",
       super.isAuthenticated,
-      // ModelControllerValidation.removeServiceType,
+      ModelControllerValidation.removeServiceType,
       this.modelController.removeServiceType
     );
   }

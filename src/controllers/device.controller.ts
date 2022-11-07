@@ -84,64 +84,6 @@ class DeviceController {
     }
   }
 
-  // async update(req: AuthRequest, res: Response, next: NextFunction) {
-  //   let imageData: any | undefined;
-  //   try {
-  //     const { deviceId } = req.params;
-  //     const { title } = req.body;
-
-  //     const errors = validationResult(req);
-  //     if (!errors.isEmpty()) {
-  //       throw new BadRequest(
-  //         errors
-  //           .array()
-  //           .map((errors) => errors.msg)
-  //           .join()
-  //           .replace(/[,]/g, " and ")
-  //       );
-  //     }
-
-  //     const imageFile = req?.files?.image;
-  //     const filePath = `Device`;
-
-  //     imageData =
-  //       imageFile && !Array.isArray(imageFile)
-  //         ? await new MediaLogic().uploadMedia(imageFile, filePath)
-  //         : undefined;
-  //     const arg: any = {};
-  //     title && (arg.title = title);
-  //     if (imageData) {
-  //       arg.image = imageData?.url;
-  //       arg.imagePATH = imageData?.path;
-  //     }
-
-  //     const updateDeviceData = await DevicesSchema.findByIdAndUpdate(
-  //       deviceId,
-  //       arg,
-  //       {
-  //         runValidators: true,
-  //       }
-  //     );
-  //     if (!updateDeviceData)
-  //       throw new InternalServerError(
-  //         "Something went wrong, Device is not updated."
-  //       );
-  //     if (arg?.imagePATH && updateDeviceData?.imagePATH) {
-  //       new MediaLogic().deleteMedia(updateDeviceData?.imagePATH);
-  //     }
-  //     res.json({
-  //       status: "SUCCESS",
-  //       message: "Device updated successfully",
-  //       data: updateDeviceData,
-  //     });
-  //   } catch (error) {
-  //     if (imageData?.path) {
-  //       new MediaLogic().deleteMedia(imageData?.path);
-  //     }
-
-  //     next(error);
-  //   }
-  // }
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { limit, chunk, deviceId, type } = req.query;
@@ -171,33 +113,6 @@ class DeviceController {
       next(error);
     }
   }
-  // async deleteData(req: AuthRequest, res: Response, next: NextFunction) {
-  //   try {
-  //     const { deviceId } = req.params;
-  //     const errors = validationResult(req);
-  //     if (!errors.isEmpty()) {
-  //       throw new BadRequest(
-  //         errors
-  //           .array()
-  //           .map((errors) => errors.msg)
-  //           .join()
-  //           .replace(/[,]/g, " and ")
-  //       );
-  //     }
-  //     const deleteDevice = await DevicesSchema.findByIdAndDelete(deviceId);
-  //     //   delete device image
-  //     deleteDevice?.imagePATH &&
-  //       new MediaLogic().deleteMedia(deleteDevice?.imagePATH);
-
-  //     res.json({
-  //       status: "SUCCESS",
-  //       message: "Device deleted successfully",
-  //       data: deleteDevice,
-  //     });
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // }
 }
 export const DeviceControllerValidation = {
   createAndUpdate: [

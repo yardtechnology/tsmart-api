@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { body } from "express-validator";
+import { body, param, query } from "express-validator";
 import { NotFound } from "http-errors";
 import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
@@ -52,7 +52,7 @@ class ModelController extends MediaLogic {
         );
 
       // send response to client
-      res.status(200).json({
+      res.json({
         status: "SUCCESS",
         message: "Model added successfully",
         data: modelData,
@@ -67,6 +67,7 @@ class ModelController extends MediaLogic {
     try {
       const { modelId } = req.params;
       const { type } = req.body;
+      fieldValidateError(req);
       const removeServiceType = await ModelModel.findOneAndUpdate(
         { _id: modelId, type },
         {
@@ -97,7 +98,7 @@ class ModelController extends MediaLogic {
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { limit, chunk, modelId, type } = req.query;
-
+      fieldValidateError(req);
       const query: any = {};
       modelId && (query["_id"] = modelId);
       type && (query["type"] = type);
@@ -141,14 +142,52 @@ export const ModelControllerValidation = {
       .isLength({ max: 20 })
       .withMessage("Title must be at most 20 characters long"),
     body("description")
-      .not()
-      .isEmpty()
+      .optional()
       .isLength({ min: 5 })
       .withMessage("Description must be at least 5 characters long")
       .isLength({ max: 51 })
       .withMessage("Description must be at most 51 characters long"),
-    body("modelId").not().isEmpty().withMessage("modelId is required"),
-    body("deviceId").not().isEmpty().withMessage("deviceId is required"),
+    body("modelId")
+      .optional()
+      .exists()
+      .isMongoId()
+      .withMessage("modelId must be a mongos id."),
+    body("deviceId")
+      .optional()
+      .isMongoId()
+      .withMessage("deviceId must be a mongos id."),
+  ],
+
+  removeServiceType: [
+    param("modelId")
+      .not()
+      .isEmpty()
+      .withMessage("modelId is required.")
+      .isMongoId()
+      .withMessage("modelId most be mongoose id"),
+    body("type")
+      .not()
+      .isEmpty()
+      .withMessage("type must be required.")
+      .exists()
+      .custom((value) =>
+        Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
+      )
+      .withMessage("type most be SERVICE or SELL."),
+  ],
+  getAll: [
+    query("modelId")
+      .optional()
+      .exists()
+      .isMongoId()
+      .withMessage("modelId most be mongoose id."),
+    query("type")
+      .optional()
+      .exists()
+      .custom((value) =>
+        Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
+      )
+      .withMessage("type most be SERVICE or SELL."),
   ],
 };
 
