@@ -67,6 +67,10 @@ const productSchema = new Schema<ProductType>(
       type: Schema.Types.ObjectId,
       ref: "Model",
     },
+    type: {
+      type: String,
+      default: "REFURBISHED",
+    },
   },
   { timestamps: true }
 );

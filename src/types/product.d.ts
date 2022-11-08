@@ -30,6 +30,7 @@ export interface ProductType<T = ImageType> {
   device: DEVICE_TYPE;
   make: MAKE_TYPE;
   model: ModelType;
+  type: "REFURBISHED" | "ACCESSORY";
 }
 
 export default interface index extends ProductType, Document {}

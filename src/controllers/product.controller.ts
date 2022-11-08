@@ -609,9 +609,14 @@ class Product extends ProductLogic {
     body("stock").isNumeric().withMessage("Stock must be a number"),
     body("salePrice").isNumeric().withMessage("Sale price must be a number"),
     body("mrp").isNumeric().withMessage("MRP must be a number"),
-    // body("condition")
-    //   .isIn(["GOOD", "BETTER", "BEST"])
-    //   .withMessage("Condition must be GOOD, BETTER, BEST"),
+    body("condition")
+      .optional()
+      .isIn(["GOOD", "BETTER", "BEST"])
+      .withMessage("Condition must be GOOD, BETTER, BEST"),
+    body("type")
+      .optional()
+      .isIn(["REFURBISHED", "ACCESSORY"])
+      .withMessage("type must be REFURBISHED, ACCESSORY"),
   ];
 
   /** fields validators for the product variant creation request */
@@ -644,6 +649,14 @@ class Product extends ProductLogic {
         return true;
       })
       .withMessage("Invalid id provided for field variantOf"),
+    body("condition")
+      .optional()
+      .isIn([["GOOD", "BETTER", "BEST"]])
+      .withMessage("Condition must be GOOD, BETTER, BEST"),
+    body("type")
+      .optional()
+      .isIn(["REFURBISHED", "ACCESSORY"])
+      .withMessage("type must be REFURBISHED, ACCESSORY"),
   ];
 
   /** fields validators for the product update request */
@@ -680,6 +693,10 @@ class Product extends ProductLogic {
         return true;
       })
       .withMessage("Invalid id provided for field variantOf"),
+    body("type")
+      .optional()
+      .isIn(["REFURBISHED", "ACCESSORY"])
+      .withMessage("type must be REFURBISHED, ACCESSORY"),
   ];
 }
 
