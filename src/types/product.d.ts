@@ -1,8 +1,10 @@
 import { Document } from "mongoose";
 import CategoryType from "./category";
+import COLOR_TYPE from "./color";
 import { ImageType } from "./core";
 import DEVICE_TYPE from "./device";
 import MAKE_TYPE from "./make";
+import MEMORY_TYPE from "./memory";
 import ModelType from "./model";
 import StoreType from "./store";
 
@@ -20,8 +22,8 @@ export interface ProductType<T = ImageType> {
   images: T[];
   store: StoreType;
   variantOf: ProductType;
-  memory: string;
-  color: string;
+  memory: MEMORY_TYPE;
+  color: COLOR_TYPE;
   condition: "GOOD" | "BETTER" | "BEST";
   reviews: {
     total: number;
