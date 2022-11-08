@@ -1,9 +1,11 @@
 import { NextFunction, Response } from "express";
 import { body, param, query } from "express-validator";
 import { InternalServerError } from "http-errors";
+import { Types } from "mongoose";
 import { fieldValidateError } from "../helper";
-import paginationHelper from "../helper/pagination.helper";
+import paginationHelper, { aggregationData } from "../helper/pagination.helper";
 import { CouponSchema } from "../models";
+import { COUPON_TYPE } from "../types";
 import { AuthRequest } from "../types/core";
 
 class CouponController {
@@ -57,6 +59,86 @@ class CouponController {
         status: "SUCCESS",
         message: "Coupon updated successfully",
         data: updateCouponData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async couponUser(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { couponId } = req.params;
+      const { limit, chunk } = req.query;
+      fieldValidateError(req);
+      const aggregationQuery = [
+        {
+          $match: {
+            _id: new Types.ObjectId(couponId),
+          },
+        },
+        {
+          $unwind: {
+            path: "$users",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "users",
+            foreignField: "_id",
+            as: "user",
+            pipeline: [
+              {
+                $project: {
+                  displayName: 1,
+                  phoneNumber: 1,
+                  country: 1,
+                  avatar: 1,
+                  email: 1,
+                  gender: 1,
+                  dateOfBirth: 1,
+                  createdAt: 1,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: {
+            path: "$user",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            displayName: "$user.displayName",
+            phoneNumber: "$user.phoneNumber",
+            country: "$user.country",
+            avatar: "$user.avatar",
+            email: "$user.email",
+            gender: "$user.gender",
+            dateOfBirth: "$user.dateOfBirth",
+            createdAt: "$user.createdAt",
+          },
+        },
+      ];
+
+      const couponUsers = await aggregationData<COUPON_TYPE>({
+        model: CouponSchema,
+        query: aggregationQuery,
+        position: 4,
+        sort: { createdAt: -1 },
+        limit: limit ? Number(limit) : undefined,
+        chunk: chunk ? Number(chunk) : undefined,
+      });
+
+      // CouponSchema.aggregate(
+
+      // );
+      res.json({
+        status: "SUCCESS",
+        message: "Coupon users get successfully",
+        data: couponUsers,
       });
     } catch (error) {
       next(error);
@@ -202,6 +284,17 @@ export const CouponControllerValidation = {
         return Boolean(req?.body?.endDate && value);
       })
       .withMessage("Both startDate and endDate are required."),
+  ],
+  couponUser: [
+    param("couponId")
+      .not()
+      .isEmpty()
+      .withMessage("couponId is required.")
+      .isMongoId()
+      .withMessage("couponId must be a valid mongoId."),
+
+    query("limit").optional().isNumeric().withMessage("limit must be number."),
+    query("chunk").optional().isNumeric().withMessage("limit must be number."),
   ],
 };
 

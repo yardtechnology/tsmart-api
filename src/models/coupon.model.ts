@@ -23,6 +23,7 @@ const couponSchema = new Schema<COUPON_TYPE, Model<COUPON_TYPE>>(
     users: [
       {
         type: Schema.Types.ObjectId,
+        ref: "User",
       },
     ],
   },
