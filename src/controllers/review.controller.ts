@@ -4,7 +4,9 @@ import { InternalServerError, NotFound } from "http-errors";
 import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import { ReviewSchema } from "../models";
+import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
+import { ProductModel } from "./../models/product.model";
 
 class ReviewController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
@@ -12,6 +14,34 @@ class ReviewController {
       fieldValidateError(req);
       const { comment, ratings, productId, storeId, technicianId } = req.body;
       const user = req?.currentUser?._id;
+
+      //if rating for technician
+      if (technicianId) {
+        await UserModel.findByIdAndUpdate(technicianId, {
+          $inc: {
+            "reviews.total": 1,
+            "reviews.stars": Number(ratings),
+          },
+        });
+      }
+      //if rating for product
+      if (productId) {
+        await ProductModel.findByIdAndUpdate(technicianId, {
+          $inc: {
+            "reviews.total": 1,
+            "reviews.stars": Number(ratings),
+          },
+        });
+      }
+      //if rating for store
+      if (storeId) {
+        await ProductModel.findByIdAndUpdate(storeId, {
+          $inc: {
+            "reviews.total": 1,
+            "reviews.stars": Number(ratings),
+          },
+        });
+      }
 
       const reviewDevice = await ReviewSchema.create({
         comment,
@@ -100,7 +130,33 @@ class ReviewController {
       const deleteReview = await ReviewSchema.findByIdAndDelete(reviewId);
       //   delete device image
       if (!deleteReview) throw new NotFound("Evaluation not found.");
-
+      //if rating for technician
+      if (deleteReview?.technician) {
+        await UserModel.findByIdAndUpdate(deleteReview?.technician, {
+          $inc: {
+            "reviews.total": 1,
+            "reviews.stars": Number(deleteReview?.ratings),
+          },
+        });
+      }
+      //if rating for product
+      if (deleteReview?.product) {
+        await ProductModel.findByIdAndUpdate(deleteReview?.product, {
+          $inc: {
+            "reviews.total": 1,
+            "reviews.stars": Number(deleteReview?.ratings),
+          },
+        });
+      }
+      //if rating for store
+      if (deleteReview?.store) {
+        await ProductModel.findByIdAndUpdate(deleteReview?.store, {
+          $inc: {
+            "reviews.total": 1,
+            "reviews.stars": Number(deleteReview?.ratings),
+          },
+        });
+      }
       res.json({
         status: "SUCCESS",
         message: "Review deleted successfully",

@@ -22,4 +22,8 @@ export default interface StoreType extends Document {
     latitude: number;
     longitude: number;
   };
+  reviews: {
+    total: number;
+    stars: number;
+  };
 }

@@ -89,6 +89,16 @@ const userSchema = new Schema<UserType>(
     isAcademicCourses: Boolean,
     experience: Number,
     age: Number,
+    reviews: {
+      total: {
+        type: Number,
+        default: 0,
+      },
+      stars: {
+        type: Number,
+        default: 0,
+      },
+    },
   },
   { timestamps: true }
 );

@@ -27,6 +27,16 @@ const storeSchema = new Schema<StoreType>(
       latitude: Number,
       longitude: Number,
     },
+    reviews: {
+      total: {
+        type: Number,
+        default: 0,
+      },
+      stars: {
+        type: Number,
+        default: 0,
+      },
+    },
   },
   { timestamps: true }
 );

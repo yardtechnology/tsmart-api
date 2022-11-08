@@ -63,4 +63,8 @@ export default interface UserType extends Document {
   isAcademicCourses: boolean;
   experience: number;
   age: number;
+  reviews: {
+    total: number;
+    stars: number;
+  };
 }
