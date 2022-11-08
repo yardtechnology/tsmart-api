@@ -38,7 +38,7 @@ class User extends MediaLogic {
           ? await super.uploadMedia(avatarFile, filePath)
           : undefined;
       // get provided user data
-      const { displayName, gender, phoneNumber } = req.body;
+      const { displayName, gender, phoneNumber, email } = req.body;
       const faceVideoFile = req.files?.faceVideo;
       const faceVideoData: any | undefined =
         faceVideoFile && !Array.isArray(faceVideoFile)
@@ -52,6 +52,7 @@ class User extends MediaLogic {
           displayName,
           gender,
           phoneNumber,
+          email,
           avatar: avatarData?.url,
           avatarPath: avatarData?.path,
           "fcmTokens.android":
