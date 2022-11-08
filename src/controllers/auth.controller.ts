@@ -90,7 +90,7 @@ class Auth extends AuthLogic {
           (new Date().getTime() -
             new Date(userInfo.activeOTP.createdAt).getTime()) /
             1000 <=
-          60
+          60 * 5
         )
       ) {
         // remove OTP from User
@@ -164,7 +164,7 @@ class Auth extends AuthLogic {
       // send response to client
       res.status(200).json({
         status: "SUCCESS",
-        message: "User logged in successfully",
+        message: "OTP verified successfully",
         ACCESS_TOKEN,
         data: {
           _id: userInfo._id,
