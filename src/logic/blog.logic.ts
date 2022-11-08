@@ -118,7 +118,7 @@ class BlogLogic extends MediaLogic {
     return commentData;
   }
   public async deleteBlog(blogId: string) {
-    //TODO: delete blog comments
+    await CommentSchema.deleteMany({ blog: blogId });
     const blogData = await BlogModel.findByIdAndDelete(blogId);
     return blogData;
   }
