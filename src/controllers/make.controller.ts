@@ -31,7 +31,7 @@ class MakeController {
           imagePATH: imageData?.path,
           devices: deviceId ? [deviceId] : undefined,
 
-          $addToSet: { type: type.toUpperCase() },
+          $addToSet: type ? { type: type.toUpperCase() } : undefined,
         },
         { new: true, runValidators: true, upsert: true }
       );
@@ -128,12 +128,16 @@ export const MakeControllerValidation = {
       .isMongoId()
       .withMessage("deviceId most be mongoose id."),
     body("type")
-      .optional()
+      .not()
+      .isEmpty()
+      .withMessage("type is required.")
       .exists()
+      .withMessage("type is required.")
+
       .custom((value) =>
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
-      .withMessage("serviceType most be SERVICE or SELL."),
+      .withMessage("type most be SERVICE or SELL."),
   ],
   removeServiceType: [
     param("makeId")

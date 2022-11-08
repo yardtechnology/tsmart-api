@@ -22,12 +22,19 @@ export default class CouponRoutes extends AuthenticateMiddleware {
     );
     // get all
     this.router.get(
+      "/coupon/users/:couponId",
+      CouponControllerValidation.couponUser,
+      super.isAuthenticated,
+      this.couponController.couponUser
+    );
+    // coupon uses user
+    this.router.get(
       "/coupon",
       CouponControllerValidation.getAll,
       super.isAuthenticated,
-
       this.couponController.getAll
     );
+
     // update
     this.router.put(
       "/coupon/:couponId",

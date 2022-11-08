@@ -60,6 +60,17 @@ class SalePriceController {
         chunk: chunk ? Number(chunk) : undefined,
         limit: limit ? Number(limit) : undefined,
         select: "",
+        populate: [
+          {
+            path: "color",
+          },
+          {
+            path: "memory",
+          },
+          {
+            path: "model",
+          },
+        ],
         sort: {
           createdAt: -1,
         },
