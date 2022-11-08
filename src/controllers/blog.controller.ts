@@ -143,7 +143,12 @@ class Blog extends BlogLogic {
     try {
       // validator error handler
       fieldValidateError(req);
-      const blogData = await super.getComments(req.params?.blogId);
+      const blogData = await super.getComments({
+        blogId: req.query?.blogId as string,
+        commentId: req.query?.commentId as string,
+        limit: req.query?.limit as string,
+        chunk: req.query.chunk as string,
+      });
       res.status(200).json({
         status: "SUCCESS",
         message: "comment fetched successfully",
@@ -207,6 +212,16 @@ class Blog extends BlogLogic {
       .optional()
       .isArray()
       .withMessage("tags must be an array of strings"),
+  ];
+  public validateGetBlogCommentsFields = [
+    body("blogId")
+      .optional()
+      .isMongoId()
+      .withMessage("blogId is not a valid id"),
+    body("commentId")
+      .optional()
+      .isMongoId()
+      .withMessage("commentId is not a valid id"),
   ];
 }
 

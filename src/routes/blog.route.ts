@@ -53,8 +53,9 @@ class Blog extends AuthenticateMiddleware {
   //get comments
   private getCommentsRoute(): void {
     this.router.get(
-      "/blog/:blogId/comments",
+      "/blogs/comments",
       this?.isAuthenticated,
+      this?.BlogController.validateGetBlogCommentsFields,
       this.BlogController.getCommentsController
     );
   }

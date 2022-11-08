@@ -1,3 +1,4 @@
+import { paginationHelper } from "../helper";
 import { BlogModel } from "../models/blog.model";
 import { CommentSchema } from "../models/comment.model";
 import MediaLogic from "./media.logic";
@@ -92,9 +93,27 @@ class BlogLogic extends MediaLogic {
     return commentData;
   }
   //get comment
-  public async getComments(blogId: string) {
-    const commentData = await CommentSchema.find({ blogId });
-    if (!commentData) throw new Error("comment not found");
+  public async getComments({
+    blogId,
+    commentId,
+    limit,
+    chunk,
+  }: {
+    blogId?: string;
+    commentId?: string;
+    limit?: number | string;
+    chunk?: number | string;
+  }) {
+    const query = { blogId: blogId, commentId: commentId };
+    !blogId && delete query.blogId;
+    !commentId && delete query.commentId;
+    const commentData = await paginationHelper({
+      model: CommentSchema,
+      query,
+      chunk,
+      limit,
+      sort: { createdAt: -1 },
+    });
 
     return commentData;
   }
