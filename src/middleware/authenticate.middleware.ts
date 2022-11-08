@@ -18,6 +18,7 @@ class AuthenticateMiddleware extends JWT {
           _id: decoded._id,
           email: decoded.email,
           role: decoded.role,
+          store: decoded.store,
         };
         next();
       } else {
@@ -46,6 +47,7 @@ class AuthenticateMiddleware extends JWT {
             _id: decoded._id,
             email: decoded.email,
             role: decoded.role,
+            store: decoded.store,
           };
         }
 
@@ -78,14 +80,20 @@ class AuthenticateMiddleware extends JWT {
             status: "FAIL",
             error: "User is not a manager",
           });
-        } else {
-          req.currentUser = {
-            _id: decoded._id,
-            email: decoded.email,
-            role: decoded.role,
-          };
-          next();
         }
+        if (!decoded.store) {
+          return res.status(403).json({
+            status: "FAIL",
+            error: "Manager is not assigned to any store",
+          });
+        }
+        req.currentUser = {
+          _id: decoded._id,
+          email: decoded.email,
+          role: decoded.role,
+          store: decoded.store,
+        };
+        next();
       } else {
         throw new Error("User is not authenticated");
       }
@@ -118,6 +126,7 @@ class AuthenticateMiddleware extends JWT {
             _id: decoded._id,
             email: decoded.email,
             role: decoded.role,
+            store: decoded.store,
           };
           next();
         }

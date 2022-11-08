@@ -112,7 +112,7 @@ class Auth extends AuthLogic {
         _id: userInfo?._id,
         email: userInfo?.email,
         role: userInfo?.role,
-        storeId: userInfo?.store,
+        store: userInfo?.store,
       });
 
       const userAgent: string =
@@ -387,11 +387,14 @@ class Auth extends AuthLogic {
       const { email, password } = req.body;
 
       // find user by email
-      const userData: UserType | null = await UserModel.findOne({ email });
+      const userData: UserType | null = await UserModel.findOne({
+        email,
+        isEmailVerified: true,
+      });
 
       // check if user exists
       if (!userData) {
-        throw new Error("User not found");
+        throw new Error("User not found or mail is not verified");
       }
 
       // check if password is correct
@@ -414,6 +417,7 @@ class Auth extends AuthLogic {
         _id: userData._id,
         email: userData.email,
         role: userData.role,
+        store: userData?.store,
       });
 
       const userAgent: string =

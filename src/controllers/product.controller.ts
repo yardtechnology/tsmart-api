@@ -2,11 +2,14 @@ import { NextFunction, Response } from "express";
 import { body } from "express-validator";
 import { Types } from "mongoose";
 import { fieldValidateError } from "../helper";
-import { PaginationResult } from "../helper/pagination.helper";
+import aggregationHelper, {
+  PaginationResult,
+} from "../helper/pagination.helper";
 import MediaLogic from "../logic/media.logic";
 import ProductLogic from "../logic/product.logic";
 import UserLogic from "../logic/user.logic";
 import { ProductModel } from "../models/product.model";
+import { ProductStockModel } from "../models/productStock.model";
 import { AuthRequest, ImageType } from "../types/core";
 import { ProductType } from "../types/product";
 
@@ -588,6 +591,84 @@ class Product extends ProductLogic {
     }
   }
 
+  //add product stock
+  public async addProductsStockController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      fieldValidateError(req);
+      const products = await super.addProductStock({
+        productId: req.params?.productId,
+        stock: req.body?.stock,
+        storeId: req.currentUser?.store as string,
+      });
+      // send response to client
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Product stock added successfully",
+        data: products,
+      });
+    } catch (error) {
+      // send error to client
+      next(error);
+    }
+  }
+
+  //get product stock
+  public async getProductStocksController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      const products = await aggregationHelper({
+        model: ProductStockModel,
+        query: { store: req.currentUser?.store },
+        limit: req.query?.limit ? Number(req.query?.limit) : undefined,
+        chunk: req.query?.chunk ? Number(req.query?.chunk) : undefined,
+        populate: "product",
+        sort: { createdAt: -1 },
+      });
+      // send response to client
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Product stock fetched successfully",
+        data: products,
+      });
+    } catch (error) {
+      // send error to client
+      next(error);
+    }
+  }
+  //get stores stocks
+  public async getStoresStocksController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      const products = await aggregationHelper({
+        model: ProductStockModel,
+        query: { product: req.params?.productId },
+        limit: req.query?.limit ? Number(req.query?.limit) : undefined,
+        chunk: req.query?.chunk ? Number(req.query?.chunk) : undefined,
+        populate: "product",
+        sort: { createdAt: -1 },
+      });
+      // send response to client
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Stores stocks fetched successfully",
+        data: products,
+      });
+    } catch (error) {
+      // send error to client
+      next(error);
+    }
+  }
+
   /** fields validators for the product creation request */
   public validateCreateProductFields = [
     body("title")
@@ -697,6 +778,16 @@ class Product extends ProductLogic {
       .optional()
       .isIn(["REFURBISHED", "ACCESSORY"])
       .withMessage("type must be REFURBISHED, ACCESSORY"),
+  ];
+
+  /** fields validators for the product stock add request */
+  public validateCreateProductStockAddFields = [
+    body("stock")
+      .not()
+      .isEmpty()
+      .withMessage("stock is required")
+      .isInt({ min: 0 })
+      .withMessage("stock must be at least 0"),
   ];
 }
 

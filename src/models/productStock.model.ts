@@ -1,7 +1,7 @@
 import { model, Schema } from "mongoose";
-import ProductType from "../types/productStock";
+import ProductStockType from "../types/productStock";
 
-const productSchema = new Schema<ProductType>(
+const productStockSchema = new Schema<ProductStockType>(
   {
     product: {
       type: Schema.Types.ObjectId,
@@ -16,4 +16,7 @@ const productSchema = new Schema<ProductType>(
   { timestamps: true }
 );
 
-export const AccessoryModel = model<ProductType>("ProductStock", productSchema);
+export const ProductStockModel = model<ProductStockType>(
+  "ProductStock",
+  productStockSchema
+);

@@ -5,6 +5,7 @@ import paginationHelper, {
 } from "../helper/pagination.helper";
 import { CartItemModel } from "../models/cartItem.model";
 import { ProductModel } from "../models/product.model";
+import { ProductStockModel } from "../models/productStock.model";
 import { WishListModel } from "../models/wishlist.model";
 import { ImageType } from "../types/core";
 import { ProductType } from "../types/product";
@@ -778,6 +779,25 @@ class ProductLogic extends MediaLogic {
     !type && delete query.type;
     const productsData = await ProductModel.find(query, { _id: 1 });
     return productsData.map((product) => product._id.toString());
+  }
+  /**
+   * add product stock in store to inform admin
+   */
+  public async addProductStock({
+    productId,
+    stock,
+    storeId,
+  }: {
+    productId: string;
+    stock: number;
+    storeId: string;
+  }) {
+    const productsStockData = await new ProductStockModel({
+      product: productId,
+      stock,
+      store: storeId,
+    }).save();
+    return productsStockData;
   }
 }
 

@@ -4,6 +4,7 @@ export interface JwtDecodedType {
   _id: string;
   email: string;
   role: "USER" | "MANAGER" | "ADMIN";
+  store?: string;
 }
 
 // auth request

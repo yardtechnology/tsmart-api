@@ -22,6 +22,9 @@ class Product extends AuthenticateMiddleware {
     this.productFilterRoute();
     this.deleteProductImage();
     this.getAllProductsIdRoute();
+    this.addProductStockRoute();
+    this.getProductStocksRoute();
+    this.getStoresStocksRoute();
   }
 
   // create store
@@ -120,6 +123,32 @@ class Product extends AuthenticateMiddleware {
     this.router.get(
       "/products/ids",
       this.productController.getAllProductsIdsController
+    );
+  }
+  //add product stock
+  private addProductStockRoute(): void {
+    this.router.post(
+      "/product/:productId/stock",
+      this.isManager,
+      this.productController.validateCreateProductStockAddFields,
+      this.productController.addProductsStockController
+    );
+  }
+
+  //add product stock
+  private getProductStocksRoute(): void {
+    this.router.get(
+      "/product-stock",
+      this.isManager,
+      this.productController.getProductStocksController
+    );
+  }
+  //add product stock
+  private getStoresStocksRoute(): void {
+    this.router.get(
+      "/product/:productId/store-stock",
+      this.isAdmin,
+      this.productController.getStoresStocksController
     );
   }
 }
