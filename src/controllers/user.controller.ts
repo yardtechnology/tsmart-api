@@ -64,8 +64,10 @@ class User extends MediaLogic {
           latitude: req.body?.latitude,
           longitude: req.body?.longitude,
           location: req.body?.location,
-          deviceType: { $AddToSet: req.body?.deviceType },
-          makeType: { $AddToSet: req.body?.makeType },
+          deviceType: req.body?.deviceType && {
+            $AddToSet: req.body?.deviceType,
+          },
+          makeType: req.body?.makeType && { $AddToSet: req.body?.makeType },
           isAcademicCourses: req.body?.isAcademicCourses,
           experience: req.body?.experience,
           age: req.body?.age,
