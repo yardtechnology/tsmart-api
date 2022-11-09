@@ -205,8 +205,8 @@ class Service extends MediaLogic {
       .isEmpty()
       .isLength({ min: 5 })
       .withMessage("Description must be at least 5 characters long")
-      .isLength({ max: 51 })
-      .withMessage("Description must be at most 51 characters long"),
+      .isLength({ max: 101 })
+      .withMessage("Description must be at most 101 characters long"),
   ];
 }
 

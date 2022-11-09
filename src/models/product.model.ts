@@ -42,8 +42,14 @@ const productSchema = new Schema<ProductType>(
       type: Schema.Types.ObjectId,
       ref: "Product",
     },
-    memory: String,
-    color: String,
+    memory: {
+      type: Schema.Types.ObjectId,
+      ref: "Memory",
+    },
+    color: {
+      type: Schema.Types.ObjectId,
+      ref: "Color",
+    },
     condition: String,
     reviews: {
       total: {

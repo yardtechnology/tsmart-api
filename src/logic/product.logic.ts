@@ -605,6 +605,10 @@ class ProductLogic extends MediaLogic {
     chunk = 0,
     type,
     userId,
+    makeId,
+    modelId,
+    colorId,
+    memoryId,
   }: {
     filter: string;
     sortBy: string;
@@ -612,6 +616,10 @@ class ProductLogic extends MediaLogic {
     chunk?: number;
     type?: string;
     userId?: string;
+    makeId?: string;
+    modelId?: string;
+    colorId?: string;
+    memoryId?: string;
   }): Promise<
     PaginationResult<ProductType & { discount: number; rating: number }>
   > {
@@ -620,6 +628,10 @@ class ProductLogic extends MediaLogic {
     console.log({ filterJSON });
     const queryOne = {
       type: type,
+      make: makeId,
+      model: modelId,
+      color: colorId,
+      memory: memoryId,
       category: filterJSON?.category && {
         $in: filterJSON?.category.map(
           (item: string) => new Types.ObjectId(item)
@@ -631,6 +643,10 @@ class ProductLogic extends MediaLogic {
       },
     };
     !type && delete queryOne.type;
+    !filterJSON?.makeId && delete queryOne.make;
+    !filterJSON?.modelId && delete queryOne.model;
+    !filterJSON?.colorId && delete queryOne.color;
+    !filterJSON?.memoryId && delete queryOne.memory;
     (!filterJSON?.category || !filterJSON?.category?.length) &&
       delete queryOne.category;
     !filterJSON?.price && delete queryOne.salePrice;
@@ -645,7 +661,6 @@ class ProductLogic extends MediaLogic {
       },
     };
     !filterJSON?.rating && delete queryTwo.rating;
-    !filterJSON?.discount && delete queryTwo.discount;
 
     let sorting: any = { _id: 1 };
     //sorting

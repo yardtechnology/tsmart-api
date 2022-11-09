@@ -521,6 +521,10 @@ class Product extends ProductLogic {
 
       const products = await super.productFilter({
         userId: req.query?.userId as string,
+        makeId: req.query?.makeId as string,
+        modelId: req.query?.modelId as string,
+        colorId: req.query?.colorId as string,
+        memoryId: req.query?.memoryId as string,
         filter: req.query.filter as string,
         sortBy: req.query.sortBy as string,
         limit: req.query.limit ? Number(req.query.limit) : undefined,
