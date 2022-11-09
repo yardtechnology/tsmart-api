@@ -311,6 +311,38 @@ class Product extends ProductLogic {
             },
           },
         },
+        // color look up
+        {
+          $lookup: {
+            from: "colors",
+            localField: "color",
+            foreignField: "_id",
+            as: "color",
+          },
+        },
+        {
+          $unwind: {
+            path: "$color",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        // color lookup end
+        // memory look up
+        {
+          $lookup: {
+            from: "memories",
+            localField: "memory",
+            foreignField: "_id",
+            as: "memory",
+          },
+        },
+        {
+          $unwind: {
+            path: "$memory",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        // memory lookup end
         // color variants
         {
           $lookup: {
@@ -319,6 +351,25 @@ class Product extends ProductLogic {
             foreignField: "model",
             as: "colorVariants",
             pipeline: [
+              // color look up
+              {
+                $lookup: {
+                  from: "colors",
+                  localField: "color",
+                  foreignField: "_id",
+                  as: "color",
+                },
+              },
+              {
+                $unwind: {
+                  path: "$color",
+                  preserveNullAndEmptyArrays: true,
+                },
+              },
+              // color lookup end
+              // memory lookup
+              // {},
+              // memory lookup end
               {
                 $group: {
                   _id: "$color",
@@ -358,6 +409,38 @@ class Product extends ProductLogic {
             foreignField: "model",
             as: "conditionVariants",
             pipeline: [
+              // color look up
+              {
+                $lookup: {
+                  from: "colors",
+                  localField: "color",
+                  foreignField: "_id",
+                  as: "color",
+                },
+              },
+              {
+                $unwind: {
+                  path: "$color",
+                  preserveNullAndEmptyArrays: true,
+                },
+              },
+              // color lookup end
+              // memory look up
+              {
+                $lookup: {
+                  from: "memories",
+                  localField: "memory",
+                  foreignField: "_id",
+                  as: "memory",
+                },
+              },
+              {
+                $unwind: {
+                  path: "$memory",
+                  preserveNullAndEmptyArrays: true,
+                },
+              },
+              // memory lookup end
               {
                 $group: {
                   _id: "$condition",
@@ -396,6 +479,38 @@ class Product extends ProductLogic {
             foreignField: "model",
             as: "memoryVariants",
             pipeline: [
+              // color look up
+              {
+                $lookup: {
+                  from: "colors",
+                  localField: "color",
+                  foreignField: "_id",
+                  as: "color",
+                },
+              },
+              {
+                $unwind: {
+                  path: "$color",
+                  preserveNullAndEmptyArrays: true,
+                },
+              },
+              // color lookup end
+              // memory look up
+              {
+                $lookup: {
+                  from: "memories",
+                  localField: "memory",
+                  foreignField: "_id",
+                  as: "memory",
+                },
+              },
+              {
+                $unwind: {
+                  path: "$memory",
+                  preserveNullAndEmptyArrays: true,
+                },
+              },
+              // memory lookup end
               {
                 $group: {
                   _id: "$memory",
