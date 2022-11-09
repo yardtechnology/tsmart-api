@@ -26,6 +26,6 @@ export default interface BillingType extends Document {
     tax: number;
   };
   status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "FAILED";
-  createdAt: any;
+
   type: "REGULAR" | "EXTRA";
 }

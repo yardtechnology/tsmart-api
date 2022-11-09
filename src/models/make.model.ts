@@ -34,4 +34,7 @@ const makeSchema = new Schema<MAKE_TYPE, Model<MAKE_TYPE>>(
   { timestamps: true }
 );
 const MakeSchema = model<MAKE_TYPE, Model<MAKE_TYPE>>("Make", makeSchema);
+// MakeSchema.watch().on("change", (change) => {
+//   console.log(change);
+// });
 export default MakeSchema;
