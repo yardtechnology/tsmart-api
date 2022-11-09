@@ -37,7 +37,24 @@ class DashboardController {
       next(error);
     }
   }
-  // async repaireOrderCount(req: AuthRequest, res: Response, next: NextFunction)
+  async repairOrderCount(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { orderStatus } = req.query;
+      const orderTypeArg: any = {};
+      orderStatus === "REPAIRED" && (orderTypeArg["status"] = "COMPLETED");
+      const orderData = await OrderModel.find({
+        serviceType: { $exists: true },
+        ...orderTypeArg,
+      }).count();
+      res.json({
+        status: "SUCCESS",
+        message: "Repair order count fetched successfully.",
+        data: orderData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const DashboardControllerValidation = {
@@ -72,7 +89,17 @@ export const DashboardControllerValidation = {
         "Status must be among of these INITIATED,COMPLETED, CANCELLED, CONFIRMED, PACKED, SHIPPED, OUT_FOR_DELIVERY,DELIVERED, RECEIVED, PAID, TECHNICIAN_ASSIGNED, TECHNICIAN_REACHED, REPAIRED, ADD_ON_SERVICE "
       ),
   ],
-  totalRevenue: [],
+  repairOrderCount: [
+    query("orderStatus")
+      .optional()
+      .exists()
+      .custom((value) =>
+        Boolean(
+          ["REPAIRED", "PENDING"].includes(value?.toString()?.toUpperCase())
+        )
+      )
+      .withMessage("orderStatus most be REPAIRED or PENDING."),
+  ],
 };
 
 export default DashboardController;
