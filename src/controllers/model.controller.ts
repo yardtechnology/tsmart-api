@@ -146,15 +146,24 @@ export const ModelControllerValidation = {
       .withMessage("Description must be at least 5 characters long")
       .isLength({ max: 51 })
       .withMessage("Description must be at most 51 characters long"),
-    body("modelId")
-      .optional()
-      .exists()
-      .isMongoId()
-      .withMessage("modelId must be a mongos id."),
+
     body("deviceId")
       .optional()
       .isMongoId()
       .withMessage("deviceId must be a mongos id."),
+    body("makeId")
+      .optional()
+      .isMongoId()
+      .withMessage("makeId must be a mongos id."),
+    body("type")
+      .optional()
+      .exists()
+      .withMessage("type is not formatted.")
+      .exists()
+      .custom((value) =>
+        Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
+      )
+      .withMessage("type most be SERVICE or SELL."),
   ],
 
   removeServiceType: [
