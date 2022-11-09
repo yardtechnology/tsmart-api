@@ -20,18 +20,19 @@ class MakeController {
         imageFile && !Array.isArray(imageFile)
           ? await new MediaLogic().uploadMedia(imageFile, filePath)
           : undefined;
+      const pushDataObject: any = {};
+      type && (pushDataObject.type = type);
+      deviceId && (pushDataObject.devices = deviceId);
 
       const createDevice = await MakeSchema.findOneAndUpdate(
         {
           title,
-          type: { $ne: type.toUpperCase() },
         },
         {
           image: imageData?.url,
           imagePATH: imageData?.path,
-          devices: deviceId ? [deviceId] : undefined,
 
-          $addToSet: type ? { type: type.toUpperCase() } : undefined,
+          $addToSet: pushDataObject,
         },
         { new: true, runValidators: true, upsert: true }
       );

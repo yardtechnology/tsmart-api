@@ -1,7 +1,7 @@
-import { model, Schema } from "mongoose";
+import { model, Model, Schema } from "mongoose";
 import ProductType from "../types/product";
 
-const productSchema = new Schema<ProductType>(
+const productSchema = new Schema<ProductType, Model<ProductType>>(
   {
     title: String,
     shortDescription: String,
@@ -81,4 +81,7 @@ const productSchema = new Schema<ProductType>(
   { timestamps: true }
 );
 
-export const ProductModel = model<ProductType>("Product", productSchema);
+export const ProductModel = model<ProductType, Model<ProductType>>(
+  "Product",
+  productSchema
+);

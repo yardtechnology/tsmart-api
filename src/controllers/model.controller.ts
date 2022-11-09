@@ -30,14 +30,13 @@ class ModelController extends MediaLogic {
       const modelData: ModelType = await ModelModel.findOneAndUpdate(
         {
           title: req.body?.title,
-          type: { $ne: type.toUpperCase() },
         },
         {
           description: req.body?.description,
           image: imageData?.url,
           imagePath: imageData?.path,
-          device: req.body?.deviceId ? [req.body?.deviceId] : undefined,
-          make: req.body?.makeId ? [req.body?.makeId] : undefined,
+          device: req.body?.deviceId,
+          make: req.body?.makeId,
           $addToSet: { type: type.toUpperCase() },
         },
         {
@@ -110,7 +109,7 @@ class ModelController extends MediaLogic {
         select: "",
         populate: [
           {
-            path: "devices",
+            path: "device",
             select: "-imagePATH",
           },
         ],
@@ -139,23 +138,32 @@ export const ModelControllerValidation = {
       .isEmpty()
       .isLength({ min: 3 })
       .withMessage("Title must be at least 3 characters long")
-      .isLength({ max: 20 })
-      .withMessage("Title must be at most 20 characters long"),
+      .isLength({ max: 300 })
+      .withMessage("Title must be at most 300 characters long"),
     body("description")
       .optional()
       .isLength({ min: 5 })
       .withMessage("Description must be at least 5 characters long")
       .isLength({ max: 51 })
       .withMessage("Description must be at most 51 characters long"),
-    body("modelId")
-      .optional()
-      .exists()
-      .isMongoId()
-      .withMessage("modelId must be a mongos id."),
+
     body("deviceId")
       .optional()
       .isMongoId()
       .withMessage("deviceId must be a mongos id."),
+    body("makeId")
+      .optional()
+      .isMongoId()
+      .withMessage("makeId must be a mongos id."),
+    body("type")
+      .optional()
+      .exists()
+      .withMessage("type is not formatted.")
+      .exists()
+      .custom((value) =>
+        Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
+      )
+      .withMessage("type most be SERVICE or SELL."),
   ],
 
   removeServiceType: [

@@ -23,6 +23,14 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       DashboardControllerValidation.statusCount,
       this.dashboardController.statusCount
     );
+
+    // total user count
+    this.router.get(
+      "/dashboard/total-user-count",
+      super.isAuthenticated,
+      this.dashboardController.totalUserCount
+    );
+
     //  total revenue
 
     // this.router.get(

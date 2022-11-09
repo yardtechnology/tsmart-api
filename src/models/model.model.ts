@@ -3,7 +3,11 @@ import ModelType from "../types/model";
 
 const modelSchema = new Schema<ModelType>(
   {
-    title: String,
+    title: {
+      unique: true,
+      type: String,
+      required: true,
+    },
     description: String,
     image: String,
     imagePATH: String,

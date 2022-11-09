@@ -1,6 +1,7 @@
 import { NextFunction, Response } from "express";
 import { query } from "express-validator";
 import { OrderModel } from "../models/order.model";
+import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
 
 class DashboardController {
@@ -25,13 +26,18 @@ class DashboardController {
     }
   }
 
-  //   async totalRevenue(req: AuthRequest, res: Response, next: NextFunction) {
-  //     try {
-
-  //     } catch (error) {
-  //         next(error);
-  //     }
-  //   }
+  async totalUserCount(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      res.json({
+        status: "SUCCESS",
+        message: "Total user found successfully.",
+        data: await UserModel.find({}).count(),
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  // async repaireOrderCount(req: AuthRequest, res: Response, next: NextFunction)
 }
 
 export const DashboardControllerValidation = {
@@ -66,9 +72,7 @@ export const DashboardControllerValidation = {
         "Status must be among of these INITIATED,COMPLETED, CANCELLED, CONFIRMED, PACKED, SHIPPED, OUT_FOR_DELIVERY,DELIVERED, RECEIVED, PAID, TECHNICIAN_ASSIGNED, TECHNICIAN_REACHED, REPAIRED, ADD_ON_SERVICE "
       ),
   ],
-  //   totalRevenue:[
-
-  //   ]
+  totalRevenue: [],
 };
 
 export default DashboardController;
