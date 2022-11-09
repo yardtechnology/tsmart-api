@@ -30,14 +30,13 @@ class ModelController extends MediaLogic {
       const modelData: ModelType = await ModelModel.findOneAndUpdate(
         {
           title: req.body?.title,
-          type: { $ne: type.toUpperCase() },
         },
         {
           description: req.body?.description,
           image: imageData?.url,
           imagePath: imageData?.path,
-          device: req.body?.deviceId ? [req.body?.deviceId] : undefined,
-          make: req.body?.makeId ? [req.body?.makeId] : undefined,
+          device: req.body?.deviceId,
+          make: req.body?.makeId,
           $addToSet: { type: type.toUpperCase() },
         },
         {
@@ -110,7 +109,7 @@ class ModelController extends MediaLogic {
         select: "",
         populate: [
           {
-            path: "devices",
+            path: "device",
             select: "-imagePATH",
           },
         ],
