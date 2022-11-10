@@ -122,7 +122,11 @@ class MakeController {
 }
 export const MakeControllerValidation = {
   createAndUpdate: [
-    body("title").not().isEmpty().withMessage("title is required."),
+    body("title")
+      .not()
+      .isEmpty()
+      .withMessage("title is required.")
+      .toUpperCase(),
     body("deviceId")
       .optional()
       .exists()
@@ -152,6 +156,7 @@ export const MakeControllerValidation = {
       .isEmpty()
       .withMessage("type must be required.")
       .exists()
+      .toUpperCase()
       .custom((value) =>
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
