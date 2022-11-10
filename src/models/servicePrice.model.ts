@@ -20,7 +20,7 @@ const servicePriceSchema = new Schema<
     },
     isInStock: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     mrp: Number,
     salePrice: Number,
