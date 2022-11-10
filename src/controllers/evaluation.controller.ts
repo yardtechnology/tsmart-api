@@ -3,6 +3,7 @@ import { body, param } from "express-validator";
 import { InternalServerError, NotFound } from "http-errors";
 import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
+import EvaluationLogic from "../logic/evaluation.logic";
 import MediaLogic from "../logic/media.logic";
 import { EvaluationSchema } from "../models";
 import { AuthRequest } from "../types/core";
@@ -130,6 +131,27 @@ class EvaluationController {
         status: "SUCCESS",
         message: "Evaluation deleted successfully",
         data: deleteEvaluation,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async evaluationPrice(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { evaluationIds, modelId, colorId, memoryId } = req.body;
+      const arrayCheck = Array.isArray(evaluationIds)
+        ? evaluationIds
+        : [evaluationIds];
+      const evaluationData = new EvaluationLogic().deviceEvaluation({
+        evaluationPriceIds: arrayCheck,
+        modelId,
+        colorId,
+        memoryId,
+      });
+      res.json({
+        status: "SUCCESS",
+        message: "Price updated successfully",
+        data: evaluationData,
       });
     } catch (error) {
       next(error);

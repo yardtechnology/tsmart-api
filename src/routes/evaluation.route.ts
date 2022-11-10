@@ -30,6 +30,11 @@ export default class EvaluationRoutes extends AuthenticateMiddleware {
 
       this.evaluationController.getAll
     );
+    // evaluation price
+    this.router.get(
+      "/evaluation/evaluation-price",
+      this.evaluationController.evaluationPrice
+    );
     // update
     this.router.put(
       "/evaluation/:evaluationId",
