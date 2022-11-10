@@ -23,7 +23,7 @@ const storeSchema = new Schema<StoreType>(
       city: String,
       street: String,
       country: String,
-      zip: Number,
+      zip: String,
       latitude: Number,
       longitude: Number,
     },

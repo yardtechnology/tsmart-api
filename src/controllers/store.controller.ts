@@ -605,8 +605,7 @@ export const storeControlValidator = {
       .isLength({ max: 101 })
       .withMessage("About must be at most 101 characters long"),
     body("state")
-      .not()
-      .isEmpty()
+      .optional()
       .isLength({ min: 3 })
       .withMessage("State must be at least 3 characters long")
       .isLength({ max: 25 })
@@ -630,7 +629,7 @@ export const storeControlValidator = {
       .not()
       .isEmpty()
       .withMessage("zip")
-      .isInt()
+      // .isInt()
       .isLength({ min: 5 })
       .withMessage("zip code must be grater then 5 digit")
       .isLength({ max: 11 })

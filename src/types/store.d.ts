@@ -18,7 +18,7 @@ export default interface StoreType extends Document {
     city: string;
     street: string;
     country: string;
-    zip: number;
+    zip: string;
     latitude: number;
     longitude: number;
   };
