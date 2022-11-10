@@ -295,6 +295,8 @@ class OrderLogic {
     falsyEvaluatedIds,
     addressId,
     bankDetails,
+    colorId,
+    memoryId,
   }: {
     userId: string;
     paymentMethod: "ONLINE" | "CHEQUE";
@@ -304,6 +306,8 @@ class OrderLogic {
     falsyEvaluatedIds: string[];
     addressId: string;
     bankDetails?: BankType;
+    colorId: string;
+    memoryId: string;
   }) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -324,12 +328,19 @@ class OrderLogic {
         //check device if exist or not
         const deviceData = await DevicesSchema.findById(deviceId);
         if (!deviceData) throw new Error("device not found");
+        //check color if exist or not
+        const colorData = await DevicesSchema.findById(colorId);
+        if (!colorData) throw new Error("color not found");
+        //check memory if exist or not
+        const memoryData = await DevicesSchema.findById(memoryId);
+        if (!memoryData) throw new Error("memory not found");
         //remove duplicate service ids
         const uniqFalsyEvaluatedValues = await EvaluationPriceSchema.find({
-          _id: { $in: [...falsyEvaluatedIds] },
+          _id: { $in: falsyEvaluatedIds },
         });
         //TODO: find evaluated price
         //TODO: CALCULATE ESTIMATED PRICE
+
         const evaluatedPrice = 2000;
         const orderData = await new OrderModel({
           user: userData,
@@ -347,6 +358,10 @@ class OrderLogic {
           modelId: modelData?._id,
           deviceId: deviceData?._id,
           bankDetails,
+          color: colorData,
+          colorId: colorData?._id,
+          memory: memoryData,
+          memoryId: memoryData?._id,
         }).save();
         resolve(orderData);
       } catch (error) {

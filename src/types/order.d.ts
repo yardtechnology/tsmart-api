@@ -2,9 +2,11 @@ import { Document } from "mongoose";
 import AddressType from "./address";
 import BankType from "./bank";
 import BillingType from "./billing";
+import COLOR_TYPE from "./color";
 import DEVICE_TYPE from "./device";
 import EVALUATION_PRICE_TYPE from "./evaluationPrice";
 import MAKE_TYPE from "./make";
+import MEMORY_TYPE from "./memory";
 import ModelType from "./model";
 import { OrderStatus } from "./order.d";
 import ProductType from "./product";
@@ -79,4 +81,8 @@ export default interface OrderType extends Document {
   modelId: ModelType;
   deviceId: DEVICE_TYPE;
   bankDetails: BankType;
+  color: COLOR_TYPE;
+  memory: MEMORY_TYPE;
+  colorId: string;
+  memoryId: string;
 }

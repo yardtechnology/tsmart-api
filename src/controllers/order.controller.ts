@@ -135,6 +135,8 @@ class Order extends OrderLogic {
         falsyEvaluatedIds: req.body?.falsyEvaluatedIds,
         paymentMethod: req.body?.paymentMethod,
         bankDetails: req.body?.bankDetails,
+        colorId: req.body?.colorId,
+        memoryId: req.body?.memoryId,
       });
 
       res.status(200).json({
@@ -602,6 +604,18 @@ class Order extends OrderLogic {
       .withMessage("modelId is required")
       .isMongoId()
       .withMessage("modelId is not a valid id"),
+    body("colorId")
+      .not()
+      .isEmpty()
+      .withMessage("colorId is required")
+      .isMongoId()
+      .withMessage("colorId is not a valid id"),
+    body("memoryId")
+      .not()
+      .isEmpty()
+      .withMessage("memoryId is required")
+      .isMongoId()
+      .withMessage("memoryId is not a valid id"),
     body("paymentMethod")
       .not()
       .isEmpty()
