@@ -16,6 +16,11 @@ export default class EvaluationRoutes extends AuthenticateMiddleware {
     this.routes();
   }
   private routes() {
+    // evaluation price
+    this.router.post(
+      "/evaluation/evaluation-price",
+      this.evaluationController.evaluationPrice
+    );
     // create
     this.router.post(
       "/evaluation/",
@@ -30,11 +35,7 @@ export default class EvaluationRoutes extends AuthenticateMiddleware {
 
       this.evaluationController.getAll
     );
-    // evaluation price
-    this.router.get(
-      "/evaluation/evaluation-price",
-      this.evaluationController.evaluationPrice
-    );
+
     // update
     this.router.put(
       "/evaluation/:evaluationId",
