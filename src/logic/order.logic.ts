@@ -1,4 +1,4 @@
-import { DevicesSchema, MakeSchema } from "../models";
+import { DevicesSchema, EvaluationPriceSchema, MakeSchema } from "../models";
 import { AddressModel } from "../models/address.model";
 import { OrderModel } from "../models/order.model";
 import { ProductModel } from "../models/product.model";
@@ -312,18 +312,24 @@ class OrderLogic {
           "_id displayName email phoneNumber countryCode avatar"
         );
         if (!userData) throw new Error("User not found");
+        //check address if exist or not
         const addressData = await AddressModel.findById(addressId);
         if (!addressData) throw new Error("address not found");
-        const makeData = await MakeSchema.findById(addressId);
+        //check make if exist or not
+        const makeData = await MakeSchema.findById(makeId);
         if (!makeData) throw new Error("make not found");
-        const modelData = await ModelModel.findById(addressId);
+        //check model if exist or not
+        const modelData = await ModelModel.findById(modelId);
         if (!modelData) throw new Error("model not found");
-        const deviceData = await DevicesSchema.findById(addressId);
+        //check device if exist or not
+        const deviceData = await DevicesSchema.findById(deviceId);
         if (!deviceData) throw new Error("device not found");
         //remove duplicate service ids
-        const uniqFalsyEvaluatedValues = await ServicePriceModel.find({
+        const uniqFalsyEvaluatedValues = await EvaluationPriceSchema.find({
           _id: { $in: [...falsyEvaluatedIds] },
         });
+        //TODO: find evaluated price
+        //TODO: CALCULATE ESTIMATED PRICE
         const evaluatedPrice = 2000;
         const orderData = await new OrderModel({
           user: userData,

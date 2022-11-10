@@ -610,11 +610,6 @@ class Order extends OrderLogic {
       .withMessage("paymentMethod can only be ONLINE, CHEQUE"),
     body("bankDetails.fullName")
       .if((value: string, { req }: any) => {
-        console.log(
-          req?.body?.paymentMethod,
-          "ONLINE",
-          req?.body?.paymentMethod === "ONLINE"
-        );
         return req?.body?.paymentMethod === "ONLINE";
       })
       .not()
@@ -622,11 +617,6 @@ class Order extends OrderLogic {
       .withMessage("bankDetails.fullName is required"),
     body("bankDetails.accountNumber")
       .if((value: string, { req }: any) => {
-        console.log(
-          req?.body?.paymentMethod,
-          "ONLINE",
-          req?.body?.paymentMethod === "ONLINE"
-        );
         return req?.body?.paymentMethod === "ONLINE";
       })
       .not()
@@ -634,16 +624,18 @@ class Order extends OrderLogic {
       .withMessage("bankDetails.accountNumber is required"),
     body("bankDetails.sortCode")
       .if((value: string, { req }: any) => {
-        console.log(
-          req?.body?.paymentMethod,
-          "ONLINE",
-          req?.body?.paymentMethod === "ONLINE"
-        );
         return req?.body?.paymentMethod === "ONLINE";
       })
       .not()
       .isEmpty()
       .withMessage("bankDetails.sortCode is required"),
+    body("falsyEvaluatedIds")
+      .not()
+      .isEmpty()
+      .withMessage("falsyEvaluatedIds is required")
+      .isArray()
+      .isMongoId()
+      .withMessage("falsyEvaluatedIds must be an array of evaluatedPriceIds"),
   ];
 }
 
