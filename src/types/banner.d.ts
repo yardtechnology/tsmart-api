@@ -3,7 +3,7 @@ import { Document } from "mongoose";
 export default interface BannerType extends Document {
   title: string;
   description: string;
-  imageURL: string;
+  image: string;
   link: string;
   imagePath: string;
   data: {

@@ -5,7 +5,7 @@ const bannerSchema = new Schema<BannerType>(
   {
     title: String,
     description: String,
-    imageURL: String,
+    image: String,
     link: String,
     imagePath: String,
     data: {
