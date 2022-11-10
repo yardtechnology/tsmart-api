@@ -31,13 +31,11 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       this.dashboardController.totalUserCount
     );
 
-    //  total revenue
-
-    // this.router.get(
-    //   "/dashboard/total-revenue",
-    //   super.isAuthenticated,
-    //   DashboardControllerValidation.totalRevenue,
-    //   this.dashboardController.totalRevenue
-    // );
+    //  Repair count
+    this.router.get(
+      "/dashboard/repair-order-count",
+      super.isAuthenticated,
+      this.dashboardController.repairOrderCount
+    );
   }
 }
