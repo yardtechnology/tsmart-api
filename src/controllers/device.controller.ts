@@ -22,13 +22,12 @@ class DeviceController {
           : undefined;
       const createDevice = await DevicesSchema.findOneAndUpdate(
         {
-          type: { $ne: type.toUpperCase() },
           title,
         },
         {
           image: imageData?.url,
           imagePATH: imageData?.path,
-          $addToSet: { type: type.toUpperCase() },
+          $addToSet: { type: type?.toUpperCase() },
         },
         {
           new: true,

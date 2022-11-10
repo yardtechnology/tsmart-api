@@ -26,8 +26,9 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
 
     // total user count
     this.router.get(
-      "/dashboard/total-user-count",
+      "/dashboard/user-count",
       super.isAuthenticated,
+      DashboardControllerValidation.totalUserCount,
       this.dashboardController.totalUserCount
     );
 
@@ -36,6 +37,25 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       "/dashboard/repair-order-count",
       super.isAuthenticated,
       this.dashboardController.repairOrderCount
+    );
+    // Refurbished count
+    this.router.get(
+      "/dashboard/refurbish-and-accessory-product-count",
+      super.isAuthenticated,
+      DashboardControllerValidation.refurbishedProductCount,
+      this.dashboardController.refurbishedProductCount
+    );
+    // Revenue generate
+    this.router.get(
+      "/dashboard/revenue",
+      super.isAuthenticated,
+      this.dashboardController.revenue
+    );
+    // Store Count
+    this.router.get(
+      "/dashboard/store-count",
+      super.isAuthenticated,
+      this.dashboardController.storeCount
     );
   }
 }
