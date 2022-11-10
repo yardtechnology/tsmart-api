@@ -22,7 +22,6 @@ class DeviceController {
           : undefined;
       const createDevice = await DevicesSchema.findOneAndUpdate(
         {
-          type: { $ne: type.toUpperCase() },
           title,
         },
         {

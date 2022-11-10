@@ -1,6 +1,9 @@
 import { NextFunction, Response } from "express";
 import { query } from "express-validator";
+import { fieldValidateError } from "../helper";
 import { OrderModel } from "../models/order.model";
+import { ProductModel } from "../models/product.model";
+import { StoreModel } from "../models/store.model";
 import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
 
@@ -28,10 +31,15 @@ class DashboardController {
 
   async totalUserCount(req: AuthRequest, res: Response, next: NextFunction) {
     try {
+      const { role } = req.query;
+      const arg: any = {};
+      role && (arg["role"] = role);
+      fieldValidateError(req);
+      const totalUserCount = await UserModel.find(arg).count();
       res.json({
         status: "SUCCESS",
-        message: "Total user found successfully.",
-        data: await UserModel.find({}).count(),
+        message: "Users found successfully.",
+        data: totalUserCount,
       });
     } catch (error) {
       next(error);
@@ -40,6 +48,7 @@ class DashboardController {
   async repairOrderCount(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { orderStatus } = req.query;
+      fieldValidateError(req);
       const orderTypeArg: any = {};
       orderStatus === "REPAIRED" && (orderTypeArg["status"] = "COMPLETED");
       const orderData = await OrderModel.find({
@@ -55,12 +64,74 @@ class DashboardController {
       next(error);
     }
   }
-  async refurbishedOrderCount(
+  async refurbishedProductCount(
     req: AuthRequest,
     res: Response,
     next: NextFunction
   ) {
     try {
+      const { type = "REFURBISHED" } = req.query;
+      fieldValidateError(req);
+      const refurbishOrderCount = await ProductModel.find({
+        type,
+      }).count();
+
+      res.json({
+        status: "SUCCESS",
+        message: `${
+          type === "REFURBISHED" ? "Refurbished" : "Accessory"
+        } product count fetched successfully.`,
+        data: refurbishOrderCount,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async revenue(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const revenueCalculation = await OrderModel.aggregate([
+        {
+          $group: {
+            _id: null,
+            buyRevenue: {
+              $sum: {
+                $cond: [{ $eq: ["$type", "BUY"] }, "$price", 0],
+              },
+            },
+            sellRevenue: {
+              $sum: {
+                $ifNull: ["$price", 0],
+              },
+            },
+            repairRevenue: {
+              $sum: {
+                $cond: [{ $eq: ["$type", "REPAIR"] }, "$price", 0],
+              },
+            },
+          },
+        },
+      ]);
+      const resultData = {
+        ...revenueCalculation?.[0],
+        _id: undefined,
+      };
+
+      res.json({
+        status: "SUCCESS",
+        message: "Revenue calculation fetched successfully.",
+        data: resultData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async storeCount(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const storeCount = await StoreModel.find({ type: "STORE" }).count();
+      res.json({
+        status: "SUCCESS",
+        data: storeCount,
+      });
     } catch (error) {
       next(error);
     }
@@ -109,6 +180,32 @@ export const DashboardControllerValidation = {
         )
       )
       .withMessage("orderStatus most be REPAIRED or PENDING."),
+  ],
+  refurbishedProductCount: [
+    query("type")
+      .optional()
+      .exists()
+
+      .custom((value) =>
+        Boolean(["REFURBISHED", "ACCESSORY"].find((item) => item === value))
+      )
+
+      .withMessage("type most be REFURBISHED or ACCESSORY."),
+  ],
+  totalUserCount: [
+    query("role")
+      .optional()
+      .exists()
+
+      .custom((value) =>
+        Boolean(
+          ["USER", "MANAGER", "ADMIN", "TECHNICIAN"].find(
+            (item) => item === value
+          )
+        )
+      )
+
+      .withMessage("type most be USER or MANAGER or ADMIN or TECHNICIAN."),
   ],
 };
 
