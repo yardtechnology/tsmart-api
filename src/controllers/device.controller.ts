@@ -27,7 +27,7 @@ class DeviceController {
         {
           image: imageData?.url,
           imagePATH: imageData?.path,
-          $addToSet: { type: type.toUpperCase() },
+          $addToSet: { type: type?.toUpperCase() },
         },
         {
           new: true,
