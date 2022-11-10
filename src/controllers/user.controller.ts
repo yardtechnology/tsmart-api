@@ -72,6 +72,7 @@ class User extends MediaLogic {
           isAcademicCourses: req.body?.isAcademicCourses,
           experience: req.body?.experience,
           age: req.body?.age,
+          status: email && "INACTIVE",
         }
       );
 
