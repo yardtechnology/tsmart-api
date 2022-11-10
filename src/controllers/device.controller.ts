@@ -45,9 +45,8 @@ class DeviceController {
         data: createDevice,
       });
     } catch (error) {
-      if (imageData?.path) {
-        new MediaLogic().deleteMedia(imageData?.path);
-      }
+      if (imageData?.path) new MediaLogic().deleteMedia(imageData?.path);
+
       next(error);
     }
   }
@@ -115,7 +114,11 @@ class DeviceController {
 }
 export const DeviceControllerValidation = {
   createAndUpdate: [
-    body("title").not().isEmpty().withMessage("title is required."),
+    body("title")
+      .not()
+      .isEmpty()
+      .withMessage("title is required.")
+      .toUpperCase(),
     body("type")
       .optional()
       .exists()

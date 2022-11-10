@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { body, param } from "express-validator";
+import { body, param, query } from "express-validator";
 import { NotFound } from "http-errors";
 import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
@@ -58,6 +58,7 @@ class MakeController {
     try {
       const { makeId } = req.params;
       const { type } = req.body;
+      fieldValidateError(req);
       const removeServiceType = await MakeSchema.findOneAndUpdate(
         { _id: makeId, type },
         {
@@ -87,11 +88,12 @@ class MakeController {
 
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { limit, chunk, makeId, type } = req.query;
-
+      const { limit, chunk, makeId, type, deviceId } = req.query;
+      fieldValidateError(req);
       const query: any = {};
       makeId && (query["_id"] = makeId);
       type && (query["type"] = type);
+      deviceId && (query["devices"] = deviceId);
       const getAllData = await paginationHelper({
         model: MakeSchema,
         query,
@@ -122,7 +124,11 @@ class MakeController {
 }
 export const MakeControllerValidation = {
   createAndUpdate: [
-    body("title").not().isEmpty().withMessage("title is required."),
+    body("title")
+      .not()
+      .isEmpty()
+      .withMessage("title is required.")
+      .toUpperCase(),
     body("deviceId")
       .optional()
       .exists()
@@ -152,19 +158,22 @@ export const MakeControllerValidation = {
       .isEmpty()
       .withMessage("type must be required.")
       .exists()
+      .toUpperCase()
       .custom((value) =>
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
       .withMessage("serviceType most be SERVICE or SELL."),
   ],
   getAll: [
-    param("makeId")
-      .not()
-      .isEmpty()
-      .withMessage("makeId is required.")
+    query("makeId")
+      .optional()
       .isMongoId()
       .withMessage("makeId most be mongoose id"),
-    body("type")
+    query("deviceId")
+      .optional()
+      .isMongoId()
+      .withMessage("deviceId most be mongoose id"),
+    query("type")
       .optional()
       .exists()
       .custom((value) =>
