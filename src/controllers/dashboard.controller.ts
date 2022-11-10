@@ -8,16 +8,29 @@ import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
 
 class DashboardController {
-  async statusCount(req: AuthRequest, res: Response, next: NextFunction) {
+  async orderStatusAndServiceType(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { status } = req.query;
-      const arrayCheck = status
+      const { status, serviceType, type } = req.query;
+      const arrayStatusCheck = status
         ? Array.isArray(status)
           ? status
           : [status]
         : undefined;
+      const arrayServiceTypeCheck = serviceType
+        ? Array.isArray(serviceType)
+          ? serviceType
+          : [serviceType]
+        : undefined;
+
       const query: any = {};
-      arrayCheck && (query["status"] = { $in: arrayCheck });
+      arrayStatusCheck && (query["status"] = { $in: arrayStatusCheck });
+      arrayServiceTypeCheck &&
+        (query["serviceType"] = { $in: arrayServiceTypeCheck });
+      type && (query["type"] = type);
       const orderStatusCount = await OrderModel.find({ ...query }).count();
       res.json({
         status: "SUCCESS",
@@ -139,7 +152,7 @@ class DashboardController {
 }
 
 export const DashboardControllerValidation = {
-  statusCount: [
+  orderStatusAndServiceType: [
     query("status")
       .optional()
       .exists()
@@ -169,6 +182,32 @@ export const DashboardControllerValidation = {
       .withMessage(
         "Status must be among of these INITIATED,COMPLETED, CANCELLED, CONFIRMED, PACKED, SHIPPED, OUT_FOR_DELIVERY,DELIVERED, RECEIVED, PAID, TECHNICIAN_ASSIGNED, TECHNICIAN_REACHED, REPAIRED, ADD_ON_SERVICE "
       ),
+    query("serviceType")
+      .optional()
+      .exists()
+      .custom((value) => {
+        const arrayCheck = Array.isArray(value) ? value : [value];
+        const allDataArray = ["IN_STOR", "MAIL_IN", "CALL_OUT"];
+        const filterData = arrayCheck.filter((item) =>
+          allDataArray.find((item2) => item === item2)
+        );
+        return Boolean(filterData.length);
+      })
+      .withMessage(
+        "ServiceType must be among of these  IN_STOR or MAIL_IN or CALL_OUT."
+      ),
+    query("type")
+      .optional()
+      .exists()
+      .custom((value) => {
+        const arrayCheck = Array.isArray(value) ? value : [value];
+        const allDataArray = ["SELL", "BUY"];
+        const filterData = arrayCheck.filter((item) =>
+          allDataArray.find((item2) => item === item2)
+        );
+        return Boolean(filterData.length);
+      })
+      .withMessage("type must be among of these  SELL or BUY."),
   ],
   repairOrderCount: [
     query("orderStatus")
@@ -189,7 +228,6 @@ export const DashboardControllerValidation = {
       .custom((value) =>
         Boolean(["REFURBISHED", "ACCESSORY"].find((item) => item === value))
       )
-
       .withMessage("type most be REFURBISHED or ACCESSORY."),
   ],
   totalUserCount: [
