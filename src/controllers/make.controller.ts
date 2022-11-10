@@ -128,6 +128,7 @@ export const MakeControllerValidation = {
       .not()
       .isEmpty()
       .withMessage("title is required.")
+      .trim()
       .toUpperCase(),
     body("deviceId")
       .optional()
