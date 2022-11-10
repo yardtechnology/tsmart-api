@@ -70,6 +70,24 @@ const orderSchema = new Schema<OrderType>(
     price: Number,
     mrp: Number,
     serviceType: String,
+    evaluatedPrice: Number,
+    evaluatedValues: [],
+    paymentMethod: String,
+    make: {},
+    model: {},
+    device: {},
+    makeId: { type: Schema.Types.ObjectId, ref: "Make" },
+    modelId: { type: Schema.Types.ObjectId, ref: "Model" },
+    deviceId: { type: Schema.Types.ObjectId, ref: "Device" },
+    bankDetails: {
+      fullName: String,
+      accountNumber: Number,
+      sortCode: String,
+      user: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    },
   },
   { timestamps: true }
 );

@@ -1,9 +1,12 @@
+import { DevicesSchema, MakeSchema } from "../models";
 import { AddressModel } from "../models/address.model";
 import { OrderModel } from "../models/order.model";
 import { ProductModel } from "../models/product.model";
 import { StoreModel } from "../models/store.model";
 import { UserModel } from "../models/user.model";
+import BankType from "../types/bank";
 import OrderType, { OrderStatus } from "../types/order";
+import { ModelModel } from "./../models/model.model";
 import { ServicePriceModel } from "./../models/servicePrice.model";
 // import NotificationLogic from "./notification.logic";
 
@@ -225,7 +228,7 @@ class OrderLogic {
       product: productData,
       quantity: quantity,
       billing: billingId,
-      shippedTo: deliveryAddressData,
+      address: deliveryAddressData,
       status: status,
       price: productData.salePrice * Number(quantity),
       mrp: productData.mrp * Number(quantity),
@@ -278,6 +281,72 @@ class OrderLogic {
       throw new Error("order not found");
     }
     return orderData;
+  }
+
+  /**
+   * place sell order
+   */
+  public async placeSellOrder({
+    userId,
+    paymentMethod,
+    makeId,
+    modelId,
+    deviceId,
+    falsyEvaluatedIds,
+    addressId,
+    bankDetails,
+  }: {
+    userId: string;
+    paymentMethod: "ONLINE" | "CHEQUE";
+    makeId: string;
+    modelId: string;
+    deviceId: string;
+    falsyEvaluatedIds: string[];
+    addressId: string;
+    bankDetails?: BankType;
+  }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // get user data
+        const userData = await UserModel.findById(userId).select(
+          "_id displayName email phoneNumber countryCode avatar"
+        );
+        if (!userData) throw new Error("User not found");
+        const addressData = await AddressModel.findById(addressId);
+        if (!addressData) throw new Error("address not found");
+        const makeData = await MakeSchema.findById(addressId);
+        if (!makeData) throw new Error("make not found");
+        const modelData = await ModelModel.findById(addressId);
+        if (!modelData) throw new Error("model not found");
+        const deviceData = await DevicesSchema.findById(addressId);
+        if (!deviceData) throw new Error("device not found");
+        //remove duplicate service ids
+        const uniqFalsyEvaluatedValues = await ServicePriceModel.find({
+          _id: { $in: [...falsyEvaluatedIds] },
+        });
+        const evaluatedPrice = 2000;
+        const orderData = await new OrderModel({
+          user: userData,
+          address: addressData,
+          userID: userId,
+          evaluatedValues: uniqFalsyEvaluatedValues,
+          type: "SELL",
+          evaluatedPrice,
+          status: "INITIATED",
+          paymentMethod,
+          make: makeData,
+          model: modelData,
+          device: deviceData,
+          makeId: makeData?._id,
+          modelId: modelData?._id,
+          deviceId: deviceData?._id,
+          bankDetails,
+        }).save();
+        resolve(orderData);
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 }
 

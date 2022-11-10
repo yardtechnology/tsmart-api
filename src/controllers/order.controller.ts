@@ -126,25 +126,20 @@ class Order extends OrderLogic {
       // validator error handler
       fieldValidateError(req);
       //place Walk in Repairing Order [STORE]
-      const orderData = await super.placeCallOutOrder({
+      const orderData = await super.placeSellOrder({
         userId: req.currentUser?._id as string,
-        latitude: req.body?.latitude,
-        longitude: req.body?.longitude,
-        street: req.body?.street,
-        serviceIds: req.body?.serviceIds,
-      });
-      const billingData = await new BillingLogic().createBill({
-        orderIds: orderData?._id,
-        status: "PENDING",
-        price: orderData?.price,
-      });
-      await OrderModel?.findByIdAndUpdate(orderData?._id, {
-        billing: billingData?._id,
+        addressId: req.body?.addressId,
+        deviceId: req.body?.deviceId,
+        makeId: req.body?.makeId,
+        modelId: req.body?.modelId,
+        falsyEvaluatedIds: req.body?.falsyEvaluatedIds,
+        paymentMethod: req.body?.paymentMethod,
+        bankDetails: req.body?.bankDetails,
       });
 
       res.status(200).json({
         status: "SUCCESS",
-        message: "Order placed successfully",
+        message: "Sell order placed successfully",
         data: orderData,
       });
     } catch (error) {
@@ -463,6 +458,25 @@ class Order extends OrderLogic {
       next(error);
     }
   }
+  /**get sell order summery */
+  public async sellOrderSummery(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      const {} = req.query;
+
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Sell summery fetched successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   public validateOrderPlaceFields = [
     body("storeId")
@@ -563,7 +577,74 @@ class Order extends OrderLogic {
       .custom((value) => !isNaN(new Date(value).getMonth()))
       .withMessage("not a valid date"),
   ];
-  public validateSellOrderPlaceFields = [];
+  public validateSellOrderPlaceFields = [
+    body("addressId")
+      .not()
+      .isEmpty()
+      .withMessage("AddressId is required")
+      .isMongoId()
+      .withMessage("AddressId is not a valid id"),
+    body("deviceId")
+      .not()
+      .isEmpty()
+      .withMessage("deviceId is required")
+      .isMongoId()
+      .withMessage("deviceId is not a valid id"),
+    body("makeId")
+      .not()
+      .isEmpty()
+      .withMessage("makeId is required")
+      .isMongoId()
+      .withMessage("makeId is not a valid id"),
+    body("modelId")
+      .not()
+      .isEmpty()
+      .withMessage("modelId is required")
+      .isMongoId()
+      .withMessage("modelId is not a valid id"),
+    body("paymentMethod")
+      .not()
+      .isEmpty()
+      .withMessage("paymentMethod is required")
+      .isIn(["ONLINE", "CHEQUE"])
+      .withMessage("paymentMethod can only be ONLINE, CHEQUE"),
+    body("bankDetails.fullName")
+      .if((value: string, { req }: any) => {
+        console.log(
+          req?.body?.paymentMethod,
+          "ONLINE",
+          req?.body?.paymentMethod === "ONLINE"
+        );
+        return req?.body?.paymentMethod === "ONLINE";
+      })
+      .not()
+      .isEmpty()
+      .withMessage("bankDetails.fullName is required"),
+    body("bankDetails.accountNumber")
+      .if((value: string, { req }: any) => {
+        console.log(
+          req?.body?.paymentMethod,
+          "ONLINE",
+          req?.body?.paymentMethod === "ONLINE"
+        );
+        return req?.body?.paymentMethod === "ONLINE";
+      })
+      .not()
+      .isEmpty()
+      .withMessage("bankDetails.accountNumber is required"),
+    body("bankDetails.sortCode")
+      .if((value: string, { req }: any) => {
+        console.log(
+          req?.body?.paymentMethod,
+          "ONLINE",
+          req?.body?.paymentMethod === "ONLINE"
+        );
+        return req?.body?.paymentMethod === "ONLINE";
+      })
+      .not()
+      .isEmpty()
+      .withMessage("bankDetails.sortCode is required"),
+  ];
 }
 
 export default Order;
