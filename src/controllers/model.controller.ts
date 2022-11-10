@@ -140,13 +140,15 @@ export const ModelControllerValidation = {
       .withMessage("Title must be at least 3 characters long")
       .isLength({ max: 300 })
       .withMessage("Title must be at most 300 characters long")
+      .trim()
       .toUpperCase(),
     body("description")
       .optional()
       .isLength({ min: 5 })
       .withMessage("Description must be at least 5 characters long")
       .isLength({ max: 51 })
-      .withMessage("Description must be at most 51 characters long"),
+      .withMessage("Description must be at most 51 characters long")
+      .trim(),
 
     body("deviceId")
       .optional()

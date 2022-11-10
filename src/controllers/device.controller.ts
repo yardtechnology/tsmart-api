@@ -118,7 +118,8 @@ export const DeviceControllerValidation = {
       .not()
       .isEmpty()
       .withMessage("title is required.")
-      .toUpperCase(),
+      .toUpperCase()
+      .trim(),
     body("type")
       .optional()
       .exists()
