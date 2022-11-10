@@ -8,6 +8,7 @@ import BankType from "../types/bank";
 import OrderType, { OrderStatus } from "../types/order";
 import { ModelModel } from "./../models/model.model";
 import { ServicePriceModel } from "./../models/servicePrice.model";
+import EvaluationLogic from "./evaluation.logic";
 // import NotificationLogic from "./notification.logic";
 
 class OrderLogic {
@@ -338,17 +339,20 @@ class OrderLogic {
         const uniqFalsyEvaluatedValues = await EvaluationPriceSchema.find({
           _id: { $in: falsyEvaluatedIds },
         });
-        //TODO: find evaluated price
-        //TODO: CALCULATE ESTIMATED PRICE
 
-        const evaluatedPrice = 2000;
+        const evaluatedPrice = await new EvaluationLogic().deviceEvaluation({
+          colorId: colorData?._id,
+          memoryId: memoryData?._id,
+          modelId: modelData?._id,
+          evaluationPriceIds: falsyEvaluatedIds,
+        });
         const orderData = await new OrderModel({
           user: userData,
           address: addressData,
           userID: userId,
           evaluatedValues: uniqFalsyEvaluatedValues,
           type: "SELL",
-          evaluatedPrice,
+          evaluatedPrice: evaluatedPrice?.evaluatePrice,
           status: "INITIATED",
           paymentMethod,
           make: makeData,
