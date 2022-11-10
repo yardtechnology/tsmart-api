@@ -31,8 +31,7 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       this.dashboardController.totalUserCount
     );
 
-    //  total revenue
-
+    //  Repair count
     this.router.get(
       "/dashboard/repair-order-count",
       super.isAuthenticated,

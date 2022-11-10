@@ -55,6 +55,16 @@ class DashboardController {
       next(error);
     }
   }
+  async refurbishedOrderCount(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const DashboardControllerValidation = {
