@@ -949,15 +949,24 @@ class Auth extends AuthLogic {
       .withMessage("New password confirmation does not match"),
   ];
   public validateSendOtpFields = [
-    body("phoneNumber", "phoneNumber is required")
+    body("phoneNumber")
+      .not()
+      .isEmpty()
+      .withMessage("phoneNumber is required")
       .isLength({ min: 8, max: 15 })
       .withMessage("phoneNumber must be 8-15 digit long")
       .toInt(),
-    body("countryCode", "countryCode is required")
+    body("countryCode")
+      .not()
+      .isEmpty()
+      .withMessage("countryCode is required")
       .isLength({ min: 1, max: 3 })
       .withMessage("countryCode must be 1-3 digit long")
       .toInt(),
-    body("role", "role is required")
+    body("role")
+      .not()
+      .isEmpty()
+      .withMessage("role is required")
       .isIn(["USER", "TECHNICIAN"])
       .withMessage("role must be USER or TECHNICIAN"),
   ];
