@@ -37,7 +37,7 @@ class ModelController extends MediaLogic {
           imagePath: imageData?.path,
           device: req.body?.deviceId,
           make: req.body?.makeId,
-          $addToSet: { type: type.toUpperCase() },
+          $addToSet: { type: type },
         },
         {
           new: true,
@@ -96,9 +96,23 @@ class ModelController extends MediaLogic {
 
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { limit, chunk, modelId, type } = req.query;
+      const { limit, chunk, modelId, type, searchTitle } = req.query;
       fieldValidateError(req);
       const query: any = {};
+
+      if (searchTitle)
+        query["$or"] = [{ title: { $regex: searchTitle, $options: "i" } }];
+
+      // let sort: any = {};
+      // if (sortTitle) {
+      //   const userNameString = sortTitle as string;
+      //   sort = sortTextCondition("name", userNameString);
+      // }
+      // if (createdAtSort) sort.createdAt = 1;
+      // if (Object.keys(sort).length === 0 && !featuredRank) {
+      //   sort = { isFeaturedRank: 1, createdAt: -1 };
+      // }
+
       modelId && (query["_id"] = modelId);
       type && (query["type"] = type);
       const getAllData = await paginationHelper({
@@ -111,6 +125,10 @@ class ModelController extends MediaLogic {
           {
             path: "device",
             select: "-imagePATH",
+          },
+          {
+            path: "make",
+            select: "-imagePATH -devices",
           },
         ],
         sort: {
@@ -163,6 +181,7 @@ export const ModelControllerValidation = {
       .exists()
       .withMessage("type is not formatted.")
       .exists()
+      .toUpperCase()
       .custom((value) =>
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
@@ -181,6 +200,7 @@ export const ModelControllerValidation = {
       .isEmpty()
       .withMessage("type must be required.")
       .exists()
+      .toUpperCase()
       .custom((value) =>
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
@@ -199,6 +219,7 @@ export const ModelControllerValidation = {
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
       .withMessage("type most be SERVICE or SELL."),
+    query("searchTitle").optional().exists().toUpperCase(),
   ],
 };
 
