@@ -28,12 +28,14 @@ class Auth extends AuthLogic {
 
       // get provided user data
       const { phoneNumber, countryCode, role } = req.body;
+      //find white listed number if exist in record
       const whiteListedUserData = await WhiteListModel.findOne({ phoneNumber });
       const activeOTP = {
         otp: whiteListedUserData?.otp || createOTP(4),
         createdAt: Date(),
       };
 
+      //add otp is user exist
       let newUser = await UserModel.findOneAndUpdate(
         { phoneNumber },
         {
@@ -41,6 +43,7 @@ class Auth extends AuthLogic {
         }
       );
 
+      //if user does'n exist then create user
       if (!newUser) {
         newUser = await new UserModel({
           phoneNumber,
