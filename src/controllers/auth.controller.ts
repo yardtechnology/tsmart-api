@@ -944,6 +944,25 @@ class Auth extends AuthLogic {
       })
       .withMessage("New password confirmation does not match"),
   ];
+  public validateSendOtpFields = [
+    body("phoneNumber", "phoneNumber is required")
+      .isLength({ min: 8, max: 15 })
+      .withMessage("phoneNumber must be 8-15 digit long")
+      .toInt(),
+    body("countryCode", "countryCode is required")
+      .isLength({ min: 1, max: 3 })
+      .withMessage("must be 1-3 digit long")
+      .toInt(),
+  ];
+  public validateVerifyOtpFields = [
+    body("userId", "userId is required")
+      .isMongoId()
+      .withMessage("userId is not a valid id"),
+    body("otp", "otp is required")
+      .isLength({ min: 4, max: 4 })
+      .withMessage("otp must be 4 digit long")
+      .toInt(),
+  ];
 }
 
 export default Auth;
