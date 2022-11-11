@@ -20,6 +20,7 @@ class Order extends AuthenticateMiddleware {
     this.createOrderPaymentRoute();
     this.createSellOrderRoute();
     this.getOrderSummaryRoute();
+    this.addExtraChargesRoute();
   }
 
   // place store service order
@@ -115,7 +116,15 @@ class Order extends AuthenticateMiddleware {
     );
   }
 
-  //TODO: add a route for adding extra fees
+  // add  extra fees
+  private addExtraChargesRoute(): void {
+    this.router.get(
+      "/orders/:orderId/extra-fees",
+      super.isAuthenticated,
+      this.orderController.validateAddExtraChargesFields,
+      this.orderController.addExtraChargesController
+    );
+  }
 }
 
 export default Order;

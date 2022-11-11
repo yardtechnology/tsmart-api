@@ -184,6 +184,20 @@ class Order extends OrderLogic {
   }
 
   //TODO: add extra charges
+  public async addExtraChargesController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      fieldValidateError(req);
+      const { serviceIds, accessoryIds } = req.body;
+      const { orderId } = req.params;
+      console.log(serviceIds, accessoryIds, orderId);
+    } catch (error) {
+      next(error);
+    }
+  }
 
   /**
    * order status and ETA update
@@ -706,6 +720,22 @@ class Order extends OrderLogic {
       .isArray()
       .isMongoId()
       .withMessage("falsyEvaluatedIds must be an array of evaluatedPriceIds"),
+  ];
+  public validateAddExtraChargesFields = [
+    body("serviceIds")
+      .not()
+      .isEmpty()
+      .withMessage("serviceIds is required")
+      .isArray()
+      .isMongoId()
+      .withMessage("serviceIds must be an array of serviceId"),
+    body("accessoryIds")
+      .not()
+      .isEmpty()
+      .withMessage("accessoryIds is required")
+      .isArray()
+      .isMongoId()
+      .withMessage("accessoryIds must be an array of accessoryId"),
   ];
 }
 
