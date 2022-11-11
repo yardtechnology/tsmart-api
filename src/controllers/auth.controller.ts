@@ -954,7 +954,7 @@ class Auth extends AuthLogic {
       .toInt(),
     body("countryCode", "countryCode is required")
       .isLength({ min: 1, max: 3 })
-      .withMessage("must be 1-3 digit long")
+      .withMessage("countryCode must be 1-3 digit long")
       .toInt(),
     body("role", "role is required")
       .isIn(["USER", "TECHNICIAN"])
