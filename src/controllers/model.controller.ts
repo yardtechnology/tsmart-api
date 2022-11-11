@@ -37,7 +37,7 @@ class ModelController extends MediaLogic {
           imagePath: imageData?.path,
           device: req.body?.deviceId,
           make: req.body?.makeId,
-          $addToSet: { type: type.toUpperCase() },
+          $addToSet: { type: type },
         },
         {
           new: true,
@@ -96,6 +96,15 @@ class ModelController extends MediaLogic {
 
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
+      // const getAllData = await ModelModel.find();
+      // for (const iterator of getAllData) {
+      //   const updateData = await ModelModel.findByIdAndUpdate(iterator._id, {
+      //     title: iterator.title?.toUpperCase(),
+      //   });
+      // }
+
+      // res.json({ data: "data" });
+
       const { limit, chunk, modelId, type } = req.query;
       fieldValidateError(req);
       const query: any = {};
@@ -167,6 +176,7 @@ export const ModelControllerValidation = {
       .exists()
       .withMessage("type is not formatted.")
       .exists()
+      .toUpperCase()
       .custom((value) =>
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
@@ -185,6 +195,7 @@ export const ModelControllerValidation = {
       .isEmpty()
       .withMessage("type must be required.")
       .exists()
+      .toUpperCase()
       .custom((value) =>
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
