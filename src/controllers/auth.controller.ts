@@ -953,6 +953,9 @@ class Auth extends AuthLogic {
       .isLength({ min: 1, max: 3 })
       .withMessage("must be 1-3 digit long")
       .toInt(),
+    body("role", "role is required")
+      .isIn(["USER", "TECHNICIAN"])
+      .withMessage("role must be USER or TECHNICIAN"),
   ];
   public validateVerifyOtpFields = [
     body("userId", "userId is required")
