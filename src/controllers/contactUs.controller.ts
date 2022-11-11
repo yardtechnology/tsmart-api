@@ -128,9 +128,7 @@ export const ContactUsControllerValidation = {
       .isLength({ max: 100 })
       .withMessage("name must be at most 100 characters long"),
     body("storeId")
-      .not()
-      .isEmpty()
-      .withMessage("storeId is required.")
+      .optional()
       .isMongoId()
       .withMessage("storeId is must be mongos id."),
   ],

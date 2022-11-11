@@ -14,5 +14,6 @@ export { default as ReviewSchema } from "./review.model";
 export { default as SalePriceModel } from "./salePrice.model";
 export { ServicePropertySchema } from "./serviceProperty.model";
 export { ServicePropertyValueSchema } from "./servicePropertyValue.model";
+export { ServicePriceModel } from "./servicePrice.model";
 export { default as SupportSchema } from "./support.model";
 export { default as TimingSchema } from "./timing.model";
