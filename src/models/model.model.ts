@@ -1,7 +1,7 @@
-import { model, Schema } from "mongoose";
+import { model, Schema, Model } from "mongoose";
 import ModelType from "../types/model";
 
-const modelSchema = new Schema<ModelType>(
+const modelSchema = new Schema<ModelType, Model<ModelType>>(
   {
     title: {
       unique: true,
@@ -34,4 +34,7 @@ const modelSchema = new Schema<ModelType>(
   { timestamps: true }
 );
 
-export const ModelModel = model<ModelType>("Model", modelSchema);
+export const ModelModel = model<ModelType, Model<ModelType>>(
+  "Model",
+  modelSchema
+);
