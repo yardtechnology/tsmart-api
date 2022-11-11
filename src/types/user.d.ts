@@ -67,4 +67,7 @@ export default interface UserType extends Document {
     total: number;
     stars: number;
   };
+  documentType: "DRIVING_LICENSE" | "PASSPORT";
+  document: string;
+  documentPATH: string;
 }

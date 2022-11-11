@@ -44,6 +44,11 @@ class User extends MediaLogic {
         faceVideoFile && !Array.isArray(faceVideoFile)
           ? await super.uploadMedia(faceVideoFile, filePath)
           : undefined;
+      const documentFile = req.files?.document;
+      const documentData: any | undefined =
+        documentFile && !Array.isArray(documentFile)
+          ? await super.uploadMedia(documentFile, filePath)
+          : undefined;
 
       // save user data to database
       const updatedUser: UserType | null = await UserModel.findByIdAndUpdate(
@@ -73,6 +78,9 @@ class User extends MediaLogic {
           experience: req.body?.experience,
           age: req.body?.age,
           status: email && "INACTIVE",
+          documentType: req.body?.documentType,
+          document: documentData?.url,
+          documentPATH: documentData?.path,
         }
       );
 

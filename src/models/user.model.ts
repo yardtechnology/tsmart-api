@@ -99,6 +99,9 @@ const userSchema = new Schema<UserType>(
         default: 0,
       },
     },
+    documentType: String,
+    document: String,
+    documentPATH: String,
   },
   { timestamps: true }
 );
