@@ -175,6 +175,7 @@ class Auth extends AuthLogic {
           phoneNumber: userInfo.phoneNumber,
           email: userInfo.email,
           role: userInfo.role,
+          status: userInfo.status,
         },
       });
     } catch (error) {
