@@ -96,22 +96,16 @@ class ModelController extends MediaLogic {
 
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { limit, chunk, modelId, type, searchTitle } = req.query;
+      const { limit, chunk, modelId, type, searchTitle, makeId, deviceId } =
+        req.query;
       fieldValidateError(req);
       const query: any = {};
 
       if (searchTitle)
         query["$or"] = [{ title: { $regex: searchTitle, $options: "i" } }];
 
-      // let sort: any = {};
-      // if (sortTitle) {
-      //   const userNameString = sortTitle as string;
-      //   sort = sortTextCondition("name", userNameString);
-      // }
-      // if (createdAtSort) sort.createdAt = 1;
-      // if (Object.keys(sort).length === 0 && !featuredRank) {
-      //   sort = { isFeaturedRank: 1, createdAt: -1 };
-      // }
+      makeId && (query["make"] = makeId);
+      deviceId && (query["device"] = deviceId);
 
       modelId && (query["_id"] = modelId);
       type && (query["type"] = type);
@@ -220,6 +214,16 @@ export const ModelControllerValidation = {
       )
       .withMessage("type most be SERVICE or SELL."),
     query("searchTitle").optional().exists().toUpperCase(),
+    query("deviceId")
+      .optional()
+      .exists()
+      .isMongoId()
+      .withMessage("deviceId is not valid mongoose id."),
+    query("makeId")
+      .optional()
+      .exists()
+      .isMongoId()
+      .withMessage("makeId is not valid mongoose id."),
   ],
 };
 
