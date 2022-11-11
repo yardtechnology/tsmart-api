@@ -84,7 +84,7 @@ class AuthenticateMiddleware extends JWT {
         if (!decoded.store) {
           return res.status(403).json({
             status: "FAIL",
-            error: "Manager is not assigned to any store",
+            error: `${decoded?.role || "Manager"} is not assigned to any store`,
           });
         }
         req.currentUser = {

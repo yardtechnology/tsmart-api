@@ -814,6 +814,30 @@ class ProductLogic extends MediaLogic {
     }).save();
     return productsStockData;
   }
+
+  /**
+   * get values from an products array
+   */
+  public async getProductsValues(productIds: string[]) {
+    const data = await ProductModel.aggregate([
+      {
+        $match: {
+          _id: productIds.map((productId) => new Types.ObjectId(productId)),
+        },
+      },
+      {
+        $group: {
+          _id: "total",
+          totalMrp: { $sum: "$mrp" },
+          totalSalePrice: { $sum: "$salePrice" },
+        },
+      },
+    ]);
+    return {
+      totalMrp: data[0].totalMrp,
+      totalSalePrice: data[0].totalSalePrice,
+    };
+  }
 }
 
 export default ProductLogic;

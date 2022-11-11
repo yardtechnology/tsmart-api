@@ -201,6 +201,59 @@ class BillingLogic extends CouponLogic {
       }
     });
   }
+
+  /**
+   * add extra charges in order
+   */
+  public async createExtraFeesBilling({
+    orderId,
+    basePrice,
+    paymentMethod,
+    couponDiscount,
+  }: {
+    orderId: string;
+    basePrice: number;
+    paymentMethod?: "COD" | "ONLINE";
+    couponDiscount?: any;
+  }): Promise<BillingType> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const configData = { tax: 15 };
+        let bill = await BillingModel.findOneAndUpdate(
+          {
+            orders: orderId,
+            type: "EXTRA",
+          },
+          {
+            basePrice,
+            tax: configData?.tax ? (basePrice * configData.tax) / 100 : 0,
+            totalPrice: basePrice - (couponDiscount?.benefitAmount || 0),
+            paymentMethod: paymentMethod,
+            couponDiscount,
+            orders: { $addToSet: orderId },
+            type: "EXTRA",
+          },
+          {
+            upsert: true,
+          }
+        );
+        if (!bill) {
+          bill = await new BillingModel({
+            basePrice,
+            tax: configData?.tax ? (basePrice * configData.tax) / 100 : 0,
+            totalPrice: basePrice - (couponDiscount?.benefitAmount || 0),
+            paymentMethod: paymentMethod,
+            couponDiscount,
+            orders: { $addToSet: orderId },
+            type: "EXTRA",
+          }).save();
+        }
+        resolve(bill);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
 }
 
 export default BillingLogic;

@@ -4,6 +4,7 @@ import { fieldValidateError } from "../helper";
 import BillingLogic from "../logic/billing.logic";
 import CartLogic from "../logic/cart.logic";
 import OrderLogic from "../logic/order.logic";
+import ProductLogic from "../logic/product.logic";
 import StripeLogic from "../logic/stripe.logic";
 import { BillingModel } from "../models/billing.model";
 import { CartItemModel } from "../models/cartItem.model";
@@ -11,6 +12,7 @@ import { ProductModel } from "../models/product.model";
 import { AuthRequest } from "../types/core";
 import OrderType, { OrderStatus } from "../types/order";
 import { OrderModel } from "./../models/order.model";
+import { ServicePriceModel } from "./../models/servicePrice.model";
 import MailController from "./mail.controller";
 
 class Order extends OrderLogic {
@@ -193,7 +195,32 @@ class Order extends OrderLogic {
       fieldValidateError(req);
       const { serviceIds, accessoryIds } = req.body;
       const { orderId } = req.params;
-      console.log(serviceIds, accessoryIds, orderId);
+      const servicesData = await ServicePriceModel.find({
+        _id: { $in: serviceIds },
+      });
+      const accessoriesData = await ProductModel.find({
+        _id: { $in: accessoryIds },
+      });
+      const orderData = await OrderModel.findByIdAndUpdate(orderId, {
+        extraServices: servicesData,
+        accessory: accessoriesData,
+      });
+      const accessoryData = await new ProductLogic().getProductsValues(
+        accessoryIds
+      );
+      const servicePriceData = {
+        mrpPrice: 100,
+        salePrice: 80,
+      };
+      const extraBilling = await new BillingLogic().createExtraFeesBilling({
+        orderId,
+        basePrice: accessoryData?.totalSalePrice + servicePriceData?.salePrice,
+      });
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Extra charges added successfully",
+        data: extraBilling,
+      });
     } catch (error) {
       next(error);
     }
