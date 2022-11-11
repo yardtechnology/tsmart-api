@@ -23,11 +23,17 @@ class OrderLogic {
     storeId,
     serviceTime,
     serviceIds,
+    modelId,
+    makeId,
+    deviceId,
   }: {
     userId: string;
     storeId: string;
     serviceTime: Date;
     serviceIds: string[];
+    modelId: string;
+    makeId: string;
+    deviceId: string;
   }): Promise<OrderType> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -42,6 +48,14 @@ class OrderLogic {
         );
         if (!storeData) throw new Error("Store not found");
         const scheduledTime = new Date(serviceTime);
+        const makeData = await MakeSchema.findById(makeId);
+        if (!makeData) throw new Error("make not found");
+        //check model if exist or not
+        const modelData = await ModelModel.findById(modelId);
+        if (!modelData) throw new Error("model not found");
+        //check device if exist or not
+        const deviceData = await DevicesSchema.findById(deviceId);
+        if (!deviceData) throw new Error("device not found");
         //remove duplicate service ids
         const uniqServiceIds = new Set([...serviceIds]);
         const servicePriceDetails = await ServicePriceModel.find({
@@ -68,6 +82,12 @@ class OrderLogic {
           mrp: priceDetails?.mrp,
           status: "INITIATED",
           serviceType: "IN_STOR",
+          make: makeData,
+          makeId: makeData?._id,
+          model: modelData,
+          modelId: modelData?._id,
+          device: deviceData,
+          deviceId: deviceData?._id,
         }).save();
         resolve(orderData);
       } catch (error) {
@@ -80,10 +100,16 @@ class OrderLogic {
     userId,
     addressId,
     serviceIds,
+    modelId,
+    makeId,
+    deviceId,
   }: {
     userId: string;
     addressId: string;
     serviceIds: string[];
+    modelId: string;
+    makeId: string;
+    deviceId: string;
   }): Promise<OrderType> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -104,6 +130,14 @@ class OrderLogic {
           "_id name landmark email phoneNumber countryCode street city state country zip type"
         );
         if (!deliveryAddressData) throw new Error("Delivery address not found");
+        const makeData = await MakeSchema.findById(makeId);
+        if (!makeData) throw new Error("make not found");
+        //check model if exist or not
+        const modelData = await ModelModel.findById(modelId);
+        if (!modelData) throw new Error("model not found");
+        //check device if exist or not
+        const deviceData = await DevicesSchema.findById(deviceId);
+        if (!deviceData) throw new Error("device not found");
         //remove duplicate service ids
         const uniqServiceIds = new Set([...serviceIds]);
         const servicePriceDetails = await ServicePriceModel.find({
@@ -130,6 +164,12 @@ class OrderLogic {
           mrp: priceDetails?.mrp,
           status: "INITIATED",
           serviceType: "MAIL_IN",
+          make: makeData,
+          makeId: makeData?._id,
+          model: modelData,
+          modelId: modelData?._id,
+          device: deviceData,
+          deviceId: deviceData?._id,
         }).save();
         resolve(orderData);
       } catch (error) {
@@ -144,12 +184,18 @@ class OrderLogic {
     longitude,
     street,
     serviceIds,
+    modelId,
+    makeId,
+    deviceId,
   }: {
     userId: string;
     latitude: number;
     longitude: number;
     street: string;
     serviceIds: string[];
+    modelId: string;
+    makeId: string;
+    deviceId: string;
   }): Promise<OrderType> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -172,6 +218,15 @@ class OrderLogic {
           },
           { salePrice: 0, mrp: 0 }
         );
+        const makeData = await MakeSchema.findById(makeId);
+        if (!makeData) throw new Error("make not found");
+        //check model if exist or not
+        const modelData = await ModelModel.findById(modelId);
+        if (!modelData) throw new Error("model not found");
+        //check device if exist or not
+        const deviceData = await DevicesSchema.findById(deviceId);
+        if (!deviceData) throw new Error("device not found");
+        console.log(modelData);
         const orderData = await new OrderModel({
           user: userData,
           address: {
@@ -186,6 +241,12 @@ class OrderLogic {
           mrp: priceDetails?.mrp,
           status: "INITIATED",
           serviceType: "CALL_OUT",
+          make: makeData,
+          makeId: makeData?._id,
+          model: modelData,
+          modelId: modelData?._id,
+          device: deviceData,
+          deviceId: deviceData?._id,
         }).save();
         resolve(orderData);
       } catch (error) {
@@ -356,10 +417,10 @@ class OrderLogic {
           status: "INITIATED",
           paymentMethod,
           make: makeData,
-          model: modelData,
-          device: deviceData,
           makeId: makeData?._id,
+          model: modelData,
           modelId: modelData?._id,
+          device: deviceData,
           deviceId: deviceData?._id,
           bankDetails,
           color: colorData,

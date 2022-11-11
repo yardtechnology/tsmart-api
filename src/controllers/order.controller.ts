@@ -29,6 +29,9 @@ class Order extends OrderLogic {
         userId: req.currentUser?._id as string,
         serviceTime: req.body?.serviceTime,
         serviceIds: req.body?.serviceIds,
+        modelId: req.body?.modelId,
+        deviceId: req.body?.deviceId,
+        makeId: req.body?.makeId,
       });
       const billingData = await new BillingLogic().createBill({
         orderIds: orderData?._id,
@@ -62,6 +65,9 @@ class Order extends OrderLogic {
         userId: req.currentUser?._id as string,
         addressId: req.body?.addressId,
         serviceIds: req.body?.serviceIds,
+        modelId: req.body?.modelId,
+        deviceId: req.body?.deviceId,
+        makeId: req.body?.makeId,
       });
       const billingData = await new BillingLogic().createBill({
         orderIds: orderData?._id,
@@ -97,6 +103,9 @@ class Order extends OrderLogic {
         longitude: req.body?.longitude,
         street: req.body?.street,
         serviceIds: req.body?.serviceIds,
+        modelId: req.body?.modelId,
+        deviceId: req.body?.deviceId,
+        makeId: req.body?.makeId,
       });
       const billingData = await new BillingLogic().createBill({
         orderIds: orderData?._id,
@@ -491,6 +500,21 @@ class Order extends OrderLogic {
     body("serviceIds.*")
       .isMongoId()
       .withMessage("serviceIds must be a valid service id"),
+    body("modelId")
+      .not()
+      .isEmpty()
+      .isMongoId()
+      .withMessage("modelId must be a valid service id"),
+    body("makeId")
+      .not()
+      .isEmpty()
+      .isMongoId()
+      .withMessage("makeId must be a valid service id"),
+    body("deviceId")
+      .not()
+      .isEmpty()
+      .isMongoId()
+      .withMessage("deviceId must be a valid service id"),
   ];
   public validateMailInOrderPlaceFields = [
     body("addressId")
@@ -502,13 +526,45 @@ class Order extends OrderLogic {
     body("serviceIds.*")
       .isMongoId()
       .withMessage("serviceIds must be a valid service id"),
+    body("modelId")
+      .not()
+      .isEmpty()
+      .isMongoId()
+      .withMessage("modelId must be a valid service id"),
+    body("makeId")
+      .not()
+      .isEmpty()
+      .isMongoId()
+      .withMessage("makeId must be a valid service id"),
+    body("deviceId")
+      .not()
+      .isEmpty()
+      .isMongoId()
+      .withMessage("deviceId must be a valid service id"),
   ];
   public validateCallOutOrderPlaceFields = [
     body("latitude").not().isEmpty().withMessage("latitude is required"),
     body("longitude").not().isEmpty().withMessage("longitude is required"),
     body("serviceIds.*")
+      .not()
+      .isEmpty()
       .isMongoId()
       .withMessage("serviceIds must be a valid service id"),
+    body("modelId")
+      .not()
+      .isEmpty()
+      .isMongoId()
+      .withMessage("modelId must be a valid service id"),
+    body("makeId")
+      .not()
+      .isEmpty()
+      .isMongoId()
+      .withMessage("makeId must be a valid service id"),
+    body("deviceId")
+      .not()
+      .isEmpty()
+      .isMongoId()
+      .withMessage("deviceId must be a valid service id"),
   ];
   public validateProductOrderPlaceFields = [
     body("productId")
