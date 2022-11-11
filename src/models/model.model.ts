@@ -12,10 +12,12 @@ const modelSchema = new Schema<ModelType>(
     image: String,
     imagePATH: String,
     device: {
+      required: [true, "Device id is required"],
       type: Schema.Types.ObjectId,
       ref: "Device",
     },
     make: {
+      required: [true, "Model id is required"],
       type: Schema.Types.ObjectId,
       ref: "Make",
     },

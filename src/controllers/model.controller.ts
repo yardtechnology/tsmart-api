@@ -112,6 +112,10 @@ class ModelController extends MediaLogic {
             path: "device",
             select: "-imagePATH",
           },
+          {
+            path: "make",
+            select: "-imagePATH -devices",
+          },
         ],
         sort: {
           createdAt: -1,
