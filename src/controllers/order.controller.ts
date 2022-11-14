@@ -148,6 +148,7 @@ class Order extends OrderLogic {
         bankDetails: req.body?.bankDetails,
         colorId: req.body?.colorId,
         memoryId: req.body?.memoryId,
+        imei: req.body?.imei,
       });
 
       res.status(200).json({
@@ -762,6 +763,7 @@ class Order extends OrderLogic {
       .isArray()
       .isMongoId()
       .withMessage("falsyEvaluatedIds must be an array of evaluatedPriceIds"),
+    body("imei").not().isEmpty().withMessage("IMEI number is required"),
   ];
   public validateAddExtraChargesFields = [
     body("serviceIds")

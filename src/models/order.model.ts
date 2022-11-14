@@ -97,6 +97,7 @@ const orderSchema = new Schema<OrderType>(
     memoryId: String,
     extraServices: [],
     accessory: [],
+    imei: String,
   },
   { timestamps: true }
 );

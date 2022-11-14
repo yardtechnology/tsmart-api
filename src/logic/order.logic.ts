@@ -359,6 +359,7 @@ class OrderLogic {
     bankDetails,
     colorId,
     memoryId,
+    imei,
   }: {
     userId: string;
     paymentMethod: "ONLINE" | "CHEQUE";
@@ -370,6 +371,7 @@ class OrderLogic {
     bankDetails?: BankType;
     colorId: string;
     memoryId: string;
+    imei?: string;
   }) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -427,6 +429,7 @@ class OrderLogic {
           colorId: colorData?._id,
           memory: memoryData,
           memoryId: memoryData?._id,
+          imei,
         }).save();
         resolve(orderData);
       } catch (error) {

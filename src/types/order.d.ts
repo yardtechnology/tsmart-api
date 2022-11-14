@@ -87,4 +87,5 @@ export default interface OrderType extends Document {
   memoryId: string;
   extraServices?: ServicePriceType[];
   accessory?: ProductType[];
+  imei: string;
 }
