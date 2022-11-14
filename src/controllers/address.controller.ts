@@ -35,6 +35,7 @@ class Address {
         countryCode: req.body?.countryCode,
         street: req.body?.street,
         city: req.body?.city,
+        houseNumber: req.body?.houseNumber,
         state: req.body?.state,
         country: req.body?.country,
         zip: req.body?.zip,
@@ -102,6 +103,7 @@ class Address {
           countryCode: req.body?.countryCode,
           street: req.body?.street,
           city: req.body?.city,
+          houseNumber: req.body?.houseNumber,
           state: req.body?.state,
           country: req.body?.country,
           zip: req.body?.zip,
@@ -259,11 +261,19 @@ class Address {
     body("city")
       .not()
       .isEmpty()
-      .withMessage("city")
+      .withMessage("city is required")
       .isLength({ min: 3 })
       .withMessage("City must be at least 3 characters long")
       .isLength({ max: 21 })
       .withMessage("City must be at most 21 characters long"),
+    body("houseNumber")
+      .not()
+      .isEmpty()
+      .withMessage("houseNumber is required")
+      .isLength({ min: 3 })
+      .withMessage("houseNumber must be at least 3 characters long")
+      .isLength({ max: 21 })
+      .withMessage("houseNumber must be at most 21 characters long"),
     body("state")
       .optional()
       .isLength({ min: 3 })
@@ -279,9 +289,7 @@ class Address {
       .isLength({ max: 25 })
       .withMessage("Country must be at most 25 characters long"),
     body("type")
-      .not()
-      .isEmpty()
-      .withMessage("type")
+      .optional()
       .custom((value) => {
         if (
           !["HOME", "WORK", "OTHER"].includes(value?.toString()?.toUpperCase())
