@@ -818,11 +818,14 @@ class ProductLogic extends MediaLogic {
   /**
    * get values from an products array
    */
-  public async getProductsValues(productIds: string[]) {
+  public async getProductsValues(productIds: Types.ObjectId[]) {
+    console.log(productIds);
     const data = await ProductModel.aggregate([
       {
         $match: {
-          _id: productIds.map((productId) => new Types.ObjectId(productId)),
+          _id: {
+            $in: productIds,
+          },
         },
       },
       {
@@ -833,9 +836,10 @@ class ProductLogic extends MediaLogic {
         },
       },
     ]);
+    console.log(data);
     return {
-      totalMrp: data[0].totalMrp,
-      totalSalePrice: data[0].totalSalePrice,
+      totalMrp: data[0]?.totalMrp,
+      totalSalePrice: data[0]?.totalSalePrice,
     };
   }
 }

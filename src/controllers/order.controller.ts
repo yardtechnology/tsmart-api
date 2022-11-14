@@ -4,13 +4,13 @@ import { fieldValidateError } from "../helper";
 import BillingLogic from "../logic/billing.logic";
 import CartLogic from "../logic/cart.logic";
 import OrderLogic from "../logic/order.logic";
-import ProductLogic from "../logic/product.logic";
 import StripeLogic from "../logic/stripe.logic";
 import { BillingModel } from "../models/billing.model";
 import { CartItemModel } from "../models/cartItem.model";
 import { ProductModel } from "../models/product.model";
 import { AuthRequest } from "../types/core";
 import OrderType, { OrderStatus } from "../types/order";
+import ServicePriceType from "../types/servicePrice";
 import { OrderModel } from "./../models/order.model";
 import { ServicePriceModel } from "./../models/servicePrice.model";
 import MailController from "./mail.controller";
@@ -192,30 +192,56 @@ class Order extends OrderLogic {
     next: NextFunction
   ) {
     try {
+      console.log(0);
       fieldValidateError(req);
       const { serviceIds, accessoryIds } = req.body;
       const { orderId } = req.params;
+      console.log(1);
       const servicesData = await ServicePriceModel.find({
         _id: { $in: serviceIds },
       });
+      console.log(2);
       const accessoriesData = await ProductModel.find({
         _id: { $in: accessoryIds },
       });
-      const orderData = await OrderModel.findByIdAndUpdate(orderId, {
-        extraServices: servicesData,
-        accessory: accessoriesData,
-      });
-      const accessoryData = await new ProductLogic().getProductsValues(
-        accessoryIds
-      );
-      const servicePriceData = {
-        mrpPrice: 100,
-        salePrice: 80,
-      };
-      const extraBilling = await new BillingLogic().createExtraFeesBilling({
+      console.log(3, accessoriesData);
+      const orderPrevData = await OrderModel.findById(orderId);
+      const extraServices = orderPrevData?.extraServices
+        ? [...orderPrevData?.extraServices, ...servicesData]
+        : servicesData;
+      const accessory = orderPrevData?.accessory
+        ? [...orderPrevData?.accessory, ...accessoriesData]
+        : accessoriesData;
+      const orderData = await OrderModel.findByIdAndUpdate(
         orderId,
-        basePrice: accessoryData?.totalSalePrice + servicePriceData?.salePrice,
+        {
+          extraServices,
+          accessory,
+        },
+        { new: true }
+      );
+      console.log(4);
+      console.log(5);
+      const accessoryData = orderData?.accessory?.reduce((prev, curr) => {
+        return (prev += curr?.salePrice);
+      }, 0);
+      console.log(6, accessoryData);
+      console.log(7);
+      const servicePriceData: number | undefined =
+        orderData?.extraServices?.reduce(
+          (prev: number, curr: ServicePriceType) => {
+            return (prev += curr?.salePrice);
+          },
+          0
+        );
+      console.log(8, servicePriceData);
+      const basePrice = (accessoryData || 0) + (servicePriceData || 0);
+      console.log(9, basePrice);
+      const extraBilling = await new BillingLogic().createExtraFeesBilling({
+        orderId: [orderId],
+        basePrice,
       });
+      console.log(10);
       res.status(200).json({
         status: "SUCCESS",
         message: "Extra charges added successfully",

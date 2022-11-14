@@ -95,6 +95,8 @@ const orderSchema = new Schema<OrderType>(
     memory: { type: Schema.Types.ObjectId, ref: "Memory" },
     colorId: String,
     memoryId: String,
+    extraServices: [],
+    accessory: [],
   },
   { timestamps: true }
 );

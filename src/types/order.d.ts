@@ -74,9 +74,9 @@ export default interface OrderType extends Document {
   evaluatedPrice: number;
   evaluatedValues: EVALUATION_PRICE_TYPE[];
   paymentMethod: "ONLINE" | "CHEQUE";
-  make: {};
-  model: {};
-  device: {};
+  make: MAKE_TYPE;
+  model: ModelType;
+  device: DEVICE_TYPE;
   makeId: MAKE_TYPE;
   modelId: ModelType;
   deviceId: DEVICE_TYPE;
@@ -85,4 +85,6 @@ export default interface OrderType extends Document {
   memory: MEMORY_TYPE;
   colorId: string;
   memoryId: string;
+  extraServices?: ServicePriceType[];
+  accessory?: ProductType[];
 }

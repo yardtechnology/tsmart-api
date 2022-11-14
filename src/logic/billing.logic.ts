@@ -176,9 +176,9 @@ class BillingLogic extends CouponLogic {
         }, 0);
         const bill: BillingType = await new BillingModel({
           orders: ordersIdArr,
-          basePrice,
+          subTotal: basePrice,
           tax: configData?.tax ? (basePrice * configData.tax) / 100 : 0,
-          totalPrice: basePrice - (couponDiscount?.benefitAmount || 0),
+          total: basePrice - (couponDiscount?.benefitAmount || 0),
           paymentMethod: paymentMethod,
           metadata: {
             payment_order_id,
@@ -211,7 +211,7 @@ class BillingLogic extends CouponLogic {
     paymentMethod,
     couponDiscount,
   }: {
-    orderId: string;
+    orderId: string[];
     basePrice: number;
     paymentMethod?: "COD" | "ONLINE";
     couponDiscount?: any;
@@ -225,12 +225,12 @@ class BillingLogic extends CouponLogic {
             type: "EXTRA",
           },
           {
-            basePrice,
+            subTotal: basePrice,
             tax: configData?.tax ? (basePrice * configData.tax) / 100 : 0,
-            totalPrice: basePrice - (couponDiscount?.benefitAmount || 0),
+            total: basePrice - (couponDiscount?.benefitAmount || 0),
             paymentMethod: paymentMethod,
             couponDiscount,
-            orders: { $addToSet: orderId },
+            orders: orderId,
             type: "EXTRA",
           },
           {
@@ -239,12 +239,12 @@ class BillingLogic extends CouponLogic {
         );
         if (!bill) {
           bill = await new BillingModel({
-            basePrice,
+            subTotal: basePrice,
             tax: configData?.tax ? (basePrice * configData.tax) / 100 : 0,
-            totalPrice: basePrice - (couponDiscount?.benefitAmount || 0),
+            total: basePrice - (couponDiscount?.benefitAmount || 0),
             paymentMethod: paymentMethod,
             couponDiscount,
-            orders: { $addToSet: orderId },
+            orders: orderId,
             type: "EXTRA",
           }).save();
         }
