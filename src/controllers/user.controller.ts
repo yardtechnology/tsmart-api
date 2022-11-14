@@ -50,6 +50,13 @@ class User extends MediaLogic {
           ? await super.uploadMedia(documentFile, filePath)
           : undefined;
 
+      const deviceMakeType = {
+        deviceType: req.body?.deviceType,
+        makeType: req.body?.makeType,
+      };
+      !req.body?.deviceType && delete deviceMakeType?.deviceType;
+
+      !req.body?.makeType && delete deviceMakeType?.makeType;
       // save user data to database
       const updatedUser: UserType | null = await UserModel.findByIdAndUpdate(
         req.currentUser?._id,
@@ -70,10 +77,7 @@ class User extends MediaLogic {
           latitude: req.body?.latitude,
           longitude: req.body?.longitude,
           location: req.body?.location,
-          deviceType: req.body?.deviceType && {
-            $AddToSet: req.body?.deviceType,
-          },
-          makeType: req.body?.makeType && { $AddToSet: req.body?.makeType },
+          $addToSet: deviceMakeType,
           isAcademicCourses: req.body?.isAcademicCourses,
           experience: req.body?.experience,
           age: req.body?.age,
