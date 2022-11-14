@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { ServicePriceModel } from "../models";
 
-class ServiceLogic {
+export default class ServiceLogic {
   /**
    * Services logic
    *
@@ -61,5 +61,3 @@ class ServiceLogic {
     });
   }
 }
-
-export default ServiceLogic;

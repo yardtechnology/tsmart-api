@@ -19,6 +19,13 @@ class ServicePrice extends AuthenticateMiddleware {
 
   private routes() {
     this.router.post(
+      "/service-price/total-price",
+      // super.isManager,
+      super.isAuthenticated,
+      ServicePriceControllerValidation.createServicePrice,
+      this.servicePriceController.createServicePrice
+    );
+    this.router.post(
       "/service-price",
       // super.isManager,
       super.isAuthenticated,
@@ -41,10 +48,7 @@ class ServicePrice extends AuthenticateMiddleware {
       ServicePriceControllerValidation.getAllServicePrice,
       this.servicePriceController.getAllServicePrice
     );
-    // this.router.get(
-    //   "/service-prices/:modelId",
-    //   this.servicePriceController.getServicePricesByModel
-    // );
+
     this.router.delete(
       "/service-price/:servicePriceId",
       super.isAuthenticated,
