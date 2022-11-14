@@ -24,7 +24,7 @@ class Address {
             .replace(/[,]/g, " and ")
         );
       }
-
+      console.log("CREATE ADDRESS");
       // save user data to database
       const addressData: AddressType = await new AddressModel({
         user: req.currentUser?._id,
@@ -92,8 +92,8 @@ class Address {
           }
         );
       }
-
-      // save user data to database
+      console.log("UPDATE ADDRESS");
+      // save address data to database
       const addressData: AddressType | null =
         await AddressModel.findByIdAndUpdate(req.params.addressId, {
           name: req.body?.name,
