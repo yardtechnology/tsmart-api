@@ -88,12 +88,19 @@ class MakeController {
 
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { limit, chunk, makeId, type, deviceId } = req.query;
+      const { limit, chunk, makeId, type, deviceIds, searchTitle } = req.query;
+      const deviceIdArrayCheck = deviceIds
+        ? Array.isArray(deviceIds)
+          ? deviceIds
+          : [deviceIds]
+        : undefined;
       fieldValidateError(req);
       const query: any = {};
       makeId && (query["_id"] = makeId);
       type && (query["type"] = type);
-      deviceId && (query["devices"] = deviceId);
+      deviceIdArrayCheck && (query["devices"] = { $in: deviceIdArrayCheck });
+      if (searchTitle)
+        query["$or"] = [{ title: { $regex: searchTitle, $options: "i" } }];
       const getAllData = await paginationHelper({
         model: MakeSchema,
         query,
@@ -170,10 +177,12 @@ export const MakeControllerValidation = {
       .optional()
       .isMongoId()
       .withMessage("makeId most be mongoose id"),
-    query("deviceId")
+    query("deviceIds").optional(),
+    query("searchTitle")
       .optional()
-      .isMongoId()
-      .withMessage("deviceId most be mongoose id"),
+      .isString()
+      .toUpperCase()
+      .withMessage("searchTitle must be a string"),
     query("type")
       .optional()
       .exists()

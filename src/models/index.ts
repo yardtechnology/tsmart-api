@@ -17,3 +17,4 @@ export { ServicePropertyValueSchema } from "./servicePropertyValue.model";
 export { ServicePriceModel } from "./servicePrice.model";
 export { default as SupportSchema } from "./support.model";
 export { default as TimingSchema } from "./timing.model";
+export { default as VisitorSchema } from "./visitor.model";

@@ -7,6 +7,7 @@ import MediaLogic from "../logic/media.logic";
 import { ServicePriceModel } from "../models/servicePrice.model";
 import { AuthRequest } from "../types/core";
 import ServicePriceType from "../types/servicePrice";
+import ServiceLogic from "../logic/service.logic";
 
 class ServicePrice extends MediaLogic {
   // create servicePrice
@@ -342,6 +343,19 @@ class ServicePrice extends MediaLogic {
           data: servicePriceData,
         },
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public async getServiceAmounts(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { serviceIds, modelId } = req.body;
+      const getServicesTotalData = await new ServiceLogic();
     } catch (error) {
       next(error);
     }
