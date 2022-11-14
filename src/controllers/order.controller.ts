@@ -192,19 +192,15 @@ class Order extends OrderLogic {
     next: NextFunction
   ) {
     try {
-      console.log(0);
       fieldValidateError(req);
       const { serviceIds, accessoryIds } = req.body;
       const { orderId } = req.params;
-      console.log(1);
       const servicesData = await ServicePriceModel.find({
         _id: { $in: serviceIds },
       });
-      console.log(2);
       const accessoriesData = await ProductModel.find({
         _id: { $in: accessoryIds },
       });
-      console.log(3, accessoriesData);
       const orderPrevData = await OrderModel.findById(orderId);
       const extraServices = orderPrevData?.extraServices
         ? [...orderPrevData?.extraServices, ...servicesData]
@@ -220,13 +216,9 @@ class Order extends OrderLogic {
         },
         { new: true }
       );
-      console.log(4);
-      console.log(5);
       const accessoryData = orderData?.accessory?.reduce((prev, curr) => {
         return (prev += curr?.salePrice);
       }, 0);
-      console.log(6, accessoryData);
-      console.log(7);
       const servicePriceData: number | undefined =
         orderData?.extraServices?.reduce(
           (prev: number, curr: ServicePriceType) => {
@@ -234,14 +226,11 @@ class Order extends OrderLogic {
           },
           0
         );
-      console.log(8, servicePriceData);
       const basePrice = (accessoryData || 0) + (servicePriceData || 0);
-      console.log(9, basePrice);
       const extraBilling = await new BillingLogic().createExtraFeesBilling({
         orderId: [orderId],
         basePrice,
       });
-      console.log(10);
       res.status(200).json({
         status: "SUCCESS",
         message: "Extra charges added successfully",
