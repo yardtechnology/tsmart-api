@@ -17,3 +17,4 @@ export { default as SERVICE_PROPERTY_TYPE } from "./serviceProperty";
 export { default as SERVICE_PROPERTY_VALUE_TYPE } from "./servicePropertyValue";
 export { default as SUPPORT_TYPE } from "./support";
 export { default as TIMING_TYPE } from "./timing";
+export { default as VISITOR_TYPE } from "./visitor";

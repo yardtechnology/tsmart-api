@@ -78,3 +78,7 @@ export {
   default as TimingController,
   TimingControllerValidation,
 } from "./timing.controller";
+export {
+  default as VisitorController,
+  VisitorControllerValidation,
+} from "./visitor.controller";
