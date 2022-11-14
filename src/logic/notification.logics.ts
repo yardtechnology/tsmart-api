@@ -5,7 +5,7 @@ import USER_TYPE from "../types/user";
 
 // import NotificationLogic from "./notification.logic";
 
-class NotificationLogic {
+export default class NotificationLogic {
   async pushNotification({
     title,
     body,
@@ -59,5 +59,3 @@ class NotificationLogic {
     }
   }
 }
-
-export default NotificationLogic;
