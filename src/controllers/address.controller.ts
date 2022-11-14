@@ -284,8 +284,8 @@ class Address {
       .not()
       .isEmpty()
       .withMessage("country")
-      .isLength({ min: 3 })
-      .withMessage("Country must be at least 3 characters long")
+      .isLength({ min: 2 })
+      .withMessage("Country must be at least 2 characters long")
       .isLength({ max: 25 })
       .withMessage("Country must be at most 25 characters long"),
     body("type")
