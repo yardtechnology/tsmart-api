@@ -32,6 +32,7 @@ const addressSchema = new Schema<AddressType>(
       enum: ["HOME", "WORK", "OTHER"],
       default: "OTHER",
     },
+    houseNumber: String,
   },
   { timestamps: true }
 );
