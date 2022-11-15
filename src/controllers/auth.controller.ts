@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { body, validationResult } from "express-validator";
 import md5 from "md5";
+import { fieldValidateError } from "../helper";
 import { createOTP } from "../helper/core.helper";
 import AuthLogic from "../logic/auth.logic";
 import { AddressModel } from "../models/address.model";
@@ -14,17 +15,7 @@ class Auth extends AuthLogic {
   //send otp
   public async sendOtp(req: Request, res: Response, next: NextFunction) {
     try {
-      // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
 
       // get provided user data
       const { phoneNumber, countryCode, role } = req.body;
@@ -191,16 +182,7 @@ class Auth extends AuthLogic {
   ): Promise<any> {
     try {
       // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
 
       // get provided user data
       const {
@@ -212,7 +194,6 @@ class Auth extends AuthLogic {
         countryCode,
         role,
       } = req.body;
-      console.log(req.body);
 
       // save user data to database
       const newUser: UserType = await new UserModel({
@@ -250,7 +231,7 @@ class Auth extends AuthLogic {
       });
 
       // send response to client
-      res.status(200).json({
+      res.json({
         status: "SUCCESS",
         message:
           "Signup successfully, check your mail inbox to verify your email to continue login.",
