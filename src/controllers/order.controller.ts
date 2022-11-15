@@ -1,5 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body, param } from "express-validator";
+import { io } from "socket.io-client";
 import { fieldValidateError } from "../helper";
 import BillingLogic from "../logic/billing.logic";
 import CartLogic from "../logic/cart.logic";
@@ -8,6 +9,7 @@ import StripeLogic from "../logic/stripe.logic";
 import { BillingModel } from "../models/billing.model";
 import { CartItemModel } from "../models/cartItem.model";
 import { ProductModel } from "../models/product.model";
+import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
 import OrderType, { OrderStatus } from "../types/order";
 import ServicePriceType from "../types/servicePrice";
@@ -561,6 +563,43 @@ class Order extends OrderLogic {
       res.json({
         status: "SUCCESS",
         message: "Job requests fetched successfully",
+        data: jobRequests,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  /** accept job requests */
+  public async acceptJobRequestController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      const technicianData = await UserModel.findById(
+        req?.body?.technicianID
+      ).select(
+        "displayName phoneNumber country avatar email gender role reviews"
+      );
+      const jobRequests = await OrderModel.findByIdAndUpdate({
+        nearByTechnicians: [],
+        technicianID: technicianData?._id,
+        technician: technicianData,
+      });
+      //send socket event to every
+      const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
+      socket.on("connect", () => {
+        for (const technicianId in jobRequests?.nearByTechnicians) {
+          socket.emit("NEW-JOB-REQUEST", {
+            technicianId,
+          });
+        }
+      });
+      res.json({
+        status: "SUCCESS",
+        message: "Job requests accepted successfully",
         data: jobRequests,
       });
     } catch (error) {
