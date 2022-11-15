@@ -22,6 +22,7 @@ class Order extends AuthenticateMiddleware {
     this.getOrderSummaryRoute();
     this.addExtraChargesRoute();
     this.getJobRequest();
+    this.acceptJobRequest();
   }
 
   // place store service order
@@ -133,6 +134,14 @@ class Order extends AuthenticateMiddleware {
       "/orders/:orderId/job-requests",
       this.isAuthenticated,
       this.orderController.getJobRequestController
+    );
+  }
+  //accept job requests
+  private acceptJobRequest(): void {
+    this.router.put(
+      "/orders/:orderId/job-accept",
+      this.isAuthenticated,
+      this.orderController.acceptJobRequestController
     );
   }
 }
