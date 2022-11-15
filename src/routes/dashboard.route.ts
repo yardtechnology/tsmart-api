@@ -3,16 +3,19 @@ import {
   DashboardController,
   DashboardControllerValidation,
 } from "../controllers";
+import { UserDashboardController } from "../dashboardController";
 import AuthenticateMiddleware from "../middleware/authenticate.middleware";
 
 export default class DashboardRoutes extends AuthenticateMiddleware {
   public router: Router;
   private dashboardController: DashboardController;
+  private userDashboardController: UserDashboardController;
 
   constructor() {
     super();
     this.router = Router();
     this.dashboardController = new DashboardController();
+    this.userDashboardController = new UserDashboardController();
     this.routes();
   }
   private routes() {
@@ -56,6 +59,13 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       "/dashboard/store-count",
       super.isAuthenticated,
       this.dashboardController.storeCount
+    );
+
+    // ================================================================= >>>> USER DASHBOARD <<<< =================================================================
+    this.router.get(
+      "/dashboard/user/weekly-join",
+      super.isAuthenticated,
+      this.userDashboardController.userLastWeeklyJoin
     );
   }
 }
