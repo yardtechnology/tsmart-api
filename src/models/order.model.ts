@@ -98,6 +98,7 @@ const orderSchema = new Schema<OrderType>(
     extraServices: [],
     accessory: [],
     imei: String,
+    nearByTechnicians: [],
   },
   { timestamps: true }
 );

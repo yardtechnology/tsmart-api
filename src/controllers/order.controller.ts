@@ -546,6 +546,28 @@ class Order extends OrderLogic {
     }
   }
 
+  /** get job requests */
+  public async getJobRequestController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      const jobRequests = await OrderModel.find({
+        nearByTechnicians: req?.currentUser?._id,
+      });
+      res.json({
+        status: "SUCCESS",
+        message: "Job requests fetched successfully",
+        data: jobRequests,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public validateOrderPlaceFields = [
     body("storeId")
       .not()

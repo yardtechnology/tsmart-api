@@ -139,5 +139,4 @@ userSchema.methods.encryptPassword = function (rawPassword: string) {
 };
 
 const UserModel = model<UserType>("User", userSchema);
-UserModel.syncIndexes();
 export { UserModel };

@@ -1,3 +1,5 @@
+import { io } from "socket.io-client";
+import { getDistance } from "../helper/core.helper";
 import { DevicesSchema, EvaluationPriceSchema, MakeSchema } from "../models";
 import { AddressModel } from "../models/address.model";
 import { OrderModel } from "../models/order.model";
@@ -196,7 +198,7 @@ class OrderLogic {
     modelId: string;
     makeId: string;
     deviceId: string;
-  }): Promise<OrderType> {
+  }): Promise<any> {
     return new Promise(async (resolve, reject) => {
       try {
         // get user data
@@ -226,7 +228,25 @@ class OrderLogic {
         //check device if exist or not
         const deviceData = await DevicesSchema.findById(deviceId);
         if (!deviceData) throw new Error("device not found");
-        console.log(modelData);
+        //find all technician nearby
+        const allTechnician = await UserModel.find({
+          role: "TECHNICIAN",
+          deviceType: deviceData?._id,
+          makeType: makeData?._id,
+        });
+        const nearByTechnicians: string[] = allTechnician
+          .filter(
+            (user: any) =>
+              50 >=
+              getDistance(
+                latitude,
+                longitude,
+                user?.latitude,
+                user?.longitude,
+                "K"
+              )
+          )
+          .map((user) => user?._id);
         const orderData = await new OrderModel({
           user: userData,
           address: {
@@ -247,7 +267,18 @@ class OrderLogic {
           modelId: modelData?._id,
           device: deviceData,
           deviceId: deviceData?._id,
+          nearByTechnicians,
         }).save();
+
+        //send socket event to every
+        const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
+        socket.on("connect", () => {
+          for (const technicianId in nearByTechnicians) {
+            socket.emit("NEW-JOB-REQUEST", {
+              technicianId,
+            });
+          }
+        });
         resolve(orderData);
       } catch (error) {
         reject(error);
