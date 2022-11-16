@@ -177,7 +177,14 @@ export const MakeControllerValidation = {
       .optional()
       .isMongoId()
       .withMessage("makeId most be mongoose id"),
-    query("deviceIds").optional(),
+    query("deviceIds.*")
+      .optional()
+      .isMongoId()
+      .withMessage("deviceIds must be mongoes id"),
+    query("deviceIds")
+      .optional()
+      .isMongoId()
+      .withMessage("deviceIds must be mongoes id"),
     query("searchTitle")
       .optional()
       .isString()
