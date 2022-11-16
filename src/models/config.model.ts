@@ -91,6 +91,12 @@ const configSchema = new Schema<CONFIG_TYPE, Model<CONFIG_TYPE>>(
       },
     },
     mailInInstauration: String,
+    aboutUs: String,
+    privacyPolicy: String,
+    termsAndConditions: String,
+    shoppingPolicy: String,
+    mailInstructions: String,
+    ourWarranty: String,
   },
   { timestamps: true }
 );

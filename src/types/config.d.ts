@@ -39,4 +39,10 @@ export default interface CONFIG_TYPE extends Document {
     isDismissible: boolean;
   };
   mailInInstauration: string;
+  aboutUs: string;
+  privacyPolicy: string;
+  termsAndConditions: string;
+  shoppingPolicy: string;
+  mailInstructions: string;
+  ourWarranty: string;
 }
