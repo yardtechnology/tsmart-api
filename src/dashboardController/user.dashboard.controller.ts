@@ -36,20 +36,69 @@ class UserDashboardController {
             },
           },
         },
+        {
+          $match: {
+            $expr: {
+              $and: [
+                {
+                  $gte: ["$startDay", "$createdAt"],
+                },
+                {
+                  $lte: ["$endDay", "$createdAt"],
+                },
+              ],
+            },
+          },
+        },
+        {
+          $addFields: {
+            dayNumber: {
+              $dayOfWeek: "$createdAt",
+            },
+          },
+        },
+        {
+          $sort: {
+            dayNumber: 1,
+          },
+        },
+        {
+          $group: {
+            _id: { date: "$dayNumber", role: "$role" },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $group: {
+            _id: "$_id.role",
+            dataArray: {
+              $push: {
+                count: "$count",
+                dayNumber: "$_id.date",
+              },
+            },
+          },
+        },
+        {
+          $addFields: {
+            weekArray: [1, 2, 3, 4, 5, 6, 7],
+          },
+        },
         // {
-        //   $match: {
-        //     $expr: {
-        //       $and: [
-        //         {
-        //           $gte: ["$startDay", "$createdAt"],
-        //         },
-        //         // {
-        //         //   $gte: ["$startDay", "$createdAt"],
-        //         // },
-        //       ],
-        //     },
-        //   },
-        // },
+        //   $project:{
+        //     name:"$_id",
+        //   adjustedGrades:
+        //       {
+        //         $map:
+        //            {
+        //              input: "$dataArray",
+        //              as: "item",
+        //              in: { $add: [ "$$grade", 2 ] }
+        //            }
+        //       }
+        //    }
+
+        // }
       ]);
       res.json({
         status: "SUCCESS",
