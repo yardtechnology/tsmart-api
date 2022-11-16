@@ -79,31 +79,29 @@ class UserDashboardController {
             },
           },
         },
+
         {
-          $addFields: {
-            weekArray: [1, 2, 3, 4, 5, 6, 7],
+          $project: {
+            name: "$_id",
+            data: "$dataArray",
           },
         },
-        // {
-        //   $project:{
-        //     name:"$_id",
-        //   adjustedGrades:
-        //       {
-        //         $map:
-        //            {
-        //              input: "$dataArray",
-        //              as: "item",
-        //              in: { $add: [ "$$grade", 2 ] }
-        //            }
-        //       }
-        //    }
-
-        // }
       ]);
+      const weekArray = [1, 2, 3, 4, 5, 6, 7];
+      const dataStructure = getUserData?.map((dataItem) => {
+        return {
+          name: dataItem.name,
+          data: weekArray.map(
+            (item) =>
+              dataItem?.data?.find((item2: any) => item2?.dayNumber === item)
+                ?.count || 0
+          ),
+        };
+      });
       res.json({
         status: "SUCCESS",
         message: "User data get successfully.",
-        data: getUserData,
+        data: dataStructure,
       });
     } catch (error) {
       next(error);
