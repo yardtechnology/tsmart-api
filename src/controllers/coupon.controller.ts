@@ -34,7 +34,14 @@ class CouponController {
   async update(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { couponId } = req.params;
-      const { discountPercent, startDate, endDate } = req.body;
+      const {
+        discountPercent,
+        startDate,
+        endDate,
+        maxUses,
+        title,
+        description,
+      } = req.body;
 
       fieldValidateError(req);
 
@@ -44,6 +51,9 @@ class CouponController {
           discountPercent,
           startDate,
           endDate,
+          maxUses,
+          title,
+          description,
         },
         {
           runValidators: true,
@@ -241,6 +251,26 @@ export const CouponControllerValidation = {
         );
       })
       .withMessage("start date should have to smaller then end date."),
+    body("maxUses")
+      .optional()
+      .isNumeric()
+      .withMessage("maxUses must be number."),
+    body("title")
+      .not()
+      .exists()
+      .withMessage("title is required")
+      .isLength({ min: 3 })
+      .withMessage("title must be at least 3 characters long")
+      .isLength({ max: 20 })
+      .withMessage("title must be at most 20 characters long"),
+    body("description")
+      .not()
+      .exists()
+      .withMessage("description is required")
+      .isLength({ min: 3 })
+      .withMessage("description must be at least 3 characters long")
+      .isLength({ max: 150 })
+      .withMessage("description must be at most 150 characters long"),
   ],
   delete: [
     param("couponId").not().isEmpty().withMessage("couponId is required."),
@@ -268,6 +298,24 @@ export const CouponControllerValidation = {
           : true;
       })
       .withMessage("start date should have to smaller then end date."),
+    body("maxUses")
+      .optional()
+      .isNumeric()
+      .withMessage("maxUses must be number."),
+    body("title")
+      .optional()
+      .exists()
+      .isLength({ min: 3 })
+      .withMessage("title must be at least 3 characters long")
+      .isLength({ max: 20 })
+      .withMessage("title must be at most 20 characters long"),
+    body("description")
+      .optional()
+      .exists()
+      .isLength({ min: 3 })
+      .withMessage("description must be at least 3 characters long")
+      .isLength({ max: 150 })
+      .withMessage("description must be at most 150 characters long"),
   ],
   getAll: [
     query("code")

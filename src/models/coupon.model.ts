@@ -26,6 +26,18 @@ const couponSchema = new Schema<COUPON_TYPE, Model<COUPON_TYPE>>(
         ref: "User",
       },
     ],
+    maxUses: {
+      default: 0,
+      type: Number,
+    },
+    title: {
+      type: String,
+      required: [true, "Title is required."],
+    },
+    description: {
+      type: String,
+      required: [true, "Description is required."],
+    },
   },
   { timestamps: true }
 );

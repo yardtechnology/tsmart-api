@@ -7,4 +7,8 @@ export default interface COUPON_TYPE extends Document {
   endDate: Date;
   maxCashBack: number;
   users?: objectId[];
+  //
+  maxUses: number;
+  title: string;
+  description: string;
 }
