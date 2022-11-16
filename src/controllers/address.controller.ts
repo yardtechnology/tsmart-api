@@ -369,8 +369,8 @@ class Address {
       .withMessage("State must be at most 25 characters long"),
     body("country")
       .optional()
-      .isLength({ min: 3 })
-      .withMessage("Country must be at least 3 characters long")
+      .isLength({ min: 2 })
+      .withMessage("Country must be at least 2 characters long")
       .isLength({ max: 25 })
       .withMessage("Country must be at most 25 characters long"),
     body("type")
