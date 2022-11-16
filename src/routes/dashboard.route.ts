@@ -67,5 +67,16 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.userDashboardController.userLastWeeklyJoin
     );
+
+    this.router.get(
+      "/dashboard/user/technician",
+      super.isAuthenticated,
+      this.userDashboardController.userTechnicianCount
+    );
+    this.router.get(
+      "/dashboard/user/customer",
+      super.isAuthenticated,
+      this.userDashboardController.customerCount
+    );
   }
 }

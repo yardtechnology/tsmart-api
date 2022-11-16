@@ -107,9 +107,86 @@ class UserDashboardController {
       next(error);
     }
   }
+  async userTechnicianCount(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const getAllTechnician = await UserModel.aggregate([
+        {
+          $match: {
+            $expr: {
+              $and: [
+                {
+                  $eq: ["$role", "TECHNICIAN"],
+                },
+                {
+                  $in: ["$status", ["VERIFIED", "PENDING"]],
+                },
+              ],
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$status",
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            status: "$_id",
+            count: 1,
+          },
+        },
+      ]);
+      res.json({
+        status: "SUCCESS",
+        message: "Technician count successfully.",
+        data: getAllTechnician,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async customerCount(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const customerCount = await UserModel.aggregate([
+        {
+          $match: {
+            role: "USER",
+          },
+        },
+        {
+          $group: {
+            _id: "$isOnline",
+            status: {
+              $first: {
+                $cond: [{ $eq: ["$isOnline", true] }, "Online", "Offline"],
+              },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            status: 1,
+            _id: 0,
+            count: 1,
+          },
+        },
+      ]);
+      res.json({
+        status: "SUCCESS",
+        message: "Customer count successfully.",
+        data: customerCount,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
-// export const UserDashboardControllerValidation = {
-
-// };
 
 export default UserDashboardController;
