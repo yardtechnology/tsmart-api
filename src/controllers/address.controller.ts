@@ -1,5 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body, validationResult } from "express-validator";
+import { fieldValidateError } from "../helper";
 import { AddressModel } from "../models/address.model";
 import { StoreModel } from "../models/store.model";
 import AddressType from "../types/address";
@@ -207,16 +208,7 @@ class Address {
   ): Promise<any> {
     try {
       // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
 
       // save user data to database
       const addressData: AddressType | null =
