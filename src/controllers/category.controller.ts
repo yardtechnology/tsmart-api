@@ -151,10 +151,8 @@ class Category extends MediaLogic {
     try {
       // save user data to database
       const query = {
-        parentCategory: req.query.parentCategory,
+        parentCategory: req.query.parentCategory || { $exists: false },
       };
-
-      !req.query.parentCategory && delete query.parentCategory;
 
       const categoryData = await paginationHelper({
         model: CategoryModel,
