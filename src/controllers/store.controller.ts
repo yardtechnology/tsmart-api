@@ -366,10 +366,10 @@ class Store extends MediaLogic {
     next: NextFunction
   ) {
     try {
-      const { serviceId, modelId } = req.body;
-      const servicePriceArrayCheck = Array.isArray(serviceId)
-        ? serviceId?.map((item) => new Types.ObjectId(item))
-        : [serviceId]?.map((item) => new Types.ObjectId(item));
+      const { servicesId, modelId } = req.body;
+      const servicePriceArrayCheck = Array.isArray(servicesId)
+        ? servicesId?.map((item) => new Types.ObjectId(item))
+        : [servicesId]?.map((item) => new Types.ObjectId(item));
 
       const getStore = await StoreModel.aggregate([
         {
@@ -386,9 +386,9 @@ class Store extends MediaLogic {
                       {
                         $in: ["$service", servicePriceArrayCheck],
                       },
-                      // {
-                      //   $eq: ["$model", new Types.ObjectId(modelId)],
-                      // },
+                      {
+                        $eq: ["$model", new Types.ObjectId(modelId)],
+                      },
                     ],
                   },
                 },
@@ -404,6 +404,11 @@ class Store extends MediaLogic {
                 servicePriceArrayCheck?.length,
               ],
             },
+          },
+        },
+        {
+          $project: {
+            servicePrices: 0,
           },
         },
         // {

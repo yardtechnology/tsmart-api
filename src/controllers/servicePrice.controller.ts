@@ -161,6 +161,7 @@ class ServicePrice extends MediaLogic {
           ? servicePriceIds.map((item) => new Types.ObjectId(String(item)))
           : [new Types.ObjectId(String(servicePriceIds))]
         : [];
+      console.log("hit");
 
       const aggregationQuery = [
         {
@@ -308,12 +309,13 @@ class ServicePrice extends MediaLogic {
         },
       ];
       if (role !== "ADMIN") {
-        aggregationQuery.splice(2);
+        aggregationQuery.splice(4);
       }
+
       const servicePriceData = await aggregationData<ServicePriceType>({
         model: ServicePriceModel,
         query: aggregationQuery,
-        position: role !== "ADMIN" ? 1 : 3,
+        position: role !== "ADMIN" ? 3 : 5,
         sort: { createdAt: -1 },
         limit: req.query.limit ? Number(req.query.limit) : undefined,
         chunk: req.query.chunk ? Number(req.query.chunk) : undefined,
@@ -356,6 +358,7 @@ class ServicePrice extends MediaLogic {
         couponCalculation,
         findSelectedServices,
         data: servicePriceData,
+        role,
       });
     } catch (error) {
       next(error);
