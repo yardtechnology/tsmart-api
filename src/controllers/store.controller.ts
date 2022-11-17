@@ -145,7 +145,7 @@ class Store extends MediaLogic {
         super.deleteMedia(storeData?.imagePath);
 
       // send response to client
-      res.status(200).json({
+      res.json({
         status: "SUCCESS",
         message: "Store updated successfully",
         data: storeData,
@@ -171,7 +171,7 @@ class Store extends MediaLogic {
       if (!storeData) throw new Error("Store not found");
 
       // send response to client
-      res.status(200).json({
+      res.json({
         status: "SUCCESS",
         message: "Store found successfully",
         data: storeData,
@@ -196,7 +196,7 @@ class Store extends MediaLogic {
         .sort({ createdAt: -1 });
 
       // send response to client
-      res.status(200).json({
+      res.json({
         status: "SUCCESS",
         message: "All stores found successfully",
         data: categoryData,
@@ -242,7 +242,7 @@ class Store extends MediaLogic {
       });
 
       // send response to client
-      res.status(200).json({
+      res.json({
         status: "SUCCESS",
         message: "Store manager assigned to store successfully",
         data: userData,
@@ -271,7 +271,7 @@ class Store extends MediaLogic {
       if (!userData) throw new Error("Store not found");
 
       // send response to client
-      res.status(200).json({
+      res.json({
         status: "SUCCESS",
         message: "Store manager removed from store successfully",
         data: userData,
@@ -299,7 +299,7 @@ class Store extends MediaLogic {
       if (!userData) throw new Error("Store not found");
 
       // send response to client
-      res.status(200).json({
+      res.json({
         status: "SUCCESS",
         message: "Store managers found successfully",
         data: userData,
@@ -325,7 +325,7 @@ class Store extends MediaLogic {
       if (!data) throw new Error("Hub not found");
 
       // send response to client
-      res.status(200).json({
+      res.json({
         status: "SUCCESS",
         message: "Hub data found successfully",
         data: data,
