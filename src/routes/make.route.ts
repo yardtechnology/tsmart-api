@@ -23,7 +23,7 @@ export default class MakeRoutes extends AuthenticateMiddleware {
     // get all
     this.router.get(
       "/make",
-      super.isAuthenticated,
+      // super.isAuthenticated,
       MakeControllerValidation.getAll,
       this.makeController.getAll
     );

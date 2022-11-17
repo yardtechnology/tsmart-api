@@ -23,7 +23,7 @@ export default class ModelRoutes extends AuthenticateMiddleware {
     // get all
     this.router.get(
       "/model",
-      super.isAuthenticated,
+      // super.isAuthenticated,
       ModelControllerValidation.getAll,
       this.modelController.getAll
     );

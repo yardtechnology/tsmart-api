@@ -23,7 +23,7 @@ export default class DeviceRoutes extends AuthenticateMiddleware {
     // get all
     this.router.get(
       "/device",
-      super.isAuthenticated,
+      // super.isAuthenticated,
       DeviceControllerValidation.getAll,
       this.deviceController.getAll
     );
