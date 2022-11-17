@@ -307,14 +307,14 @@ class ServicePrice extends MediaLogic {
           },
         },
       ];
-      if (role !== "ADMIN") {
-        aggregationQuery.splice(4);
-      }
+      // if (role !== "ADMIN") {
+      //   aggregationQuery.splice(4);
+      // }
 
       const servicePriceData = await aggregationData<ServicePriceType>({
         model: ServicePriceModel,
         query: aggregationQuery,
-        position: role !== "ADMIN" ? 3 : 5,
+        position: 5,
         sort: { createdAt: -1 },
         limit: req.query.limit ? Number(req.query.limit) : undefined,
         chunk: req.query.chunk ? Number(req.query.chunk) : undefined,
