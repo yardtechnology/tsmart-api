@@ -81,15 +81,17 @@ class HolidayLogic {
   public getAll({
     limit,
     chunk,
+    query = {},
   }: {
     limit?: number;
     chunk?: number;
+    query?: any;
   }): Promise<PaginationResult<HolidayType>> {
     return new Promise(async (resolve, reject) => {
       try {
         const Holiday = await paginationHelper<HolidayType>({
           model: HolidayModel,
-          query: {},
+          query: query,
           limit,
           chunk,
           sort: { createdAt: -1 },
