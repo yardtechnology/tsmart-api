@@ -4,7 +4,6 @@ import { Types } from "mongoose";
 import { aggregationData, fieldValidateError } from "../helper";
 import CouponLogic from "../logic/coupon.logic";
 import MediaLogic from "../logic/media.logic";
-import ServiceLogic from "../logic/service.logic";
 import { ServicePriceModel } from "../models/servicePrice.model";
 import { AuthRequest } from "../types/core";
 import ServicePriceType from "../types/servicePrice";
@@ -360,19 +359,6 @@ class ServicePrice extends MediaLogic {
         data: servicePriceData,
         role,
       });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  public async getServiceAmounts(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      const { serviceIds, modelId } = req.body;
-      const getServicesTotalData = await new ServiceLogic();
     } catch (error) {
       next(error);
     }
