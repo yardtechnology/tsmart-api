@@ -351,7 +351,7 @@ class ServicePrice extends MediaLogic {
 
       res.json({
         status: "SUCCESS",
-        message: "Store get successfully",
+        message: "Service price get successfully",
         servicePricesReducer,
         couponCalculation,
         findSelectedServices,
