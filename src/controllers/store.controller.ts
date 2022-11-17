@@ -4,6 +4,7 @@ import { Types } from "mongoose";
 import { fieldValidateError } from "../helper";
 import MediaLogic from "../logic/media.logic";
 import StoreLogic from "../logic/store.logic";
+import { HolidayModel } from "../models";
 import { StoreModel } from "../models/store.model";
 import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
@@ -365,6 +366,229 @@ class Store extends MediaLogic {
     next: NextFunction
   ) {
     try {
+      const { servicePriceId, modelId } = req.body;
+      const servicePriceArrayCheck = Array.isArray(servicePriceId)
+        ? servicePriceId?.map((item) => new Types.ObjectId(item))
+        : [servicePriceId]?.map((item) => new Types.ObjectId(item));
+
+      const getStore = await StoreModel.aggregate([
+        {
+          $lookup: {
+            from: "serviceprices",
+            localField: "_id",
+            foreignField: "store",
+            as: "servicePrices",
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      {
+                        $in: ["$service", new Types.ObjectId()],
+                      },
+                      // {
+                      //   $eq: ["$model", new Types.ObjectId(modelId)],
+                      // },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $eq: [
+                { $size: "$servicePrices" },
+                servicePriceArrayCheck?.length,
+              ],
+            },
+          },
+        },
+        // {
+        //   $lookup: {
+        //     from: "holidays",
+        //     localField: "_id",
+        //     foreignField: "store",
+        //     as: "holidays",
+        //     pipeline: [
+        //       {
+        //         $match: {
+        //           $expr: {
+        //             $and: [
+        //               {
+        //                 $eq: [
+        //                   {
+        //                     $year: "$date",
+        //                   },
+        //                   {
+        //                     $year: new Date(date),
+        //                   },
+        //                 ],
+        //               },
+        //               {
+        //                 $eq: [
+        //                   {
+        //                     $month: "$date",
+        //                   },
+        //                   {
+        //                     $month: new Date(date),
+        //                   },
+        //                 ],
+        //               },
+        //               {
+        //                 $eq: [
+        //                   {
+        //                     $dayOfMonth: "$date",
+        //                   },
+        //                   {
+        //                     $dayOfMonth: new Date(date),
+        //                   },
+        //                 ],
+        //               },
+        //             ],
+        //           },
+        //         },
+        //       },
+        //     ],
+        //   },
+        // },
+
+        // {
+        //   $match: {
+        //     $expr: {
+        //       $lt: [{ $size: "$holidays" }, 1],
+        //     },
+        //   },
+        // },
+        // {
+        //   $lookup: {
+        //     from: "timings",
+        //     localField: "_id",
+        //     foreignField: "store",
+        //     as: "timing",
+        //     pipeline: [
+        //       {
+        //         $addFields: {
+        //           startDateForm: {
+        //             $dateFromParts: {
+        //               year: new Date(date).getFullYear(),
+        //               month: new Date(date).getMonth() + 1,
+        //               day: new Date(date).getDate(),
+        //               hour: {
+        //                 $hour: "$start",
+        //               },
+        //               minute: {
+        //                 $minute: "$start",
+        //               },
+        //             },
+        //           },
+        //           endDateForm: {
+        //             $dateFromParts: {
+        //               year: new Date(date).getFullYear(),
+        //               month: new Date(date).getMonth() + 1,
+        //               day: new Date(date).getDate(),
+        //               hour: {
+        //                 $hour: "$end",
+        //               },
+        //               minute: {
+        //                 $minute: "$end",
+        //               },
+        //             },
+        //           },
+        //         },
+        //       },
+
+        //       {
+        //         $lookup: {
+        //           from: "orders",
+        //           localField: "store",
+        //           foreignField: "storeID",
+        //           as: "orderHave",
+        //           let: {
+        //             startDate: "$startDateForm",
+        //             endDate: "$endDateForm",
+        //             dayOfWeekNumber: "$dayOfWeekNumber",
+        //           },
+        //           pipeline: [
+        //             {
+        //               $match: {
+        //                 $expr: {
+        //                   $and: [
+        //                     {
+        //                       $eq: ["$serviceType", "IN_STOR"],
+        //                     },
+        //                     {
+        //                       $gte: ["$scheduledTime", "$$startDate"],
+        //                     },
+        //                     {
+        //                       $lte: ["$scheduledTime", "$$endDate"],
+        //                     },
+        //                   ],
+        //                 },
+        //               },
+        //             },
+        //           ],
+        //         },
+        //       },
+        //       {
+        //         $addFields: {
+        //           orderHave: {
+        //             $size: "$orderHave",
+        //           },
+        //           leftBooking: {
+        //             $subtract: [
+        //               "$numberOfRepairers",
+        //               {
+        //                 $size: "$orderHave",
+        //               },
+        //             ],
+        //           },
+        //         },
+        //       },
+        //       {
+        //         $match: {
+        //           $expr: {
+        //             $gte: ["$leftBooking", 1],
+        //           },
+        //         },
+        //       },
+        //     ],
+        //   },
+        // },
+        // {
+        //   $match: {
+        //     $expr: {
+        //       $gte: [{ $size: "$timing" }, 1],
+        //     },
+        //   },
+        // },
+        // {
+        //   $project: {
+        //     timing: 0,
+        //     holidays: 0,
+        //     servicePrices: 0,
+        //   },
+        // },
+      ]);
+
+      res.json({
+        status: "SUCCESS",
+        message: "Store get successfully",
+        data: getStore,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  // duplicate it will need in timing function
+  async duplicateDetStoreListAccordingAvailability(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
       const { serviceId, modelId, date } = req.body;
 
       const getStore = await StoreModel.aggregate([
@@ -492,6 +716,7 @@ class Store extends MediaLogic {
                   },
                 },
               },
+
               {
                 $lookup: {
                   from: "orders",
@@ -569,6 +794,112 @@ class Store extends MediaLogic {
         status: "SUCCESS",
         message: "Store get successfully",
         data: getStore,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async lastSevenDay(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { storeId } = req.params;
+      const currentDateRoot = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        new Date().getDate()
+      );
+      const currentDateHigh = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        new Date().getDate(),
+        23,
+        59,
+        59
+      );
+      const holidays = await HolidayModel.aggregate([
+        {
+          $addFields: {
+            sevenDay: [0, 1, 2, 3, 4, 5, 6],
+          },
+        },
+        {
+          $addFields: {
+            sevenDay: {
+              $map: {
+                input: "$sevenDay",
+                as: "singleDay",
+                in: {
+                  startDate: {
+                    $dateAdd: {
+                      startDate: new Date(currentDateRoot),
+                      unit: "day",
+                      amount: "$$singleDay",
+                    },
+                  },
+                  endDate: {
+                    $dateAdd: {
+                      startDate: new Date(currentDateHigh),
+                      unit: "day",
+                      amount: "$$singleDay",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            sevenDay: { $first: "$sevenDay" },
+          },
+        },
+        {
+          $unwind: {
+            path: "$sevenDay",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            startDate: "$sevenDay.startDate",
+            endDate: "$sevenDay.endDate",
+          },
+        },
+        {
+          $lookup: {
+            from: "holidays",
+            as: "holiday",
+            let: {
+              startDate: "$startDate",
+              endDate: "$endDate",
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      {
+                        $eq: ["$store", new Types.ObjectId(storeId)],
+                      },
+                      {
+                        $gte: ["$date", "$$startDate"],
+                      },
+                      {
+                        $lte: ["$date", "$$endDate"],
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ]);
+      res.json({
+        status: "SUCCESS",
+        message: "Store time get successfully",
+        data: holidays,
       });
     } catch (error) {
       next(error);

@@ -4,10 +4,10 @@ import { Types } from "mongoose";
 import { aggregationData, fieldValidateError } from "../helper";
 import CouponLogic from "../logic/coupon.logic";
 import MediaLogic from "../logic/media.logic";
+import ServiceLogic from "../logic/service.logic";
 import { ServicePriceModel } from "../models/servicePrice.model";
 import { AuthRequest } from "../types/core";
 import ServicePriceType from "../types/servicePrice";
-import ServiceLogic from "../logic/service.logic";
 
 class ServicePrice extends MediaLogic {
   // create servicePrice
@@ -193,6 +193,20 @@ class ServicePrice extends MediaLogic {
           },
         },
         {
+          $lookup: {
+            from: "services",
+            localField: "service",
+            foreignField: "_id",
+            as: "service",
+          },
+        },
+        {
+          $unwind: {
+            path: "$service",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
           $group: {
             _id: {
               service: "$service",
@@ -336,12 +350,12 @@ class ServicePrice extends MediaLogic {
           : undefined;
 
       res.json({
-        success: {
-          servicePricesReducer,
-          couponCalculation,
-          findSelectedServices,
-          data: servicePriceData,
-        },
+        status: "SUCCESS",
+        message: "Store get successfully",
+        servicePricesReducer,
+        couponCalculation,
+        findSelectedServices,
+        data: servicePriceData,
       });
     } catch (error) {
       next(error);
