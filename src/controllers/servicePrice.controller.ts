@@ -380,7 +380,7 @@ class ServicePrice extends MediaLogic {
       const { servicePriceIds, couponId } = req.body;
       fieldValidateError(req);
 
-      const dataServiceSummery = await new ServiceLogic().getPriceBYServiceId({
+      let dataServiceSummery = await new ServiceLogic().getPriceBYServiceId({
         servicePriceId: servicePriceIds,
       });
       const couponCalculation =
@@ -390,6 +390,8 @@ class ServicePrice extends MediaLogic {
               price: dataServiceSummery?.salePrice,
             })
           : undefined;
+      dataServiceSummery.salePrice =
+        dataServiceSummery.salePrice - (couponCalculation || 0);
 
       res.json({
         status: "SUCCESS",

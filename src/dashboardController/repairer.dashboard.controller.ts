@@ -116,15 +116,108 @@ class RepairerDashboardController {
           },
         },
         {
+          $unwind: {
+            path: "$lastSevenYear",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
           $project: {
             _id: 0,
+            startDate: "$lastSevenYear.startDate",
+            endDate: "$lastSevenYear.endDate",
+            year: { $year: "$lastSevenYear.startDate" },
           },
+        },
+        {
+          $lookup: {
+            from: "orders",
+            as: "orders",
+            let: {
+              startDate: "$startDate",
+              endDate: "$endDate",
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      {
+                        $ifNull: ["$serviceType", false],
+                      },
+                      {
+                        $gte: ["$createdAt", "$$startDate"],
+                      },
+                      {
+                        $lte: ["$createdAt", "$$endDate"],
+                      },
+                    ],
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: "$serviceType",
+                  count: { $sum: 1 },
+                },
+              },
+              {
+                $project: {
+                  name: "$_id",
+                  count: 1,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $project: {},
         },
       ]);
       res.json({
         status: "SUCCESS",
         message: "Repairer status data get successfully",
         data: lastSevenYearData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async card(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const inStoreRepairer = await OrderModel.find({
+        serviceType: "IN_STOR",
+      }).count();
+      const mailInRepairer = await OrderModel.find({
+        serviceType: "MAIL_IN",
+      }).count();
+      const callOutRepairer = await OrderModel.find({
+        serviceType: "CALL_OUT",
+      }).count();
+      const completeRepairer = await OrderModel.find({
+        serviceType: { $exists: true },
+        status: "COMPLETED",
+      }).count();
+      const onGoingRepairer = await OrderModel.find({
+        serviceType: { $exists: true },
+        status: { $nin: ["COMPLETED", "CANCELLED"] },
+      }).count();
+      const cancelRepairer = await OrderModel.find({
+        serviceType: { $exists: true },
+        status: "CANCELLED",
+      }).count();
+
+      res.json({
+        status: "SUCCESS",
+        message: "Repairer status data get successfully",
+        data: {
+          inStoreRepairer,
+          mailInRepairer,
+          callOutRepairer,
+          completeRepairer,
+          onGoingRepairer,
+          cancelRepairer,
+        },
       });
     } catch (error) {
       next(error);

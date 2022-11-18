@@ -122,5 +122,10 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.repairerDashboardController.lastSevenYearData
     );
+    this.router.get(
+      "/dashboard/repairer/card",
+      super.isAuthenticated,
+      this.repairerDashboardController.card
+    );
   }
 }
