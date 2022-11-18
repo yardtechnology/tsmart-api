@@ -153,6 +153,14 @@ class ServicePrice extends MediaLogic {
       fieldValidateError(req);
 
       const { model } = req.params;
+      const { serviceId } = req.query;
+      const serviceArg = [];
+      serviceId &&
+        serviceArg.push({
+          $match: {
+            service: new Types.ObjectId(String(serviceId)),
+          },
+        });
 
       const { servicePriceIds, couponId } = req.query;
       const checkArrayServicePriceId = servicePriceIds
@@ -160,7 +168,6 @@ class ServicePrice extends MediaLogic {
           ? servicePriceIds.map((item) => new Types.ObjectId(String(item)))
           : [new Types.ObjectId(String(servicePriceIds))]
         : [];
-      console.log("hit");
 
       const aggregationQuery = [
         {
@@ -192,6 +199,9 @@ class ServicePrice extends MediaLogic {
             ],
           },
         },
+        // extra
+        ...serviceArg,
+        // extra end
         {
           $lookup: {
             from: "services",
@@ -356,7 +366,7 @@ class ServicePrice extends MediaLogic {
         servicePricesReducer,
         couponCalculation,
         findSelectedServices,
-        data: servicePriceData,
+        data: serviceId ? servicePriceData?.data?.[0] : servicePriceData,
         role,
       });
     } catch (error) {

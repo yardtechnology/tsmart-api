@@ -407,4 +407,30 @@ export default class StoreDashboardController {
       next(error);
     }
   }
+  async totalStore(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const totalStore = await StoreModel.find().count();
+      res.json({
+        status: "SUCCESS",
+        message: "Store count get successfully.",
+        data: totalStore,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async totalManager(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const totalManager = await UserModel.find({
+        role: "MANAGER",
+      }).count();
+      res.json({
+        status: "SUCCESS",
+        message: "Manager count get successfully.",
+        data: totalManager,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

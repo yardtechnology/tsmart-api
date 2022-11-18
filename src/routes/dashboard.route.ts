@@ -88,6 +88,18 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.storeDashboardController.monthlyStatus
     );
+    // total store
+    this.router.get(
+      "/dashboard/store/total-store",
+      super.isAuthenticated,
+      this.storeDashboardController.totalStore
+    );
+    // total manager
+    this.router.get(
+      "/dashboard/store/total-manager",
+      super.isAuthenticated,
+      this.storeDashboardController.totalManager
+    );
     //
   }
 }
