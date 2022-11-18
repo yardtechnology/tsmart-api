@@ -395,7 +395,7 @@ class ServicePrice extends MediaLogic {
         status: "SUCCESS",
         message: "Service price get successfully",
 
-        data: { ...dataServiceSummery, couponCalculation },
+        data: { couponCalculation, ...dataServiceSummery },
       });
     } catch (error) {
       next(error);

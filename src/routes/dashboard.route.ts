@@ -100,6 +100,12 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.storeDashboardController.totalManager
     );
+    // total manager Assign
+    this.router.get(
+      "/dashboard/store/manager-assign",
+      super.isAuthenticated,
+      this.storeDashboardController.assignManager
+    );
     //
   }
 }

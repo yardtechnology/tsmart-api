@@ -17,6 +17,7 @@ export default class ServiceLogic {
   }): Promise<{
     mrpPrice: number;
     salePrice: number;
+    allService: any[];
   }> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -74,6 +75,7 @@ export default class ServiceLogic {
               },
             },
           },
+
           {
             $unwind: {
               path: "$servicePrices",
@@ -81,19 +83,60 @@ export default class ServiceLogic {
             },
           },
           {
-            $group: {
-              _id: null,
-              mrp: { $sum: "$servicePrices.mrp" },
-              salePrice: { $sum: "$servicePrices.salePrice" },
+            $lookup: {
+              from: "services",
+              localField: "servicePrices.service",
+              foreignField: "_id",
+              as: "servicePrices.service",
+              pipeline: [
+                {
+                  $project: {
+                    title: 1,
+                    description: 1,
+                    image: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $unwind: {
+              path: "$servicePrices.service",
+              preserveNullAndEmptyArrays: false,
+            },
+          },
+
+          {
+            $project: {
+              service: "$servicePrices.service",
+              mrp: "$servicePrices.mrp",
+              salePrice: "$servicePrices.salePrice",
+              isInStock: "$servicePrices.isInStock",
+              store: "$servicePrices.store",
+              type: "$servicePrices.type",
+              isMostPopular: "$servicePrices.isMostPopular",
+              _id: 0,
             },
           },
         ]);
         if (!getServices.length)
           throw new Error("No service found for this model.");
 
+        const servicePrice = getServices?.reduce(
+          (acc, element) => {
+            acc.mrpPrice = element?.mrp || 0;
+            acc.salePrice = element?.salePrice || 0;
+            return acc;
+          },
+          {
+            mrpPrice: 0,
+            salePrice: 0,
+          }
+        );
+
         return resolve({
-          mrpPrice: getServices?.[0]?.mrp || 0,
-          salePrice: getServices?.[0]?.salePrice || 0,
+          ...servicePrice,
+          allService: getServices,
         });
       } catch (error) {
         reject(error);
