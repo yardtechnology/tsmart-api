@@ -5,17 +5,15 @@ export default class ServiceLogic {
   /**
    * Services logic
    *
-   * @param  Props{modelId?: string, serviceIds: string[]}
+   * @param  Props{ servicePriceId: string[]}
    * @return Promise<{mrpPrice:number,salePrice:number}>
    * 'mrpPrice' : It is sum of
    * 'salePrice' : It is the sum of the sale price
    */
   getPriceBYServiceId({
-    modelId,
-    serviceIds,
+    servicePriceId,
   }: {
-    serviceIds: string[];
-    modelId: string;
+    servicePriceId: string[];
   }): Promise<{
     mrpPrice: number;
     salePrice: number;
@@ -29,22 +27,64 @@ export default class ServiceLogic {
                 $and: [
                   {
                     $in: [
-                      "$service",
-                      serviceIds.map((item) => new Types.ObjectId(item)),
+                      "$_id",
+                      servicePriceId?.map((item) => new Types.ObjectId(item)),
                     ],
-                  },
-                  {
-                    $eq: ["$model", new Types.ObjectId(modelId)],
                   },
                 ],
               },
             },
           },
           {
+            $addFields: {
+              servicePrices: servicePriceId,
+            },
+          },
+          {
             $group: {
-              _id: "$service",
-              mrp: { $sum: "$mrp" },
-              salePrice: { $sum: "$salePrice" },
+              _id: null,
+              allData: { $push: "$$ROOT" },
+              servicePrices: { $first: "$servicePrices" },
+            },
+          },
+          {
+            $addFields: {
+              servicePrices: {
+                $map: {
+                  input: "$servicePrices",
+                  as: "service",
+                  in: {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: "$allData",
+                          as: "serviceId",
+                          cond: {
+                            $eq: [
+                              "$$serviceId._id",
+                              { $toObjectId: "$$service" },
+                            ],
+                          },
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                },
+              },
+            },
+          },
+          {
+            $unwind: {
+              path: "$servicePrices",
+              preserveNullAndEmptyArrays: false,
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              mrp: { $sum: "$servicePrices.mrp" },
+              salePrice: { $sum: "$servicePrices.salePrice" },
             },
           },
         ]);
@@ -53,7 +93,7 @@ export default class ServiceLogic {
 
         return resolve({
           mrpPrice: getServices?.[0]?.mrp || 0,
-          salePrice: getServices?.[1]?.salePrice || 0,
+          salePrice: getServices?.[0]?.salePrice || 0,
         });
       } catch (error) {
         reject(error);

@@ -1,9 +1,10 @@
 import { NextFunction, Response } from "express";
-import { body, param } from "express-validator";
+import { body, param, query } from "express-validator";
 import { Types } from "mongoose";
 import { aggregationData, fieldValidateError } from "../helper";
 import CouponLogic from "../logic/coupon.logic";
 import MediaLogic from "../logic/media.logic";
+import ServiceLogic from "../logic/service.logic";
 import { ServicePriceModel } from "../models/servicePrice.model";
 import { AuthRequest } from "../types/core";
 import ServicePriceType from "../types/servicePrice";
@@ -373,6 +374,33 @@ class ServicePrice extends MediaLogic {
       next(error);
     }
   }
+  // service summery
+  async serviceSummery(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { servicePriceIds, couponId } = req.body;
+      fieldValidateError(req);
+
+      const dataServiceSummery = await new ServiceLogic().getPriceBYServiceId({
+        servicePriceId: servicePriceIds,
+      });
+      const couponCalculation =
+        dataServiceSummery?.salePrice && couponId
+          ? await new CouponLogic().getCouponDiscount({
+              couponId: String(couponId),
+              price: dataServiceSummery?.salePrice,
+            })
+          : undefined;
+
+      res.json({
+        status: "SUCCESS",
+        message: "Service price get successfully",
+
+        data: { ...dataServiceSummery, couponCalculation },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   //   get all servicePrice by make
   // public async getServicePricesByModel(
@@ -495,6 +523,24 @@ export const ServicePriceControllerValidation = {
       .withMessage("model id is required.")
       .isMongoId()
       .withMessage("model must be mongoose id."),
+    query("serviceId")
+      .optional()
+      .exists()
+      .isMongoId()
+      .withMessage("serviceId is must be mongoose id."),
+  ],
+  serviceSummery: [
+    body("servicePriceIds.*")
+      .not()
+      .isEmpty()
+      .withMessage("servicePriceIds is required")
+      .isMongoId()
+      .withMessage("servicePriceIds must be mongoes id"),
+    body("couponId")
+      .optional()
+      .exists()
+      .isMongoId()
+      .withMessage("couponId must be mongoose id."),
   ],
 };
 

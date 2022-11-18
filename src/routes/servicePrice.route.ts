@@ -49,6 +49,13 @@ class ServicePrice extends AuthenticateMiddleware {
       this.servicePriceController.getServicePrice
     );
 
+    this.router.post(
+      "/service-price/summery",
+      super.isAuthenticated,
+      ServicePriceControllerValidation.serviceSummery,
+      this.servicePriceController.serviceSummery
+    );
+
     this.router.delete(
       "/service-price/:servicePriceId",
       super.isAuthenticated,
