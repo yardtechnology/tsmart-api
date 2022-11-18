@@ -124,8 +124,8 @@ export default class ServiceLogic {
 
         const servicePrice = getServices?.reduce(
           (acc, element) => {
-            acc.mrpPrice = element?.mrp || 0;
-            acc.salePrice = element?.salePrice || 0;
+            acc.mrpPrice = acc.mrpPrice + element?.mrp || 0;
+            acc.salePrice = acc.salePrice + element?.salePrice || 0;
             return acc;
           },
           {
