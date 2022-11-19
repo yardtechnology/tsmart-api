@@ -22,7 +22,8 @@ class Bank {
         {
           fullName: req.body?.fullName,
           accountNumber: req.body?.accountNumber,
-          sortCode: req.body?.sortCode,
+          SORDCode: req.body?.SORDCode,
+          bankName: req.body?.bankName,
           user: req.currentUser?._id,
         }
       );
@@ -31,7 +32,7 @@ class Bank {
         bankData = await new BankModel({
           fullName: req.body?.fullName,
           accountNumber: req.body?.accountNumber,
-          sortCode: req.body?.sortCode,
+          SORDCode: req.body?.SORDCode,
           user: req.currentUser?._id,
         }).save();
       }
@@ -113,6 +114,30 @@ class Bank {
       .withMessage("[fullName]:Full name must be at least 3 characters long")
       .isLength({ max: 25 })
       .withMessage("[fullName]:Full name must be at most 25 characters long"),
+    body("accountNumber")
+      .not()
+      .isEmpty()
+      .withMessage("accountNumber is required.")
+      .isLength({ min: 8 })
+      .withMessage("accountNumber most be 8 digit.")
+      .isLength({ max: 8 })
+      .withMessage("accountNumber most be 8 digit."),
+    body("SORDCode")
+      .not()
+      .isEmpty()
+      .withMessage("SORDCode is required.")
+      .isLength({ min: 6 })
+      .withMessage("SORDCode most be 6 digit.")
+      .isLength({ max: 6 })
+      .withMessage("SORDCode most be 6 digit."),
+    body("bankName")
+      .not()
+      .isEmpty()
+      .withMessage("bankName is required.")
+      .isLength({ min: 1 })
+      .withMessage("[bankName]:Full name must be at least 1 characters long")
+      .isLength({ max: 125 })
+      .withMessage("[bankName]:Full name must be at most 125 characters long"),
   ];
 }
 
