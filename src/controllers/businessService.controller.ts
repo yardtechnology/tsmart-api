@@ -90,23 +90,19 @@ export const BusinessServiceControllerValidation = {
       .withMessage("name must be at least 3 characters long")
       .isLength({ max: 60 })
       .withMessage("name must be at most 60 characters long"),
-
     body("phoneNumber")
       .optional()
       .isLength({ min: 3 })
       .withMessage("phoneNumber must be at least 3 characters long")
       .isLength({ max: 20 })
       .withMessage("phoneNumber must be at most 20 characters long"),
-
     body("email")
       .not()
       .isEmpty()
       .withMessage("email is required.")
       .isEmail()
       .withMessage("Email is not valid."),
-
     body("countryCode").optional(),
-
     body("companyName")
       .not()
       .isEmpty()
@@ -115,7 +111,6 @@ export const BusinessServiceControllerValidation = {
       .withMessage("companyName must be at least 3 characters long")
       .isLength({ max: 100 })
       .withMessage("companyName must be at most 100 characters long"),
-
     body("companyRegNumber")
       .not()
       .isEmpty()
