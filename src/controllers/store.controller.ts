@@ -352,7 +352,7 @@ class Store extends MediaLogic {
       });
       res.json({
         status: "SUCCESS",
-        message: "Hub data found successfully",
+        message: "According to the service store found successfully.",
         data: getAllStore,
       });
     } catch (error) {

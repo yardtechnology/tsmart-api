@@ -174,6 +174,15 @@ class CouponController {
             },
           },
         ]);
+      isActive &&
+        (query["$and"] = [
+          {
+            startDate: { $lte: new Date() },
+          },
+          {
+            endDate: { $gte: new Date() },
+          },
+        ]);
 
       const getAllData = await paginationHelper({
         model: CouponSchema,
