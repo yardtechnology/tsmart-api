@@ -252,6 +252,14 @@ export const ModelControllerValidation = {
       .isMongoId()
       .withMessage("makeId is not valid mongoose id."),
   ],
+  delete: [
+    param("modelId")
+      .not()
+      .isEmpty()
+      .withMessage("modelId is required.")
+      .isMongoId()
+      .withMessage("modelId most be mongoose id"),
+  ],
 };
 
 export default ModelController;
