@@ -136,10 +136,15 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.refurbishedDashboardController.refurbishedByCategory
     );
-    // this.router.get(
-    //   "/dashboard/refurbished/category-graph",
-    //   super.isAuthenticated,
-    //   this.refurbishedDashboardController.refurbishedByCategory
-    // );
+    this.router.get(
+      "/dashboard/refurbished/top-brand",
+      super.isAuthenticated,
+      this.refurbishedDashboardController.topBrands
+    );
+    this.router.get(
+      "/dashboard/refurbished/card",
+      super.isAuthenticated,
+      this.refurbishedDashboardController.card
+    );
   }
 }
