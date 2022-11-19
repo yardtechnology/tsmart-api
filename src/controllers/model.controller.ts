@@ -17,7 +17,12 @@ class ModelController extends MediaLogic {
   ): Promise<any> {
     try {
       fieldValidateError(req);
-      const { type } = req.body;
+      const { types } = req.body;
+      const typesArrayCheck = types
+        ? Array.isArray(types)
+          ? types
+          : [types]
+        : [];
       // upload model picture
       const imageFile = req.files?.image;
       const filePath = `${req.currentUser?._id}`;
@@ -37,7 +42,7 @@ class ModelController extends MediaLogic {
           imagePath: imageData?.path,
           device: req.body?.deviceId,
           make: req.body?.makeId,
-          $addToSet: { type: type },
+          $addToSet: { type: { $each: typesArrayCheck } },
         },
         {
           new: true,
@@ -47,7 +52,9 @@ class ModelController extends MediaLogic {
       );
       if (!modelData)
         throw new NotFound(
-          `You are already added on ${type}, You can not add again here.`
+          `You are already added on ${types.join(
+            ","
+          )}, You can not add again here.`
         );
 
       // send response to client
@@ -206,13 +213,13 @@ export const ModelControllerValidation = {
       .exists()
       .isMongoId()
       .withMessage("modelId most be mongoose id."),
-    query("type")
+    query("types.*")
       .optional()
       .exists()
       .custom((value) =>
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
-      .withMessage("type most be SERVICE or SELL."),
+      .withMessage("type most be SERVICE or SELL or both."),
     query("searchTitle").optional().exists().toUpperCase(),
     query("deviceId")
       .optional()

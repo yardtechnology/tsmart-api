@@ -12,9 +12,15 @@ class DeviceController {
     let imageData: any | undefined;
     try {
       fieldValidateError(req);
-      const { title, type } = req.body;
+      const { title, types } = req.body;
       const imageFile = req?.files?.image;
       const filePath = `Device`;
+
+      const typesArrayCheck = types
+        ? Array.isArray(types)
+          ? types
+          : [types]
+        : [];
 
       imageData =
         imageFile && !Array.isArray(imageFile)
@@ -27,7 +33,7 @@ class DeviceController {
         {
           image: imageData?.url,
           imagePATH: imageData?.path,
-          $addToSet: { type: type?.toUpperCase() },
+          $addToSet: { type: { $each: typesArrayCheck } },
         },
         {
           new: true,
@@ -37,7 +43,9 @@ class DeviceController {
       );
       if (!createDevice)
         throw new NotFound(
-          `You are already added on ${type}, You can not add again here.`
+          `You are already added on ${typesArrayCheck?.join(
+            ","
+          )}, You can not add again here.`
         );
       res.json({
         status: "SUCCESS",
@@ -120,13 +128,14 @@ export const DeviceControllerValidation = {
       .withMessage("title is required.")
       .toUpperCase()
       .trim(),
-    body("type")
+
+    body("types.*")
       .optional()
       .exists()
-      .custom((value) =>
-        Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
-      )
-      .withMessage("type most be SERVICE or SELL."),
+      .toUpperCase()
+      .custom((value) => Boolean(["SERVICE", "SELL"].includes(value)))
+
+      .withMessage("types most be array which content SERVICE or SELL both."),
   ],
   removeServiceType: [
     param("deviceId")

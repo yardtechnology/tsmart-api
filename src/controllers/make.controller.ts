@@ -12,16 +12,22 @@ class MakeController {
     let imageData: any | undefined;
     try {
       fieldValidateError(req);
-      const { title, deviceId, type } = req.body;
+      const { title, deviceId, types } = req.body;
       const imageFile = req?.files?.image;
       const filePath = `Make`;
+
+      const typesArrayCheck = types
+        ? Array.isArray(types)
+          ? types
+          : [types]
+        : [];
 
       imageData =
         imageFile && !Array.isArray(imageFile)
           ? await new MediaLogic().uploadMedia(imageFile, filePath)
           : undefined;
       const pushDataObject: any = {};
-      type && (pushDataObject.type = type);
+      types && (pushDataObject.type = { $each: typesArrayCheck });
       deviceId && (pushDataObject.devices = deviceId);
 
       const createDevice = await MakeSchema.findOneAndUpdate(
@@ -39,7 +45,9 @@ class MakeController {
 
       if (!createDevice)
         throw new NotFound(
-          `You are already added on ${type}, You can not add again here.`
+          `You are already added on ${types.join(
+            ","
+          )}, You can not add again here.`
         );
       res.json({
         status: "SUCCESS",
@@ -142,17 +150,13 @@ export const MakeControllerValidation = {
       .exists()
       .isMongoId()
       .withMessage("deviceId most be mongoose id."),
-    body("type")
-      .not()
-      .isEmpty()
-      .withMessage("type is required.")
+    body("types.*")
+      .optional()
       .exists()
-      .withMessage("type is required.")
+      .toUpperCase()
+      .custom((value) => Boolean(["SERVICE", "SELL"].includes(value)))
 
-      .custom((value) =>
-        Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
-      )
-      .withMessage("type most be SERVICE or SELL."),
+      .withMessage("types most be array which content SERVICE or SELL both."),
   ],
   removeServiceType: [
     param("makeId")

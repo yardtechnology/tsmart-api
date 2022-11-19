@@ -1,5 +1,6 @@
 import { NextFunction, Response } from "express";
-import { body, validationResult } from "express-validator";
+import { body } from "express-validator";
+import { fieldValidateError } from "../helper";
 import { BankModel } from "../models/bank.model";
 import BankType from "../types/bank";
 import { AuthRequest } from "../types/core";
@@ -13,16 +14,7 @@ class Bank {
   ): Promise<any> {
     try {
       // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
 
       // save bank data to database
       let bankData = await BankModel.findOne(
@@ -64,16 +56,7 @@ class Bank {
   ): Promise<any> {
     try {
       // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
 
       const bankData: BankType | null = await BankModel.findOne({
         user: req.currentUser?._id,
@@ -101,16 +84,7 @@ class Bank {
   ): Promise<any> {
     try {
       // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
 
       // save bank data to database
       const bankData: BankType | null = await BankModel.findOneAndDelete({
