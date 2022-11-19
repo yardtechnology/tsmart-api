@@ -83,7 +83,7 @@ class ModelController extends MediaLogic {
         { _id: modelId, type: { $in: typesArrayCheck } },
         {
           $pull: {
-            type: { $each: typesArrayCheck },
+            type: { $in: typesArrayCheck },
           },
         },
         {
@@ -147,6 +147,21 @@ class ModelController extends MediaLogic {
           ? "model found successfully."
           : "All model found successfully.",
         data: modelId ? getAllData?.data?.[0] : getAllData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async delete(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { modelId } = req.params;
+      fieldValidateError(req);
+      const deleteModel = await ModelModel.findByIdAndDelete(modelId);
+      if (!deleteModel) throw new Error("Model not found for delete.");
+      res.json({
+        status: "SUCCESS",
+        message: "Model deleted successfully",
+        data: deleteModel,
       });
     } catch (error) {
       next(error);

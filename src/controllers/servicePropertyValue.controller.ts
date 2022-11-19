@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body, param, query } from "express-validator";
-import { InternalServerError, NotFound } from "http-errors";
+import { NotFound } from "http-errors";
 import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import { ServicePropertyValueSchema } from "../models";
@@ -10,22 +10,23 @@ class ServicePropertyValueController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       fieldValidateError(req);
-      const { value, servicePriceId, servicePropertyId } = req.body;
+      const { allServices, value, servicePriceId, servicePropertyId } =
+        req.body;
 
-      const createServicePropertyValue =
-        await ServicePropertyValueSchema.create({
-          value,
-          servicePrice: servicePriceId,
-          serviceProperty: servicePropertyId,
-        });
-      if (!createServicePropertyValue)
-        throw new InternalServerError(
-          "Something went wrong, Service property value is not created."
-        );
+      // const createServicePropertyValue =
+      //   await ServicePropertyValueSchema.create({
+      //     value,
+      //     servicePrice: servicePriceId,
+      //     serviceProperty: servicePropertyId,
+      //   });
+      // if (!createServicePropertyValue)
+      //   throw new InternalServerError(
+      //     "Something went wrong, Service property value is not created."
+      //   );
       res.json({
         status: "SUCCESS",
         message: "Service property value is created successfully.",
-        data: createServicePropertyValue,
+        // data: createServicePropertyValue,
       });
     } catch (error) {
       next(error);

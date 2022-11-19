@@ -75,7 +75,7 @@ class DeviceController {
         { _id: deviceId, type: { $in: typesArrayCheck } },
         {
           $pull: {
-            type: { $each: typesArrayCheck },
+            type: { $in: typesArrayCheck },
           },
         },
         {
@@ -122,6 +122,21 @@ class DeviceController {
           ? `Device found successfully`
           : "All devices found successfully.s",
         data: deviceId ? getAllData?.data?.[0] : getAllData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async delete(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { deviceId } = req.params;
+      fieldValidateError(req);
+      const deleteDevice = await DevicesSchema.findByIdAndDelete(deviceId);
+      if (!deleteDevice) throw new Error("Device not found for delete.");
+      res.json({
+        status: "SUCCESS",
+        message: "Device deleted successfully",
+        data: deleteDevice,
       });
     } catch (error) {
       next(error);
@@ -175,6 +190,14 @@ export const DeviceControllerValidation = {
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
       .withMessage("type most be SERVICE or SELL."),
+  ],
+  delete: [
+    param("deviceId")
+      .not()
+      .isEmpty()
+      .withMessage("deviceId is required.")
+      .isMongoId()
+      .withMessage("deviceId most be mongoose id"),
   ],
 };
 

@@ -77,7 +77,7 @@ class MakeController {
         { _id: makeId, type: { $in: typesArrayCheck } },
         {
           $pull: {
-            type: { $each: typesArrayCheck },
+            type: { $in: typesArrayCheck },
           },
         },
         {
@@ -131,12 +131,27 @@ class MakeController {
           createdAt: -1,
         },
       });
-      res.status(200).json({
+      res.json({
         status: "SUCCESS",
         message: makeId
           ? "make found successfully."
           : "All make found successfully.",
         data: makeId ? getAllData?.data?.[0] : getAllData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async delete(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { makeId } = req.params;
+      fieldValidateError(req);
+      const deleteMake = await MakeSchema.findByIdAndDelete(makeId);
+      if (!deleteMake) throw new Error("Make not found for delete.");
+      res.json({
+        status: "SUCCESS",
+        message: "Make deleted successfully",
+        data: deleteMake,
       });
     } catch (error) {
       next(error);
@@ -207,6 +222,14 @@ export const MakeControllerValidation = {
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
       .withMessage("serviceType most be SERVICE or SELL."),
+  ],
+  delete: [
+    param("makeId")
+      .not()
+      .isEmpty()
+      .withMessage("makeId is required.")
+      .isMongoId()
+      .withMessage("makeId most be mongoose id"),
   ],
 };
 
