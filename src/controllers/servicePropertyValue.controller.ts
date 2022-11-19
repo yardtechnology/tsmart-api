@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body, param, query } from "express-validator";
-import { NotFound } from "http-errors";
+import { InternalServerError, NotFound } from "http-errors";
 import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import { ServicePropertyValueSchema } from "../models";
@@ -10,19 +10,14 @@ class ServicePropertyValueController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       fieldValidateError(req);
-      const { allServices, value, servicePriceId, servicePropertyId } =
-        req.body;
+      const { allServices } = req.body;
 
-      // const createServicePropertyValue =
-      //   await ServicePropertyValueSchema.create({
-      //     value,
-      //     servicePrice: servicePriceId,
-      //     serviceProperty: servicePropertyId,
-      //   });
-      // if (!createServicePropertyValue)
-      //   throw new InternalServerError(
-      //     "Something went wrong, Service property value is not created."
-      //   );
+      const createServicePropertyValue =
+        await ServicePropertyValueSchema.insertMany(allServices);
+      if (!createServicePropertyValue)
+        throw new InternalServerError(
+          "Something went wrong, Service property value is not created."
+        );
       res.json({
         status: "SUCCESS",
         message: "Service property value is created successfully.",
@@ -120,7 +115,7 @@ class ServicePropertyValueController {
 }
 export const ServicePropertyValueControllerValidation = {
   create: [
-    body("value")
+    body("allServices.*.value")
       .not()
       .isEmpty()
       .withMessage("value is required.")
@@ -128,13 +123,13 @@ export const ServicePropertyValueControllerValidation = {
       .withMessage("value must be at least 3 character.")
       .isLength({ max: 700 })
       .withMessage("value must be at most 700 characters long"),
-    body("servicePriceId")
+    body("allServices.*.servicePriceId")
       .not()
       .isEmpty()
       .withMessage("servicePriceId is required.")
       .isMongoId()
       .withMessage("servicePriceId must be mongoose Id."),
-    body("servicePropertyId")
+    body("allServices.*.servicePropertyId")
       .not()
       .isEmpty()
       .withMessage("servicePropertyId is required.")
