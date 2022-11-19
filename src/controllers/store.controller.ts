@@ -360,7 +360,7 @@ class Store extends MediaLogic {
     }
   }
 
-  async getStoreListAccordingAvailability(
+  async getStoreListAccordingServiceAvailability(
     req: AuthRequest,
     res: Response,
     next: NextFunction
@@ -393,6 +393,11 @@ class Store extends MediaLogic {
                   },
                 },
               },
+              {
+                $group: {
+                  _id: "$service",
+                },
+              },
             ],
           },
         },
@@ -409,8 +414,13 @@ class Store extends MediaLogic {
         {
           $project: {
             servicePrices: 0,
+            type: 0,
+            imagePath: 0,
+            __v: 0,
           },
         },
+
+        //
         // {
         //   $lookup: {
         //     from: "holidays",

@@ -77,18 +77,18 @@ class Category extends AuthenticateMiddleware {
     );
 
     // get store list according availability and time
-    this.router.post(
-      "/store/time-availability",
-      super.isAuthenticated,
-      storeControlValidator.getStoreListAccordingAvailability,
-      this.storeController.getStoreListAccordingAvailability
-    );
+    // this.router.post(
+    //   "/store/time-availability",
+    //   super.isAuthenticated,
+    //   storeControlValidator.getStoreListAccordingAvailability,
+    //   this.storeController.getStoreListAccordingAvailability
+    // );
     // get service store
     this.router.post(
       "/store/service-store",
       super.isAuthenticated,
       storeControlValidator.getStoreListAccordingAvailability,
-      this.storeController.getStoreListAccordingAvailability
+      this.storeController.getStoreListAccordingServiceAvailability
     );
     // last seven days
     this.router.get(
