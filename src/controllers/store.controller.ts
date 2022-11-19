@@ -997,7 +997,7 @@ export const storeControlValidator = {
       .withMessage("serviceId is required.")
       .isMongoId()
       .withMessage("serviceId must be mongoose id."),
-    body("modelId.*")
+    query("modelId.*")
       .not()
       .isEmpty()
       .withMessage("modelId is required.")
