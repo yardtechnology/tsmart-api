@@ -89,15 +89,6 @@ class ContactUsController {
 }
 export const ContactUsControllerValidation = {
   create: [
-    body("email")
-      .not()
-      .isEmpty()
-      .withMessage("email is required.")
-      .isEmail()
-      .withMessage("email is not formatted."),
-    body("phoneNumber").not().isEmpty().withMessage("phoneNumber is required."),
-    body("countryCode").not().isEmpty().withMessage("countryCode is required."),
-    body("subject").not().isEmpty().withMessage("subject is required."),
     body("message")
       .not()
       .isEmpty()
@@ -114,14 +105,6 @@ export const ContactUsControllerValidation = {
       .withMessage("subject must be at least 3 characters long")
       .isLength({ max: 100 })
       .withMessage("subject must be at most 100 characters long"),
-    body("name")
-      .not()
-      .isEmpty()
-      .withMessage("name is required.")
-      .isLength({ min: 3 })
-      .withMessage("name must be at least 3 characters long")
-      .isLength({ max: 100 })
-      .withMessage("name must be at most 100 characters long"),
     body("storeId")
       .optional()
       .isMongoId()
