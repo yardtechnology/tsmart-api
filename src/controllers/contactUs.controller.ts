@@ -4,26 +4,21 @@ import { InternalServerError, NotFound } from "http-errors";
 import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import { ContactUsSchema } from "../models";
+import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
 
 class ContactUsController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       fieldValidateError(req);
-      const {
-        email,
-        phoneNumber,
-        countryCode,
-        subject,
-        message,
-        name,
-        storeId: store,
-      } = req.body;
+      const { subject, message, storeId: store } = req.body;
+      const userId = req.currentUser?._id;
+      const userData = await UserModel.findById(userId);
       const createContactUs = await ContactUsSchema.create({
-        email,
-        name,
-        phoneNumber,
-        countryCode,
+        email: userData?.email,
+        name: userData?.displayName,
+        phoneNumber: userData?.phoneNumber,
+        countryCode: userData?.country?.code,
         subject,
         message,
         store,

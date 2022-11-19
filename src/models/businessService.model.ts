@@ -12,11 +12,11 @@ const businessServiceSchema = new Schema<
     },
     phoneNumber: {
       type: String,
-      required: [true, "phoneNumber is required."],
+      // required: [true, "phoneNumber is required."],
     },
     countryCode: {
       type: String,
-      required: [true, "countryCode is required."],
+      // required: [true, "countryCode is required."],
     },
     email: {
       type: String,
