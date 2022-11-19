@@ -65,13 +65,19 @@ class MakeController {
   async removeServiceType(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { makeId } = req.params;
-      const { type } = req.body;
+      const { types } = req.body;
       fieldValidateError(req);
+
+      const typesArrayCheck = types
+        ? Array.isArray(types)
+          ? types
+          : [types]
+        : [];
       const removeServiceType = await MakeSchema.findOneAndUpdate(
-        { _id: makeId, type },
+        { _id: makeId, type: { $in: typesArrayCheck } },
         {
           $pull: {
-            type: type.toUpperCase(),
+            type: { $each: typesArrayCheck },
           },
         },
         {
@@ -165,7 +171,7 @@ export const MakeControllerValidation = {
       .withMessage("makeId is required.")
       .isMongoId()
       .withMessage("makeId most be mongoose id"),
-    body("type")
+    body("type.*")
       .not()
       .isEmpty()
       .withMessage("type must be required.")
@@ -174,7 +180,7 @@ export const MakeControllerValidation = {
       .custom((value) =>
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
-      .withMessage("serviceType most be SERVICE or SELL."),
+      .withMessage("serviceType most be SERVICE or SELL or both."),
   ],
   getAll: [
     query("makeId")

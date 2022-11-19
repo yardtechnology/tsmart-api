@@ -72,13 +72,18 @@ class ModelController extends MediaLogic {
   async removeServiceType(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { modelId } = req.params;
-      const { type } = req.body;
+      const { types } = req.body;
       fieldValidateError(req);
+      const typesArrayCheck = types
+        ? Array.isArray(types)
+          ? types
+          : [types]
+        : [];
       const removeServiceType = await ModelModel.findOneAndUpdate(
-        { _id: modelId, type },
+        { _id: modelId, type: { $in: typesArrayCheck } },
         {
           $pull: {
-            type: type.toUpperCase(),
+            type: { $each: typesArrayCheck },
           },
         },
         {
@@ -177,7 +182,7 @@ export const ModelControllerValidation = {
       .optional()
       .isMongoId()
       .withMessage("makeId must be a mongos id."),
-    body("type")
+    body("types.*")
       .optional()
       .exists()
       .withMessage("type is not formatted.")
@@ -196,7 +201,7 @@ export const ModelControllerValidation = {
       .withMessage("modelId is required.")
       .isMongoId()
       .withMessage("modelId most be mongoose id"),
-    body("type")
+    body("types.*")
       .not()
       .isEmpty()
       .withMessage("type must be required.")
@@ -205,7 +210,7 @@ export const ModelControllerValidation = {
       .custom((value) =>
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
-      .withMessage("type most be SERVICE or SELL."),
+      .withMessage("type most be SERVICE or SELL or both."),
   ],
   getAll: [
     query("modelId")
