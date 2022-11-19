@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import { Types } from "mongoose";
 import { fieldValidateError } from "../helper";
 import MediaLogic from "../logic/media.logic";
@@ -366,10 +366,10 @@ class Store extends MediaLogic {
     next: NextFunction
   ) {
     try {
-      const { servicesId, modelId } = req.body;
+      const { servicesId, modelId } = req.query;
       const servicePriceArrayCheck = Array.isArray(servicesId)
-        ? servicesId?.map((item) => new Types.ObjectId(item))
-        : [servicesId]?.map((item) => new Types.ObjectId(item));
+        ? servicesId?.map((item) => new Types.ObjectId(String(item)))
+        : [servicesId]?.map((item) => new Types.ObjectId(String(item)));
 
       const getStore = await StoreModel.aggregate([
         {
@@ -387,7 +387,7 @@ class Store extends MediaLogic {
                         $in: ["$service", servicePriceArrayCheck],
                       },
                       {
-                        $eq: ["$model", new Types.ObjectId(modelId)],
+                        $eq: ["$model", new Types.ObjectId(String(modelId))],
                       },
                     ],
                   },
@@ -990,14 +990,14 @@ export const storeControlValidator = {
       .withMessage("Country must be at most 25 characters long"),
   ],
   // serviceId, modelId
-  getStoreListAccordingAvailability: [
-    body("serviceId")
+  getStoreListAccordingServiceAvailability: [
+    query("serviceId.*")
       .not()
       .isEmpty()
       .withMessage("serviceId is required.")
       .isMongoId()
       .withMessage("serviceId must be mongoose id."),
-    body("modelId")
+    body("modelId.*")
       .not()
       .isEmpty()
       .withMessage("modelId is required.")

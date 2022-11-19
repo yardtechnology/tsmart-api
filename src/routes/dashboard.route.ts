@@ -4,6 +4,7 @@ import {
   DashboardControllerValidation,
 } from "../controllers";
 import {
+  RefurbishedDashboardController,
   RepairerDashboardController,
   StoreDashboardController,
   UserDashboardController,
@@ -16,6 +17,7 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
   private userDashboardController: UserDashboardController;
   private storeDashboardController: StoreDashboardController;
   private repairerDashboardController: RepairerDashboardController;
+  private refurbishedDashboardController: RefurbishedDashboardController;
   constructor() {
     super();
     this.router = Router();
@@ -23,6 +25,7 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
     this.userDashboardController = new UserDashboardController();
     this.storeDashboardController = new StoreDashboardController();
     this.repairerDashboardController = new RepairerDashboardController();
+    this.refurbishedDashboardController = new RefurbishedDashboardController();
     this.routes();
   }
   private routes() {
@@ -127,5 +130,16 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.repairerDashboardController.card
     );
+    // ============================= >>> REFURBISHED DASHBOARD <<<<<<<<<<<<<<<< =============
+    this.router.get(
+      "/dashboard/refurbished/category-graph",
+      super.isAuthenticated,
+      this.refurbishedDashboardController.refurbishedByCategory
+    );
+    // this.router.get(
+    //   "/dashboard/refurbished/category-graph",
+    //   super.isAuthenticated,
+    //   this.refurbishedDashboardController.refurbishedByCategory
+    // );
   }
 }

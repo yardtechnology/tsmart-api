@@ -18,6 +18,21 @@ class Category extends AuthenticateMiddleware {
   // create store
 
   private routes() {
+    // get service store
+    this.router.get(
+      "/store/service-store",
+      super.isAuthenticated,
+      storeControlValidator.getStoreListAccordingServiceAvailability,
+      this.storeController.getStoreListAccordingServiceAvailability
+    );
+    // last seven days
+    this.router.get(
+      "/store/seven-day/:storeId",
+      // super.isAuthenticated,
+      // storeControlValidator.getStoreListAccordingAvailability,
+      this.storeController.lastSevenDay
+    );
+
     this.router.post(
       "/store/",
       super.isAdmin,
@@ -83,20 +98,6 @@ class Category extends AuthenticateMiddleware {
     //   storeControlValidator.getStoreListAccordingAvailability,
     //   this.storeController.getStoreListAccordingAvailability
     // );
-    // get service store
-    this.router.post(
-      "/store/service-store",
-      super.isAuthenticated,
-      storeControlValidator.getStoreListAccordingAvailability,
-      this.storeController.getStoreListAccordingServiceAvailability
-    );
-    // last seven days
-    this.router.get(
-      "/store/seven-day/:storeId",
-      // super.isAuthenticated,
-      // storeControlValidator.getStoreListAccordingAvailability,
-      this.storeController.lastSevenDay
-    );
   }
 }
 
