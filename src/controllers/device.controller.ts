@@ -31,8 +31,8 @@ class DeviceController {
           title,
         },
         {
-          image: imageData?.url,
-          imagePATH: imageData?.path,
+          image: imageData?.url || undefined,
+          imagePATH: imageData?.path || undefined,
           $addToSet: { type: { $each: typesArrayCheck } },
         },
         {

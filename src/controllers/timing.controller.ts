@@ -220,6 +220,43 @@ class TimingController {
       next(error);
     }
   }
+  async getAllTimingsOfStore(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { storeId } = req.params;
+
+      const getAllData = await TimingSchema.aggregate([
+        {
+          $match: {
+            $and: [
+              {
+                store: new Types.ObjectId(storeId),
+              },
+            ],
+          },
+        },
+        {
+          $group: {
+            _id: "$dayOfWeekNumber",
+            durationInMin: { $first: "$durationInMin" },
+            numberOfRepairers: { $first: "$numberOfRepairers" },
+            start: { $first: "$start" },
+            end: { $last: "$end" },
+          },
+        },
+      ]);
+      res.json({
+        status: "SUCCESS",
+        message: "All Timing found successfully.",
+        data: getAllData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 export const TimingControllerValidation = {
   createAndUpdate: [
