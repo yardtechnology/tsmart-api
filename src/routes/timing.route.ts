@@ -21,11 +21,12 @@ export default class TimingRoutes extends AuthenticateMiddleware {
       this.timingController.createAndUpdate
     );
 
-    // get all
+    // get in specific day with single store
     this.router.get(
       "/timing/:storeId",
       super.isAuthenticated,
       this.timingController.userGetStoreLeftBookingList
     );
+    // get timing of specific store and
   }
 }

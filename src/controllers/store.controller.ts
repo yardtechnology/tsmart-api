@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { body, query } from "express-validator";
+import { body, oneOf, query } from "express-validator";
 import { Types } from "mongoose";
 import { fieldValidateError } from "../helper";
 import MediaLogic from "../logic/media.logic";
@@ -992,18 +992,33 @@ export const storeControlValidator = {
   ],
   // serviceId, modelId
   getStoreListAccordingServiceAvailability: [
-    query("serviceId.*")
+    query("servicesId.*")
       .not()
       .isEmpty()
       .withMessage("serviceId is required.")
       .isMongoId()
       .withMessage("serviceId must be mongoose id."),
-    query("modelId.*")
-      .not()
-      .isEmpty()
-      .withMessage("modelId is required.")
+
+    query("servicesId")
+      .optional()
       .isMongoId()
-      .withMessage("modelId must be mongoose id."),
+      .withMessage("serviceId must be mongoose id."),
+
+    oneOf([
+      query("modelId.*")
+        .not()
+        .isEmpty()
+        .withMessage("modelId is required.")
+        .isMongoId()
+        .withMessage("modelId must be mongoose id."),
+
+      query("modelId")
+        .not()
+        .isEmpty()
+        .withMessage("modelId is required.")
+        .isMongoId()
+        .withMessage("modelId must be mongoose id."),
+    ]),
   ],
 };
 
