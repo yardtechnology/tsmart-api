@@ -101,9 +101,9 @@ class TimingController {
     try {
       const { limit, chunk } = req.query;
       const { storeId } = req.params;
-      const { date } = req.body;
+      const { date } = req.query;
 
-      const dayOfWeekNumber = new Date(date || new Date()).getDay();
+      const dayOfWeekNumber = new Date(Number(date) || new Date()).getDay();
 
       const query: any = {};
       dayOfWeekNumber && (query["dayOfWeekNumber"] = dayOfWeekNumber);
