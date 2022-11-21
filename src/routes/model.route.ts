@@ -35,7 +35,7 @@ export default class ModelRoutes extends AuthenticateMiddleware {
       this.modelController.removeServiceType
     );
     // delete
-    this.router.put(
+    this.router.delete(
       "/model/delete/:modelId",
       super.isAuthenticated,
       ModelControllerValidation.delete,
