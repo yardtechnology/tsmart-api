@@ -146,5 +146,8 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.refurbishedDashboardController.card
     );
+    /**
+     * TODO: total refurbished in percentage has left
+     */
   }
 }

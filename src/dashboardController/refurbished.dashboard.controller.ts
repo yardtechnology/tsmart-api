@@ -89,18 +89,48 @@ class RefurbishedDashboardController {
   }
   async card(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const bulk = ProductModel.collection.initializeOrderedBulkOp();
-      bulk.find({
-        // type:"REFURBISHED"
-      });
-      //   bulk.find({
-      //     type: "REFURBISHED",
-      //   });
-      const allData = await bulk.execute();
+      const currentYearLowDate = new Date(new Date().getFullYear(), 0);
+      const currentYearHighDate = new Date(
+        new Date().getFullYear(),
+        11,
+        31,
+        23,
+        59,
+        59
+      );
+
+      const totalRefurbished = await ProductModel.find({
+        type: "REFURBISHED",
+      }).count();
+      const todayRefurbished = await ProductModel.aggregate([
+        {
+          $match: {
+            $expr: {
+              $and: [
+                {
+                  $eq: ["$type", "REFURBISHED"],
+                },
+                {
+                  $gte: ["$createdAt", new Date(currentYearLowDate)],
+                },
+                {
+                  $lte: ["$createdAt", new Date(currentYearHighDate)],
+                },
+              ],
+            },
+          },
+        },
+        {
+          $count: "total",
+        },
+      ]);
       res.json({
         status: "SUCCESS",
-        message: "Refurbished card data fetch successfully.",
-        data: allData,
+        message: "Refurbished card data found successfully.",
+        data: {
+          totalRefurbished,
+          todayRefurbished: todayRefurbished?.[0]?.total || 0,
+        },
       });
     } catch (error) {
       next(error);
