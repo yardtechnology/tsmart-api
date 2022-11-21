@@ -64,23 +64,23 @@ class TimingController {
             store: new Types.ObjectId(storeId),
           },
         },
-        {
-          $addFields: {
-            timeArray: {
-              $range: [
-                "$start",
-                "$end",
-                {
-                  $dateAdd: {
-                    startDate: "$start",
-                    unit: "minute",
-                    amount: 30,
-                  },
-                },
-              ],
-            },
-          },
-        },
+        // {
+        //   $addFields: {
+        //     timeArray: {
+        //       $range: [
+        //         "$start",
+        //         "$end",
+        //         {
+        //           $dateAdd: {
+        //             startDate: "$start",
+        //             unit: "minute",
+        //             amount: 30,
+        //           },
+        //         },
+        //       ],
+        //     },
+        //   },
+        // },
       ]);
       res.status(200).json({
         status: "SUCCESS",

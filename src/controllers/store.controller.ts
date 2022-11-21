@@ -367,6 +367,7 @@ class Store extends MediaLogic {
   ) {
     try {
       const { servicesId, modelId } = req.query;
+      fieldValidateError(req);
       const servicePriceArrayCheck = Array.isArray(servicesId)
         ? servicesId?.map((item) => new Types.ObjectId(String(item)))
         : [servicesId]?.map((item) => new Types.ObjectId(String(item)));
