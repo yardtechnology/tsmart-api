@@ -126,9 +126,9 @@ class TimingController {
           $addFields: {
             startDateForm: {
               $dateFromParts: {
-                year: new Date(date).getFullYear(),
-                month: new Date(date).getMonth() + 1,
-                day: new Date(date).getDate(),
+                year: new Date(Number(date)).getFullYear(),
+                month: new Date(Number(date)).getMonth() + 1,
+                day: new Date(Number(date)).getDate(),
                 hour: {
                   $hour: "$start",
                 },
@@ -139,9 +139,9 @@ class TimingController {
             },
             endDateForm: {
               $dateFromParts: {
-                year: new Date(date).getFullYear(),
-                month: new Date(date).getMonth() + 1,
-                day: new Date(date).getDate(),
+                year: new Date(Number(date)).getFullYear(),
+                month: new Date(Number(date)).getMonth() + 1,
+                day: new Date(Number(date)).getDate(),
                 hour: {
                   $hour: "$end",
                 },
@@ -171,7 +171,7 @@ class TimingController {
                         $eq: ["$serviceType", "IN_STOR"],
                       },
                       {
-                        $gte: ["$scheduledTime", new Date(date)],
+                        $gte: ["$scheduledTime", new Date(Number(date))],
                       },
                       {
                         $eq: [
