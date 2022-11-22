@@ -33,10 +33,10 @@ class DeviceController {
         {
           image: imageData?.url || undefined,
           imagePATH: imageData?.path || undefined,
-          // type: typesArrayCheck,
-          $addToSet: typesArrayCheck?.length
-            ? { type: { $each: typesArrayCheck } }
-            : {},
+          type: typesArrayCheck,
+          // $addToSet: typesArrayCheck?.length
+          //   ? { type: { $each: typesArrayCheck } }
+          //   : {},
         },
         {
           new: true,
@@ -159,8 +159,9 @@ export const DeviceControllerValidation = {
       .optional()
       .exists()
       .toUpperCase()
-      .custom((value) => Boolean(["SERVICE", "SELL"].includes(value)))
-
+      .custom((value) =>
+        Boolean(!value.length || ["SERVICE", "SELL"].includes(value))
+      )
       .withMessage("types most be array which content SERVICE or SELL both."),
   ],
   removeServiceType: [

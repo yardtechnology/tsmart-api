@@ -42,7 +42,8 @@ class ModelController extends MediaLogic {
           imagePath: imageData?.path,
           device: req.body?.deviceId,
           make: req.body?.makeId,
-          $addToSet: { type: { $each: typesArrayCheck } },
+          types: typesArrayCheck,
+          // $addToSet: { type: { $each: typesArrayCheck } },
         },
         {
           new: true,
@@ -222,8 +223,12 @@ export const ModelControllerValidation = {
       .withMessage("type must be required.")
       .exists()
       .toUpperCase()
+
       .custom((value) =>
-        Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
+        Boolean(
+          !value.length ||
+            ["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase())
+        )
       )
       .withMessage("type most be SERVICE or SELL or both."),
   ],

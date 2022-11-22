@@ -37,8 +37,9 @@ class MakeController {
         {
           image: imageData?.url,
           imagePATH: imageData?.path,
+          type: typesArrayCheck,
 
-          $addToSet: pushDataObject,
+          // $addToSet: pushDataObject,
         },
         { new: true, runValidators: true, upsert: true }
       );
@@ -174,7 +175,9 @@ export const MakeControllerValidation = {
       .optional()
       .exists()
       .toUpperCase()
-      .custom((value) => Boolean(["SERVICE", "SELL"].includes(value)))
+      .custom((value) =>
+        Boolean(!value.length || ["SERVICE", "SELL"].includes(value))
+      )
 
       .withMessage("types most be array which content SERVICE or SELL both."),
   ],
