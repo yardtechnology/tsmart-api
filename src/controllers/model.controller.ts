@@ -17,7 +17,12 @@ class ModelController extends MediaLogic {
   ): Promise<any> {
     try {
       fieldValidateError(req);
-      const { type } = req.body;
+      const { types } = req.body;
+      const typesArrayCheck = types
+        ? Array.isArray(types)
+          ? types
+          : [types]
+        : [];
       // upload model picture
       const imageFile = req.files?.image;
       const filePath = `${req.currentUser?._id}`;
@@ -37,7 +42,7 @@ class ModelController extends MediaLogic {
           imagePath: imageData?.path,
           device: req.body?.deviceId,
           make: req.body?.makeId,
-          $addToSet: { type: type },
+          $addToSet: { type: { $each: typesArrayCheck } },
         },
         {
           new: true,
@@ -47,7 +52,9 @@ class ModelController extends MediaLogic {
       );
       if (!modelData)
         throw new NotFound(
-          `You are already added on ${type}, You can not add again here.`
+          `You are already added on ${types.join(
+            ","
+          )}, You can not add again here.`
         );
 
       // send response to client
@@ -65,13 +72,18 @@ class ModelController extends MediaLogic {
   async removeServiceType(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { modelId } = req.params;
-      const { type } = req.body;
+      const { types } = req.body;
       fieldValidateError(req);
+      const typesArrayCheck = types
+        ? Array.isArray(types)
+          ? types
+          : [types]
+        : [];
       const removeServiceType = await ModelModel.findOneAndUpdate(
-        { _id: modelId, type },
+        { _id: modelId, type: { $in: typesArrayCheck } },
         {
           $pull: {
-            type: type.toUpperCase(),
+            type: { $in: typesArrayCheck },
           },
         },
         {
@@ -140,6 +152,21 @@ class ModelController extends MediaLogic {
       next(error);
     }
   }
+  async delete(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { modelId } = req.params;
+      fieldValidateError(req);
+      const deleteModel = await ModelModel.findByIdAndDelete(modelId);
+      if (!deleteModel) throw new Error("Model not found for delete.");
+      res.json({
+        status: "SUCCESS",
+        message: "Model deleted successfully",
+        data: deleteModel,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 // finds validators for the user creation request
@@ -170,7 +197,7 @@ export const ModelControllerValidation = {
       .optional()
       .isMongoId()
       .withMessage("makeId must be a mongos id."),
-    body("type")
+    body("types.*")
       .optional()
       .exists()
       .withMessage("type is not formatted.")
@@ -189,7 +216,7 @@ export const ModelControllerValidation = {
       .withMessage("modelId is required.")
       .isMongoId()
       .withMessage("modelId most be mongoose id"),
-    body("type")
+    body("types.*")
       .not()
       .isEmpty()
       .withMessage("type must be required.")
@@ -198,7 +225,7 @@ export const ModelControllerValidation = {
       .custom((value) =>
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
-      .withMessage("type most be SERVICE or SELL."),
+      .withMessage("type most be SERVICE or SELL or both."),
   ],
   getAll: [
     query("modelId")
@@ -206,13 +233,13 @@ export const ModelControllerValidation = {
       .exists()
       .isMongoId()
       .withMessage("modelId most be mongoose id."),
-    query("type")
+    query("types.*")
       .optional()
       .exists()
       .custom((value) =>
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
-      .withMessage("type most be SERVICE or SELL."),
+      .withMessage("type most be SERVICE or SELL or both."),
     query("searchTitle").optional().exists().toUpperCase(),
     query("deviceId")
       .optional()
@@ -224,6 +251,14 @@ export const ModelControllerValidation = {
       .exists()
       .isMongoId()
       .withMessage("makeId is not valid mongoose id."),
+  ],
+  delete: [
+    param("modelId")
+      .not()
+      .isEmpty()
+      .withMessage("modelId is required.")
+      .isMongoId()
+      .withMessage("modelId most be mongoose id"),
   ],
 };
 

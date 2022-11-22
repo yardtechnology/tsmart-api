@@ -156,7 +156,7 @@ class CouponController {
   }
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { limit, chunk, code, couponId } = req.query;
+      const { limit, chunk, code, couponId, isActive } = req.query;
       const { startDate, endDate } = req.body;
 
       const query: any = {};
@@ -172,6 +172,15 @@ class CouponController {
             endDate: {
               $lte: new Date(endDate),
             },
+          },
+        ]);
+      isActive &&
+        (query["$and"] = [
+          {
+            startDate: { $lte: new Date() },
+          },
+          {
+            endDate: { $gte: new Date() },
           },
         ]);
 

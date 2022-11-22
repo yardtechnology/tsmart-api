@@ -433,4 +433,39 @@ export default class StoreDashboardController {
       next(error);
     }
   }
+  async assignManager(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userList = await UserModel.aggregate([
+        {
+          $match: {
+            $expr: {
+              $eq: ["$role", "MANAGER"],
+            },
+          },
+        },
+
+        {
+          $group: {
+            _id: { $cond: [{ $ifNull: ["$store", false] }, true, false] },
+            email: { $first: "$email" },
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+      const totalManager = userList?.reduce((acc, element) => {
+        acc = acc + element.count;
+        return acc;
+      }, 0);
+      const assignManager = userList?.find((item) => item?._id);
+      const percentageOfAssignUser =
+        ((assignManager?.count || 0) * 100) / totalManager;
+      res.json({
+        status: "SUCCESS",
+        message: "Manager assign data get successfully",
+        data: { totalManager, percentageOfAssignUser },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import { Types } from "mongoose";
 import { fieldValidateError } from "../helper";
 import MediaLogic from "../logic/media.logic";
@@ -355,7 +355,7 @@ class Store extends MediaLogic {
       });
       res.json({
         status: "SUCCESS",
-        message: "Hub data found successfully",
+        message: "According to the service store found successfully.",
         data: getAllStore,
       });
     } catch (error) {
@@ -363,16 +363,17 @@ class Store extends MediaLogic {
     }
   }
 
-  async getStoreListAccordingAvailability(
+  async getStoreListAccordingServiceAvailability(
     req: AuthRequest,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const { servicesId, modelId } = req.body;
+      const { servicesId, modelId } = req.query;
+      fieldValidateError(req);
       const servicePriceArrayCheck = Array.isArray(servicesId)
-        ? servicesId?.map((item) => new Types.ObjectId(item))
-        : [servicesId]?.map((item) => new Types.ObjectId(item));
+        ? servicesId?.map((item) => new Types.ObjectId(String(item)))
+        : [servicesId]?.map((item) => new Types.ObjectId(String(item)));
 
       const getStore = await StoreModel.aggregate([
         {
@@ -390,10 +391,15 @@ class Store extends MediaLogic {
                         $in: ["$service", servicePriceArrayCheck],
                       },
                       {
-                        $eq: ["$model", new Types.ObjectId(modelId)],
+                        $eq: ["$model", new Types.ObjectId(String(modelId))],
                       },
                     ],
                   },
+                },
+              },
+              {
+                $group: {
+                  _id: "$service",
                 },
               },
             ],
@@ -412,8 +418,13 @@ class Store extends MediaLogic {
         {
           $project: {
             servicePrices: 0,
+            type: 0,
+            imagePath: 0,
+            __v: 0,
           },
         },
+
+        //
         // {
         //   $lookup: {
         //     from: "holidays",
@@ -983,17 +994,28 @@ export const storeControlValidator = {
       .withMessage("Country must be at most 25 characters long"),
   ],
   // serviceId, modelId
-  getStoreListAccordingAvailability: [
-    body("serviceId")
+  getStoreListAccordingServiceAvailability: [
+    query("servicesId.*")
       .not()
       .isEmpty()
-      .withMessage("serviceId is required.")
+      .withMessage("servicesId is required.")
       .isMongoId()
-      .withMessage("serviceId must be mongoose id."),
-    body("modelId")
+      .withMessage("servicesId must be mongoose id."),
+
+    query("servicesId")
+      .optional()
+      .isMongoId()
+      .withMessage("servicesId must be mongoose id."),
+
+    query("modelId.*")
       .not()
       .isEmpty()
       .withMessage("modelId is required.")
+      .isMongoId()
+      .withMessage("modelId must be mongoose id."),
+
+    query("modelId")
+      .optional()
       .isMongoId()
       .withMessage("modelId must be mongoose id."),
   ],

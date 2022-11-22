@@ -10,14 +10,10 @@ class ServicePropertyValueController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       fieldValidateError(req);
-      const { value, servicePriceId, servicePropertyId } = req.body;
+      const { allServices } = req.body;
 
       const createServicePropertyValue =
-        await ServicePropertyValueSchema.create({
-          value,
-          servicePrice: servicePriceId,
-          serviceProperty: servicePropertyId,
-        });
+        await ServicePropertyValueSchema.insertMany(allServices);
       if (!createServicePropertyValue)
         throw new InternalServerError(
           "Something went wrong, Service property value is not created."
@@ -25,7 +21,7 @@ class ServicePropertyValueController {
       res.json({
         status: "SUCCESS",
         message: "Service property value is created successfully.",
-        data: createServicePropertyValue,
+        // data: createServicePropertyValue,
       });
     } catch (error) {
       next(error);
@@ -119,7 +115,7 @@ class ServicePropertyValueController {
 }
 export const ServicePropertyValueControllerValidation = {
   create: [
-    body("value")
+    body("allServices.*.value")
       .not()
       .isEmpty()
       .withMessage("value is required.")
@@ -127,13 +123,13 @@ export const ServicePropertyValueControllerValidation = {
       .withMessage("value must be at least 3 character.")
       .isLength({ max: 700 })
       .withMessage("value must be at most 700 characters long"),
-    body("servicePriceId")
+    body("allServices.*.servicePriceId")
       .not()
       .isEmpty()
       .withMessage("servicePriceId is required.")
       .isMongoId()
       .withMessage("servicePriceId must be mongoose Id."),
-    body("servicePropertyId")
+    body("allServices.*.servicePropertyId")
       .not()
       .isEmpty()
       .withMessage("servicePropertyId is required.")

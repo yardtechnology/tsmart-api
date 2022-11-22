@@ -4,26 +4,21 @@ import { InternalServerError, NotFound } from "http-errors";
 import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import { ContactUsSchema } from "../models";
+import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
 
 class ContactUsController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       fieldValidateError(req);
-      const {
-        email,
-        phoneNumber,
-        countryCode,
-        subject,
-        message,
-        name,
-        storeId: store,
-      } = req.body;
+      const { subject, message, storeId: store } = req.body;
+      const userId = req.currentUser?._id;
+      const userData = await UserModel.findById(userId);
       const createContactUs = await ContactUsSchema.create({
-        email,
-        name,
-        phoneNumber,
-        countryCode,
+        email: userData?.email,
+        name: userData?.displayName,
+        phoneNumber: userData?.phoneNumber,
+        countryCode: userData?.country?.code,
         subject,
         message,
         store,
@@ -94,15 +89,6 @@ class ContactUsController {
 }
 export const ContactUsControllerValidation = {
   create: [
-    body("email")
-      .not()
-      .isEmpty()
-      .withMessage("email is required.")
-      .isEmail()
-      .withMessage("email is not formatted."),
-    body("phoneNumber").not().isEmpty().withMessage("phoneNumber is required."),
-    body("countryCode").not().isEmpty().withMessage("countryCode is required."),
-    body("subject").not().isEmpty().withMessage("subject is required."),
     body("message")
       .not()
       .isEmpty()
@@ -119,14 +105,6 @@ export const ContactUsControllerValidation = {
       .withMessage("subject must be at least 3 characters long")
       .isLength({ max: 100 })
       .withMessage("subject must be at most 100 characters long"),
-    body("name")
-      .not()
-      .isEmpty()
-      .withMessage("name is required.")
-      .isLength({ min: 3 })
-      .withMessage("name must be at least 3 characters long")
-      .isLength({ max: 100 })
-      .withMessage("name must be at most 100 characters long"),
     body("storeId")
       .optional()
       .isMongoId()

@@ -12,16 +12,22 @@ class MakeController {
     let imageData: any | undefined;
     try {
       fieldValidateError(req);
-      const { title, deviceId, type } = req.body;
+      const { title, deviceId, types } = req.body;
       const imageFile = req?.files?.image;
       const filePath = `Make`;
+
+      const typesArrayCheck = types
+        ? Array.isArray(types)
+          ? types
+          : [types]
+        : [];
 
       imageData =
         imageFile && !Array.isArray(imageFile)
           ? await new MediaLogic().uploadMedia(imageFile, filePath)
           : undefined;
       const pushDataObject: any = {};
-      type && (pushDataObject.type = type);
+      types && (pushDataObject.type = { $each: typesArrayCheck });
       deviceId && (pushDataObject.devices = deviceId);
 
       const createDevice = await MakeSchema.findOneAndUpdate(
@@ -39,7 +45,9 @@ class MakeController {
 
       if (!createDevice)
         throw new NotFound(
-          `You are already added on ${type}, You can not add again here.`
+          `You are already added on ${types.join(
+            ","
+          )}, You can not add again here.`
         );
       res.json({
         status: "SUCCESS",
@@ -57,13 +65,18 @@ class MakeController {
   async removeServiceType(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { makeId } = req.params;
-      const { type } = req.body;
+      const { types } = req.body;
       fieldValidateError(req);
+      const typesArrayCheck = types
+        ? Array.isArray(types)
+          ? types
+          : [types]
+        : [];
       const removeServiceType = await MakeSchema.findOneAndUpdate(
-        { _id: makeId, type },
+        { _id: makeId, type: { $in: typesArrayCheck } },
         {
           $pull: {
-            type: type.toUpperCase(),
+            type: { $in: typesArrayCheck },
           },
         },
         {
@@ -117,12 +130,27 @@ class MakeController {
           createdAt: -1,
         },
       });
-      res.status(200).json({
+      res.json({
         status: "SUCCESS",
         message: makeId
           ? "make found successfully."
           : "All make found successfully.",
         data: makeId ? getAllData?.data?.[0] : getAllData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async delete(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { makeId } = req.params;
+      fieldValidateError(req);
+      const deleteMake = await MakeSchema.findByIdAndDelete(makeId);
+      if (!deleteMake) throw new Error("Make not found for delete.");
+      res.json({
+        status: "SUCCESS",
+        message: "Make deleted successfully",
+        data: deleteMake,
       });
     } catch (error) {
       next(error);
@@ -142,17 +170,13 @@ export const MakeControllerValidation = {
       .exists()
       .isMongoId()
       .withMessage("deviceId most be mongoose id."),
-    body("type")
-      .not()
-      .isEmpty()
-      .withMessage("type is required.")
+    body("types.*")
+      .optional()
       .exists()
-      .withMessage("type is required.")
+      .toUpperCase()
+      .custom((value) => Boolean(["SERVICE", "SELL"].includes(value)))
 
-      .custom((value) =>
-        Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
-      )
-      .withMessage("type most be SERVICE or SELL."),
+      .withMessage("types most be array which content SERVICE or SELL both."),
   ],
   removeServiceType: [
     param("makeId")
@@ -161,7 +185,7 @@ export const MakeControllerValidation = {
       .withMessage("makeId is required.")
       .isMongoId()
       .withMessage("makeId most be mongoose id"),
-    body("type")
+    body("type.*")
       .not()
       .isEmpty()
       .withMessage("type must be required.")
@@ -170,7 +194,7 @@ export const MakeControllerValidation = {
       .custom((value) =>
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
-      .withMessage("serviceType most be SERVICE or SELL."),
+      .withMessage("serviceType most be SERVICE or SELL or both."),
   ],
   getAll: [
     query("makeId")
@@ -197,6 +221,14 @@ export const MakeControllerValidation = {
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
       .withMessage("serviceType most be SERVICE or SELL."),
+  ],
+  delete: [
+    param("makeId")
+      .not()
+      .isEmpty()
+      .withMessage("makeId is required.")
+      .isMongoId()
+      .withMessage("makeId most be mongoose id"),
   ],
 };
 

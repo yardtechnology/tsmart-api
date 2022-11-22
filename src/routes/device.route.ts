@@ -34,12 +34,11 @@ export default class DeviceRoutes extends AuthenticateMiddleware {
       DeviceControllerValidation.removeServiceType,
       this.deviceController.removeServiceType
     );
-    // delete
-    // this.router.delete(
-    //   "/device/:deviceId",
-    //   super.isAuthenticated,
-    //   DeviceControllerValidation.delete,
-    //   this.deviceController.deleteData
-    // );
+    this.router.delete(
+      "/device/delete/:deviceId",
+      super.isAuthenticated,
+      DeviceControllerValidation.delete,
+      this.deviceController.delete
+    );
   }
 }

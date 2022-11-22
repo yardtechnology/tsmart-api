@@ -12,9 +12,15 @@ class DeviceController {
     let imageData: any | undefined;
     try {
       fieldValidateError(req);
-      const { title, type } = req.body;
+      const { title, types } = req.body;
       const imageFile = req?.files?.image;
       const filePath = `Device`;
+
+      const typesArrayCheck = types
+        ? Array.isArray(types)
+          ? types
+          : [types]
+        : [];
 
       imageData =
         imageFile && !Array.isArray(imageFile)
@@ -25,9 +31,12 @@ class DeviceController {
           title,
         },
         {
-          image: imageData?.url,
-          imagePATH: imageData?.path,
-          $addToSet: { type: type?.toUpperCase() },
+          image: imageData?.url || undefined,
+          imagePATH: imageData?.path || undefined,
+          // type: typesArrayCheck,
+          $addToSet: typesArrayCheck?.length
+            ? { type: { $each: typesArrayCheck } }
+            : {},
         },
         {
           new: true,
@@ -37,7 +46,9 @@ class DeviceController {
       );
       if (!createDevice)
         throw new NotFound(
-          `You are already added on ${type}, You can not add again here.`
+          `You are already added on ${typesArrayCheck?.join(
+            ","
+          )}, You can not add again here.`
         );
       res.json({
         status: "SUCCESS",
@@ -54,12 +65,20 @@ class DeviceController {
   async removeServiceType(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { deviceId } = req.params;
-      const { type } = req.body;
+      const { types } = req.body;
+      fieldValidateError(req);
+
+      const typesArrayCheck = types
+        ? Array.isArray(types)
+          ? types
+          : [types]
+        : [];
+
       const removeDeviceType = await DevicesSchema.findOneAndUpdate(
-        { _id: deviceId, type },
+        { _id: deviceId, type: { $in: typesArrayCheck } },
         {
           $pull: {
-            type: type.toUpperCase(),
+            type: { $in: typesArrayCheck },
           },
         },
         {
@@ -100,12 +119,27 @@ class DeviceController {
           createdAt: -1,
         },
       });
-      res.status(200).json({
+      res.json({
         status: "SUCCESS",
         message: deviceId
           ? `Device found successfully`
           : "All devices found successfully.s",
         data: deviceId ? getAllData?.data?.[0] : getAllData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async delete(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { deviceId } = req.params;
+      fieldValidateError(req);
+      const deleteDevice = await DevicesSchema.findByIdAndDelete(deviceId);
+      if (!deleteDevice) throw new Error("Device not found for delete.");
+      res.json({
+        status: "SUCCESS",
+        message: "Device deleted successfully",
+        data: deleteDevice,
       });
     } catch (error) {
       next(error);
@@ -120,13 +154,14 @@ export const DeviceControllerValidation = {
       .withMessage("title is required.")
       .toUpperCase()
       .trim(),
-    body("type")
+
+    body("types.*")
       .optional()
       .exists()
-      .custom((value) =>
-        Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
-      )
-      .withMessage("type most be SERVICE or SELL."),
+      .toUpperCase()
+      .custom((value) => Boolean(["SERVICE", "SELL"].includes(value)))
+
+      .withMessage("types most be array which content SERVICE or SELL both."),
   ],
   removeServiceType: [
     param("deviceId")
@@ -135,7 +170,7 @@ export const DeviceControllerValidation = {
       .withMessage("deviceId is required.")
       .isMongoId()
       .withMessage("deviceId most be mongoose id"),
-    body("type")
+    body("type.*")
       .not()
       .isEmpty()
       .withMessage("type must be required.")
@@ -143,7 +178,7 @@ export const DeviceControllerValidation = {
       .custom((value) =>
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
-      .withMessage("type most be SERVICE or SELL."),
+      .withMessage("type most be SERVICE or SELL or both."),
   ],
   getAll: [
     query("deviceId")
@@ -158,6 +193,14 @@ export const DeviceControllerValidation = {
         Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
       )
       .withMessage("type most be SERVICE or SELL."),
+  ],
+  delete: [
+    param("deviceId")
+      .not()
+      .isEmpty()
+      .withMessage("deviceId is required.")
+      .isMongoId()
+      .withMessage("deviceId most be mongoose id"),
   ],
 };
 

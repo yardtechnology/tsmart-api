@@ -20,6 +20,16 @@ class CouponLogic {
               },
             }
           : {};
+        if (currentUserId) {
+          const couponData = await CouponSchema.findById(couponId).select(
+            "maxUses users"
+          );
+          if (
+            couponData?.maxUses !== 0 &&
+            couponData?.maxUses === couponData?.users?.length
+          )
+            throw new Error("Maximum number of user has been use.");
+        }
         const couponData = await CouponSchema.findOneAndUpdate(
           {
             _id: couponId,

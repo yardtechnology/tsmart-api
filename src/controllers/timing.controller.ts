@@ -64,23 +64,23 @@ class TimingController {
             store: new Types.ObjectId(storeId),
           },
         },
-        {
-          $addFields: {
-            timeArray: {
-              $range: [
-                "$start",
-                "$end",
-                {
-                  $dateAdd: {
-                    startDate: "$start",
-                    unit: "minute",
-                    amount: 30,
-                  },
-                },
-              ],
-            },
-          },
-        },
+        // {
+        //   $addFields: {
+        //     timeArray: {
+        //       $range: [
+        //         "$start",
+        //         "$end",
+        //         {
+        //           $dateAdd: {
+        //             startDate: "$start",
+        //             unit: "minute",
+        //             amount: 30,
+        //           },
+        //         },
+        //       ],
+        //     },
+        //   },
+        // },
       ]);
       res.status(200).json({
         status: "SUCCESS",
@@ -101,9 +101,9 @@ class TimingController {
     try {
       const { limit, chunk } = req.query;
       const { storeId } = req.params;
-      const { date } = req.body;
+      const { date } = req.query;
 
-      const dayOfWeekNumber = new Date(date || new Date()).getDay();
+      const dayOfWeekNumber = new Date(Number(date) || new Date()).getDay();
 
       const query: any = {};
       dayOfWeekNumber && (query["dayOfWeekNumber"] = dayOfWeekNumber);
@@ -126,9 +126,9 @@ class TimingController {
           $addFields: {
             startDateForm: {
               $dateFromParts: {
-                year: new Date(date).getFullYear(),
-                month: new Date(date).getMonth() + 1,
-                day: new Date(date).getDate(),
+                year: new Date(Number(date)).getFullYear(),
+                month: new Date(Number(date)).getMonth() + 1,
+                day: new Date(Number(date)).getDate(),
                 hour: {
                   $hour: "$start",
                 },
@@ -139,9 +139,9 @@ class TimingController {
             },
             endDateForm: {
               $dateFromParts: {
-                year: new Date(date).getFullYear(),
-                month: new Date(date).getMonth() + 1,
-                day: new Date(date).getDate(),
+                year: new Date(Number(date)).getFullYear(),
+                month: new Date(Number(date)).getMonth() + 1,
+                day: new Date(Number(date)).getDate(),
                 hour: {
                   $hour: "$end",
                 },
@@ -171,7 +171,7 @@ class TimingController {
                         $eq: ["$serviceType", "IN_STOR"],
                       },
                       {
-                        $gte: ["$scheduledTime", new Date(date)],
+                        $gte: ["$scheduledTime", new Date(Number(date))],
                       },
                       {
                         $eq: [
@@ -214,6 +214,43 @@ class TimingController {
         message: storeId
           ? "Timing found successfully."
           : "All Timing found successfully.",
+        data: getAllData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async getAllTimingsOfStore(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { storeId } = req.params;
+
+      const getAllData = await TimingSchema.aggregate([
+        {
+          $match: {
+            $and: [
+              {
+                store: new Types.ObjectId(storeId),
+              },
+            ],
+          },
+        },
+        {
+          $group: {
+            _id: "$dayOfWeekNumber",
+            durationInMin: { $first: "$durationInMin" },
+            numberOfRepairers: { $first: "$numberOfRepairers" },
+            start: { $first: "$start" },
+            end: { $last: "$end" },
+          },
+        },
+      ]);
+      res.json({
+        status: "SUCCESS",
+        message: "All Timing found successfully.",
         data: getAllData,
       });
     } catch (error) {

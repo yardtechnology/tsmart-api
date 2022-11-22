@@ -4,6 +4,8 @@ import {
   DashboardControllerValidation,
 } from "../controllers";
 import {
+  RefurbishedDashboardController,
+  RepairerDashboardController,
   StoreDashboardController,
   UserDashboardController,
 } from "../dashboardController";
@@ -14,12 +16,16 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
   private dashboardController: DashboardController;
   private userDashboardController: UserDashboardController;
   private storeDashboardController: StoreDashboardController;
+  private repairerDashboardController: RepairerDashboardController;
+  private refurbishedDashboardController: RefurbishedDashboardController;
   constructor() {
     super();
     this.router = Router();
     this.dashboardController = new DashboardController();
     this.userDashboardController = new UserDashboardController();
     this.storeDashboardController = new StoreDashboardController();
+    this.repairerDashboardController = new RepairerDashboardController();
+    this.refurbishedDashboardController = new RefurbishedDashboardController();
     this.routes();
   }
   private routes() {
@@ -100,6 +106,48 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.storeDashboardController.totalManager
     );
-    //
+    // total manager Assign
+    this.router.get(
+      "/dashboard/store/manager-assign",
+      super.isAuthenticated,
+      this.storeDashboardController.assignManager
+    );
+    // ============================= >>>>>> REPAIRER DASHBOARD >>>================
+    // Repairer status graph
+    this.router.get(
+      "/dashboard/repairer/status",
+      super.isAuthenticated,
+      this.repairerDashboardController.repairerStatus
+    );
+    // last seven year status
+    this.router.get(
+      "/dashboard/repairer/last-seven-year",
+      super.isAuthenticated,
+      this.repairerDashboardController.lastSevenYearData
+    );
+    this.router.get(
+      "/dashboard/repairer/card",
+      super.isAuthenticated,
+      this.repairerDashboardController.card
+    );
+    // ============================= >>> REFURBISHED DASHBOARD <<<<<<<<<<<<<<<< =============
+    this.router.get(
+      "/dashboard/refurbished/category-graph",
+      super.isAuthenticated,
+      this.refurbishedDashboardController.refurbishedByCategory
+    );
+    this.router.get(
+      "/dashboard/refurbished/top-brand",
+      super.isAuthenticated,
+      this.refurbishedDashboardController.topBrands
+    );
+    this.router.get(
+      "/dashboard/refurbished/card",
+      super.isAuthenticated,
+      this.refurbishedDashboardController.card
+    );
+    /**
+     * TODO: total refurbished in percentage has left
+     */
   }
 }
