@@ -67,7 +67,6 @@ class MakeController {
       const { makeId } = req.params;
       const { types } = req.body;
       fieldValidateError(req);
-
       const typesArrayCheck = types
         ? Array.isArray(types)
           ? types
