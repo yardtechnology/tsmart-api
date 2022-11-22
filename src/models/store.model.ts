@@ -37,6 +37,7 @@ const storeSchema = new Schema<StoreType>(
         default: 0,
       },
     },
+    timing: String,
   },
   { timestamps: true }
 );

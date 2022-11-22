@@ -43,6 +43,7 @@ class Store extends MediaLogic {
           imagePath: imageData?.path,
           about: req.body?.about,
           createdBy: req.body?.createdBy,
+          timing: req.body?.timing,
           address: {
             state: req.body?.state,
             city: req.body?.city,
@@ -67,6 +68,7 @@ class Store extends MediaLogic {
           about: req.body?.about,
           createdBy: req.body?.createdBy,
           type: "HUB",
+          timing: req?.body?.timing,
           address: {
             state: req.body?.state,
             city: req.body?.city,
@@ -128,6 +130,7 @@ class Store extends MediaLogic {
           imagePath: imageData?.path,
           about: req.body?.about,
           createdBy: req.body?.createdBy,
+          timing: req.body?.timing,
           "address.state": req.body?.state,
           "address.city": req.body?.city,
           "address.street": req.body?.street,

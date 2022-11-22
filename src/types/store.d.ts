@@ -26,4 +26,5 @@ export default interface StoreType extends Document {
     total: number;
     stars: number;
   };
+  timing: string;
 }
