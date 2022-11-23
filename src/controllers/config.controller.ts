@@ -51,42 +51,36 @@ class ConfigController {
         {},
         {
           tax,
-          storeAndroid: {
-            message: storeAndroidMessage,
-            version: storeAndroidVersion,
-            title: storeAndroidTitle,
-            isDismissible: storeAndroidIsDismissible,
-          },
-          storeIos: {
-            message: storeIosMessage,
-            version: storeIosVersion,
-            title: storeIosTitle,
-            isDismissible: storeIosIsDismissible,
-          },
-          customerAndroid: {
-            message: customerAndroidMessage,
-            version: customerAndroidVersion,
-            title: customerAndroidTitle,
-            isDismissible: customerAndroidIsDismissible,
-          },
-          customerIos: {
-            message: customerIosMessage,
-            version: customerIosVersion,
-            title: customerIosTitle,
-            isDismissible: customerIosIsDismissible,
-          },
-          technicianAndroid: {
-            message: technicianAndroidMessage,
-            version: technicianAndroidVersion,
-            title: technicianAndroidTitle,
-            isDismissible: technicianAndroidIsDismissible,
-          },
-          technicianIos: {
-            message: technicianIosMessage,
-            version: technicianIosVersion,
-            title: technicianIosTitle,
-            isDismissible: technicianIosIsDismissible,
-          },
+
+          "storeAndroid.message": storeAndroidMessage,
+          "store.Androidversion": storeAndroidVersion,
+          "storeAndroid.title": storeAndroidTitle,
+          "storeAndroid.isDismissible": storeAndroidIsDismissible,
+
+          "storeIos.message": storeIosMessage,
+          "store.Iosversion": storeIosVersion,
+          "storeIos.title": storeIosTitle,
+          "storeIos.isDismissible": storeIosIsDismissible,
+
+          "customerAndroid.message": customerAndroidMessage,
+          "customer.Androidversion": customerAndroidVersion,
+          "customerAndroid.title": customerAndroidTitle,
+          "customerAndroid.isDismissible": customerAndroidIsDismissible,
+
+          "customerIos.message": customerIosMessage,
+          "customer.Iosversion": customerIosVersion,
+          "customerIos.title": customerIosTitle,
+          "customerIos.isDismissible": customerIosIsDismissible,
+
+          "technicianAndroid.message": technicianAndroidMessage,
+          "technician.Androidversion": technicianAndroidVersion,
+          "technicianAndroid.title": technicianAndroidTitle,
+          "technicianAndroid.isDismissible": technicianAndroidIsDismissible,
+
+          "technicianIos.message": technicianIosMessage,
+          "technician.Iosversion": technicianIosVersion,
+          "technicianIos.title": technicianIosTitle,
+          "technicianIos.isDismissible": technicianIosIsDismissible,
           mailInInstauration,
           aboutUs,
           privacyPolicy,
