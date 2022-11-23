@@ -265,12 +265,12 @@ class ServicePrice extends MediaLogic {
             image: {
               $first: "$image",
             },
-            title: {
-              $first: "$title",
-            },
-            description: {
-              $first: "$description",
-            },
+            // title: {
+            //   $first: "$title",
+            // },
+            // description: {
+            //   $first: "$description",
+            // },
             store: {
               $first: "$store",
             },
@@ -318,9 +318,9 @@ class ServicePrice extends MediaLogic {
           },
         },
       ];
-      // if (role !== "ADMIN") {
-      //   aggregationQuery.splice(4);
-      // }
+      if (role !== "ADMIN") {
+        aggregationQuery.splice(4);
+      }
 
       const servicePriceData = await aggregationData<ServicePriceType>({
         model: ServicePriceModel,
