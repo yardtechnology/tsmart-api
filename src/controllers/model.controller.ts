@@ -42,7 +42,7 @@ class ModelController extends MediaLogic {
           imagePath: imageData?.path,
           device: req.body?.deviceId,
           make: req.body?.makeId,
-          types: typesArrayCheck,
+          type: typesArrayCheck,
           // $addToSet: { type: { $each: typesArrayCheck } },
         },
         {

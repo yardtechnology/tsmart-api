@@ -265,12 +265,12 @@ class ServicePrice extends MediaLogic {
             image: {
               $first: "$image",
             },
-            title: {
-              $first: "$title",
-            },
-            description: {
-              $first: "$description",
-            },
+            // title: {
+            //   $first: "$title",
+            // },
+            // description: {
+            //   $first: "$description",
+            // },
             store: {
               $first: "$store",
             },
