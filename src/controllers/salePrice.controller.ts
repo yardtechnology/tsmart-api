@@ -81,8 +81,7 @@ class SalePriceController {
           getAllData?.data?.length === 1
             ? `SalePrice found successfully`
             : "All SalePrices found successfully.",
-        data:
-          getAllData?.data?.length === 1 ? getAllData?.data?.[0] : getAllData,
+        data: getAllData,
       });
     } catch (error) {
       next(error);
