@@ -65,7 +65,7 @@ class Order extends OrderLogic {
       // validator error handler
       fieldValidateError(req);
       //place Walk in Repairing Order [STORE]
-      const orderData = await super.placeMailInServiceOrder({
+      let orderData = await super.placeMailInServiceOrder({
         userId: req.currentUser?._id as string,
         addressId: req.body?.addressId,
         serviceIds: req.body?.serviceIds,
@@ -78,7 +78,7 @@ class Order extends OrderLogic {
         status: "PENDING",
         price: orderData?.price,
       });
-      await OrderModel?.findByIdAndUpdate(orderData?._id, {
+      orderData = await OrderModel?.findByIdAndUpdate(orderData?._id, {
         billing: billingData?._id,
       });
 
@@ -103,9 +103,15 @@ class Order extends OrderLogic {
       //place Walk in Repairing Order [STORE]
       const orderData = await super.placeCallOutOrder({
         userId: req.currentUser?._id as string,
-        latitude: req.body?.latitude,
-        longitude: req.body?.longitude,
-        street: req.body?.street,
+        address: {
+          latitude: req.body?.latitude,
+          longitude: req.body?.longitude,
+          street: req.body?.street,
+          houseNumber: req?.body?.houseNumber,
+          city: req?.body?.city,
+          country: req?.body?.country,
+          zip: req?.body?.zip,
+        },
         serviceIds: req.body?.serviceIds,
         modelId: req.body?.modelId,
         deviceId: req.body?.deviceId,
