@@ -21,7 +21,7 @@ class ServicePropertyValueController {
       res.json({
         status: "SUCCESS",
         message: "Service property value is created successfully.",
-        // data: createServicePropertyValue,
+        data: createServicePropertyValue,
       });
     } catch (error) {
       next(error);
@@ -123,18 +123,18 @@ export const ServicePropertyValueControllerValidation = {
       .withMessage("value must be at least 3 character.")
       .isLength({ max: 700 })
       .withMessage("value must be at most 700 characters long"),
-    body("allServices.*.servicePriceId")
+    body("allServices.*.servicePrice")
       .not()
       .isEmpty()
-      .withMessage("servicePriceId is required.")
+      .withMessage("servicePrice is required.")
       .isMongoId()
-      .withMessage("servicePriceId must be mongoose Id."),
-    body("allServices.*.servicePropertyId")
+      .withMessage("servicePrice must be mongoose Id."),
+    body("allServices.*.serviceProperty")
       .not()
       .isEmpty()
-      .withMessage("servicePropertyId is required.")
+      .withMessage("serviceProperty is required.")
       .isMongoId()
-      .withMessage("servicePropertyId must be mongoesId."),
+      .withMessage("serviceProperty must be mongoesId."),
   ],
   getAll: [
     param("servicePrice")
