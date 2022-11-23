@@ -78,9 +78,9 @@ class Order extends OrderLogic {
         status: "PENDING",
         price: orderData?.price,
       });
-      orderData = await OrderModel?.findByIdAndUpdate(orderData?._id, {
+      orderData = (await OrderModel?.findByIdAndUpdate(orderData?._id, {
         billing: billingData?._id,
-      });
+      })) as OrderType;
 
       res.status(200).json({
         status: "SUCCESS",
