@@ -393,13 +393,24 @@ class Store extends MediaLogic {
     next: NextFunction
   ) {
     try {
+      const query = {
+        address: req?.query?.zip
+          ? {
+              zip: req?.query?.zip,
+            }
+          : undefined,
+      };
+      !req?.query?.zip && delete query?.address;
       const { servicesId, modelId } = req.query;
       fieldValidateError(req);
       const servicePriceArrayCheck = Array.isArray(servicesId)
         ? servicesId?.map((item) => new Types.ObjectId(String(item)))
         : [servicesId]?.map((item) => new Types.ObjectId(String(item)));
 
-      const getStore = await StoreModel.aggregate([
+      let getStore = await StoreModel.aggregate([
+        {
+          $match: query,
+        },
         {
           $lookup: {
             from: "serviceprices",
@@ -447,174 +458,22 @@ class Store extends MediaLogic {
             __v: 0,
           },
         },
-
-        //
-        // {
-        //   $lookup: {
-        //     from: "holidays",
-        //     localField: "_id",
-        //     foreignField: "store",
-        //     as: "holidays",
-        //     pipeline: [
-        //       {
-        //         $match: {
-        //           $expr: {
-        //             $and: [
-        //               {
-        //                 $eq: [
-        //                   {
-        //                     $year: "$date",
-        //                   },
-        //                   {
-        //                     $year: new Date(date),
-        //                   },
-        //                 ],
-        //               },
-        //               {
-        //                 $eq: [
-        //                   {
-        //                     $month: "$date",
-        //                   },
-        //                   {
-        //                     $month: new Date(date),
-        //                   },
-        //                 ],
-        //               },
-        //               {
-        //                 $eq: [
-        //                   {
-        //                     $dayOfMonth: "$date",
-        //                   },
-        //                   {
-        //                     $dayOfMonth: new Date(date),
-        //                   },
-        //                 ],
-        //               },
-        //             ],
-        //           },
-        //         },
-        //       },
-        //     ],
-        //   },
-        // },
-
-        // {
-        //   $match: {
-        //     $expr: {
-        //       $lt: [{ $size: "$holidays" }, 1],
-        //     },
-        //   },
-        // },
-        // {
-        //   $lookup: {
-        //     from: "timings",
-        //     localField: "_id",
-        //     foreignField: "store",
-        //     as: "timing",
-        //     pipeline: [
-        //       {
-        //         $addFields: {
-        //           startDateForm: {
-        //             $dateFromParts: {
-        //               year: new Date(date).getFullYear(),
-        //               month: new Date(date).getMonth() + 1,
-        //               day: new Date(date).getDate(),
-        //               hour: {
-        //                 $hour: "$start",
-        //               },
-        //               minute: {
-        //                 $minute: "$start",
-        //               },
-        //             },
-        //           },
-        //           endDateForm: {
-        //             $dateFromParts: {
-        //               year: new Date(date).getFullYear(),
-        //               month: new Date(date).getMonth() + 1,
-        //               day: new Date(date).getDate(),
-        //               hour: {
-        //                 $hour: "$end",
-        //               },
-        //               minute: {
-        //                 $minute: "$end",
-        //               },
-        //             },
-        //           },
-        //         },
-        //       },
-
-        //       {
-        //         $lookup: {
-        //           from: "orders",
-        //           localField: "store",
-        //           foreignField: "storeID",
-        //           as: "orderHave",
-        //           let: {
-        //             startDate: "$startDateForm",
-        //             endDate: "$endDateForm",
-        //             dayOfWeekNumber: "$dayOfWeekNumber",
-        //           },
-        //           pipeline: [
-        //             {
-        //               $match: {
-        //                 $expr: {
-        //                   $and: [
-        //                     {
-        //                       $eq: ["$serviceType", "IN_STOR"],
-        //                     },
-        //                     {
-        //                       $gte: ["$scheduledTime", "$$startDate"],
-        //                     },
-        //                     {
-        //                       $lte: ["$scheduledTime", "$$endDate"],
-        //                     },
-        //                   ],
-        //                 },
-        //               },
-        //             },
-        //           ],
-        //         },
-        //       },
-        //       {
-        //         $addFields: {
-        //           orderHave: {
-        //             $size: "$orderHave",
-        //           },
-        //           leftBooking: {
-        //             $subtract: [
-        //               "$numberOfRepairers",
-        //               {
-        //                 $size: "$orderHave",
-        //               },
-        //             ],
-        //           },
-        //         },
-        //       },
-        //       {
-        //         $match: {
-        //           $expr: {
-        //             $gte: ["$leftBooking", 1],
-        //           },
-        //         },
-        //       },
-        //     ],
-        //   },
-        // },
-        // {
-        //   $match: {
-        //     $expr: {
-        //       $gte: [{ $size: "$timing" }, 1],
-        //     },
-        //   },
-        // },
-        // {
-        //   $project: {
-        //     timing: 0,
-        //     holidays: 0,
-        //     servicePrices: 0,
-        //   },
-        // },
       ]);
+      if (req?.query?.latitude && req?.query?.longitude) {
+        const configData = await ConfigSchema.findOne({});
+        getStore = getStore.filter((item: StoreType) =>
+          configData?.storeRange
+            ? configData?.storeRange >=
+              getDistance(
+                item?.address?.latitude as number,
+                item?.address?.longitude as number,
+                Number(req?.query?.latitude),
+                Number(req?.query?.longitude),
+                "K"
+              )
+            : true
+        );
+      }
 
       res.json({
         status: "SUCCESS",
