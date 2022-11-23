@@ -318,9 +318,9 @@ class ServicePrice extends MediaLogic {
           },
         },
       ];
-      if (role !== "ADMIN") {
-        aggregationQuery.splice(4);
-      }
+      // if (role !== "ADMIN") {
+      //   aggregationQuery.splice(4);
+      // }
 
       const servicePriceData = await aggregationData<ServicePriceType>({
         model: ServicePriceModel,
