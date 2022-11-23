@@ -410,7 +410,7 @@ class Order extends OrderLogic {
       // validator error handler
       fieldValidateError(req);
       //charge amount to the customer\
-      const { email, id } = req.body?.token;
+      const { email, id } = req.body?.paymentToken;
       const { amount, currency, billingId } = req.body;
       const billingData = await BillingModel.findById(billingId).populate(
         "orders"
@@ -779,8 +779,14 @@ class Order extends OrderLogic {
       .withMessage("billingId is required")
       .isMongoId()
       .withMessage("not a valid billingId"),
-    body("token.id").not().isEmpty().withMessage("token.id is required"),
-    body("token.email").not().isEmpty().withMessage("token.email is required"),
+    body("paymentToken.id")
+      .not()
+      .isEmpty()
+      .withMessage("paymentToken.id is required"),
+    body("paymentToken.email")
+      .not()
+      .isEmpty()
+      .withMessage("paymentToken.email is required"),
     // body("amount").not().isEmpty().withMessage("amount is required"),
     // body("currency").not().isEmpty().withMessage("currency is required"),
   ];
