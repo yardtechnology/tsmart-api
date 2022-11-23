@@ -28,7 +28,7 @@ class Order extends OrderLogic {
       // validator error handler
       fieldValidateError(req);
       //place Walk in Repairing Order [STORE]
-      const orderData = await super.placeInStoreServiceOrder({
+      let orderData = await super.placeInStoreServiceOrder({
         storeId: req.body?.storeId,
         userId: req.currentUser?._id as string,
         serviceTime: req.body?.serviceTime,
@@ -42,9 +42,13 @@ class Order extends OrderLogic {
         status: "PENDING",
         price: orderData?.price,
       });
-      await OrderModel?.findByIdAndUpdate(orderData?._id, {
-        billing: billingData?._id,
-      });
+      orderData = (await OrderModel?.findByIdAndUpdate(
+        orderData?._id,
+        {
+          billing: billingData?._id,
+        },
+        { new: true }
+      )) as OrderType;
 
       res.status(200).json({
         status: "SUCCESS",
@@ -78,9 +82,13 @@ class Order extends OrderLogic {
         status: "PENDING",
         price: orderData?.price,
       });
-      orderData = (await OrderModel?.findByIdAndUpdate(orderData?._id, {
-        billing: billingData?._id,
-      })) as OrderType;
+      orderData = (await OrderModel?.findByIdAndUpdate(
+        orderData?._id,
+        {
+          billing: billingData?._id,
+        },
+        { new: true }
+      )) as OrderType;
 
       res.status(200).json({
         status: "SUCCESS",
@@ -101,7 +109,7 @@ class Order extends OrderLogic {
       // validator error handler
       fieldValidateError(req);
       //place Walk in Repairing Order [STORE]
-      const orderData = await super.placeCallOutOrder({
+      let orderData = await super.placeCallOutOrder({
         userId: req.currentUser?._id as string,
         address: {
           latitude: req.body?.latitude,
@@ -122,9 +130,13 @@ class Order extends OrderLogic {
         status: "PENDING",
         price: orderData?.price,
       });
-      await OrderModel?.findByIdAndUpdate(orderData?._id, {
-        billing: billingData?._id,
-      });
+      orderData = (await OrderModel?.findByIdAndUpdate(
+        orderData?._id,
+        {
+          billing: billingData?._id,
+        },
+        { new: true }
+      )) as OrderType;
 
       res.status(200).json({
         status: "SUCCESS",
