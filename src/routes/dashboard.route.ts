@@ -4,6 +4,7 @@ import {
   DashboardControllerValidation,
 } from "../controllers";
 import {
+  AccessoryDashboardController,
   RefurbishedDashboardController,
   RepairerDashboardController,
   StoreDashboardController,
@@ -18,6 +19,7 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
   private storeDashboardController: StoreDashboardController;
   private repairerDashboardController: RepairerDashboardController;
   private refurbishedDashboardController: RefurbishedDashboardController;
+  private accessoryDashboardController: AccessoryDashboardController;
   constructor() {
     super();
     this.router = Router();
@@ -26,6 +28,7 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
     this.storeDashboardController = new StoreDashboardController();
     this.repairerDashboardController = new RepairerDashboardController();
     this.refurbishedDashboardController = new RefurbishedDashboardController();
+    this.accessoryDashboardController = new AccessoryDashboardController();
     this.routes();
   }
   private routes() {
@@ -149,5 +152,11 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
     /**
      * TODO: total refurbished in percentage has left
      */
+    // ============================= >>> Accessory Dashboard <<<================================================================
+    this.router.get(
+      "/dashboard/accessory/circular-graph",
+      super.isAuthenticated,
+      this.accessoryDashboardController.circularGraph
+    );
   }
 }
