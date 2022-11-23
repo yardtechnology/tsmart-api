@@ -45,4 +45,5 @@ export default interface CONFIG_TYPE extends Document {
   shoppingPolicy: string;
   mailInstructions: string;
   ourWarranty: string;
+  storeRange: number;
 }

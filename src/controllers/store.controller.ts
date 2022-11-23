@@ -2,9 +2,10 @@ import { NextFunction, Response } from "express";
 import { body, query } from "express-validator";
 import { Types } from "mongoose";
 import { fieldValidateError } from "../helper";
+import { getDistance } from "../helper/core.helper";
 import MediaLogic from "../logic/media.logic";
 import StoreLogic from "../logic/store.logic";
-import { HolidayModel } from "../models";
+import { ConfigSchema, HolidayModel } from "../models";
 import { StoreModel } from "../models/store.model";
 import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
@@ -194,10 +195,33 @@ class Store extends MediaLogic {
   ): Promise<any> {
     try {
       // save store data to database
-      const categoryData: StoreType[] | null = await StoreModel.find({})
+      const query = {
+        address: req?.query?.zip
+          ? {
+              zip: req?.query?.zip,
+            }
+          : undefined,
+      };
+      !req?.query?.zip && delete query?.address;
+      let categoryData = await StoreModel.find(query)
         .populate(["address"])
         .select("-imagePath")
         .sort({ createdAt: -1 });
+      if (req?.query?.latitude && req?.query?.longitude) {
+        const configData = await ConfigSchema.findOne({});
+        categoryData = categoryData.filter((item, index) =>
+          configData?.storeRange
+            ? configData?.storeRange >=
+              getDistance(
+                item?.address?.latitude as number,
+                item?.address?.longitude as number,
+                Number(req?.query?.latitude),
+                Number(req?.query?.longitude),
+                "K"
+              )
+            : true
+        );
+      }
 
       // send response to client
       res.json({
@@ -984,6 +1008,16 @@ export const storeControlValidator = {
       .withMessage("zip code must be grater then 5 digit")
       .isLength({ max: 11 })
       .withMessage("zip code must be at most 11 digit"),
+    body("zip")
+      .not()
+      .isEmpty()
+      .withMessage("zip is required")
+      .isLength({ min: 5 })
+      .withMessage("zip code must be grater then 5 digit")
+      .isLength({ max: 11 })
+      .withMessage("zip code must be at most 11 digit"),
+    body("latitude").not().isEmpty().withMessage("latitude is required"),
+    body("longitude").not().isEmpty().withMessage("longitude is required"),
     body("country")
       .not()
       .isEmpty()

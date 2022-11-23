@@ -653,18 +653,21 @@ class Order extends OrderLogic {
     body("modelId")
       .not()
       .isEmpty()
+      .withMessage("modelId is required")
       .isMongoId()
-      .withMessage("modelId must be a valid service id"),
+      .withMessage("modelId must be a valid modelId"),
     body("makeId")
       .not()
       .isEmpty()
+      .withMessage("makeId is required")
       .isMongoId()
-      .withMessage("makeId must be a valid service id"),
+      .withMessage("makeId must be a valid makeId"),
     body("deviceId")
       .not()
       .isEmpty()
+      .withMessage("deviceId is required")
       .isMongoId()
-      .withMessage("deviceId must be a valid service id"),
+      .withMessage("deviceId must be a valid deviceId"),
   ];
   public validateCallOutOrderPlaceFields = [
     body("address.latitude")
