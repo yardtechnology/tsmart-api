@@ -15,5 +15,7 @@ export default interface AddressType extends Document {
   country: string;
   zip: number;
   isDefault: boolean;
+  latitude: number;
+  longitude: number;
   type?: "HOME" | "WORK" | "OTHER";
 }

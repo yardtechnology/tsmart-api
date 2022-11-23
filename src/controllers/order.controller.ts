@@ -667,8 +667,47 @@ class Order extends OrderLogic {
       .withMessage("deviceId must be a valid service id"),
   ];
   public validateCallOutOrderPlaceFields = [
-    body("latitude").not().isEmpty().withMessage("latitude is required"),
-    body("longitude").not().isEmpty().withMessage("longitude is required"),
+    body("address.latitude")
+      .not()
+      .isEmpty()
+      .withMessage("latitude is required"),
+    body("address.longitude")
+      .not()
+      .isEmpty()
+      .withMessage("longitude is required"),
+    body("city")
+      .optional()
+      .isLength({ min: 3 })
+      .withMessage("City must be at least 3 characters long")
+      .isLength({ max: 21 })
+      .withMessage("City must be at most 21 characters long"),
+    body("houseNumber")
+      .optional()
+      .isLength({ min: 3 })
+      .withMessage("houseNumber must be at least 3 characters long")
+      .isLength({ max: 21 })
+      .withMessage("houseNumber must be at most 21 characters long"),
+    body("state")
+      .optional()
+      .isLength({ min: 3 })
+      .withMessage("State must be at least 3 characters long")
+      .isLength({ max: 25 })
+      .withMessage("State must be at most 25 characters long"),
+    body("country")
+      .not()
+      .isEmpty()
+      .withMessage("country")
+      .isLength({ min: 2 })
+      .withMessage("Country must be at least 2 characters long")
+      .isLength({ max: 25 })
+      .withMessage("Country must be at most 25 characters long"),
+    body("zip")
+      .optional()
+      .isInt()
+      .isLength({ min: 5 })
+      .withMessage("zip code must be grater then 5 digit")
+      .isLength({ max: 11 })
+      .withMessage("zip code must be at most 11 digit"),
     body("serviceIds.*")
       .not()
       .isEmpty()

@@ -33,6 +33,8 @@ const addressSchema = new Schema<AddressType>(
       default: "OTHER",
     },
     houseNumber: String,
+    latitude: Number,
+    longitude: Number,
   },
   { timestamps: true }
 );

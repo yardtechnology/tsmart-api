@@ -6,6 +6,7 @@ import { OrderModel } from "../models/order.model";
 import { ProductModel } from "../models/product.model";
 import { StoreModel } from "../models/store.model";
 import { UserModel } from "../models/user.model";
+import AddressType from "../types/address";
 import BankType from "../types/bank";
 import OrderType, { OrderStatus } from "../types/order";
 import { ModelModel } from "./../models/model.model";
@@ -182,18 +183,14 @@ class OrderLogic {
   /** place call out service order */
   public async placeCallOutOrder({
     userId,
-    latitude,
-    longitude,
-    street,
+    address,
     serviceIds,
     modelId,
     makeId,
     deviceId,
   }: {
     userId: string;
-    latitude: number;
-    longitude: number;
-    street: string;
+    address: Partial<AddressType>;
     serviceIds: string[];
     modelId: string;
     makeId: string;
@@ -239,8 +236,8 @@ class OrderLogic {
             (user: any) =>
               50 >=
               getDistance(
-                latitude,
-                longitude,
+                address?.latitude as number,
+                address?.longitude as number,
                 user?.latitude,
                 user?.longitude,
                 "K"
@@ -249,11 +246,7 @@ class OrderLogic {
           .map((user) => user?._id);
         const orderData = await new OrderModel({
           user: userData,
-          address: {
-            latitude,
-            longitude,
-            street,
-          },
+          address,
           userID: userId,
           service: uniqServiceIds,
           type: "BUY",
