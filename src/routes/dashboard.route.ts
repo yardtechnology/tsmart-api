@@ -158,5 +158,16 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.accessoryDashboardController.circularGraph
     );
+    this.router.get(
+      "/dashboard/accessory/card",
+      super.isAuthenticated,
+      this.accessoryDashboardController.card
+    );
+    // top 5 accessory
+    this.router.get(
+      "/dashboard/accessory/top-accessory",
+      super.isAuthenticated,
+      this.accessoryDashboardController.topAccessories
+    );
   }
 }
