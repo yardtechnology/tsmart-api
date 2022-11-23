@@ -170,7 +170,7 @@ class ServicePrice extends MediaLogic {
           : [new Types.ObjectId(String(servicePriceIds))]
         : [];
 
-      const aggregationQuery = [
+      const aggregationQuery: any[] = [
         {
           $match: {
             model: new Types.ObjectId(model),
@@ -320,6 +320,12 @@ class ServicePrice extends MediaLogic {
       ];
       if (role === "ADMIN") {
         aggregationQuery.splice(4);
+      } else {
+        aggregationQuery.push({
+          $sort: {
+            cardSize: 1,
+          },
+        });
       }
       const servicePriceData = await aggregationData<ServicePriceType>({
         model: ServicePriceModel,
