@@ -115,7 +115,6 @@ export default class ServiceLogic {
               store: "$servicePrices.store",
               type: "$servicePrices.type",
               isMostPopular: "$servicePrices.isMostPopular",
-              _id: 0,
             },
           },
         ]);
