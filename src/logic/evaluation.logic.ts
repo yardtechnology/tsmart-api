@@ -54,6 +54,46 @@ class EvaluationLogic {
       }
     });
   }
+  sellSummery({
+    evaluationPriceIds,
+    sellPriceId,
+  }: {
+    evaluationPriceIds?: string[];
+    sellPriceId: string;
+  }): Promise<{
+    estimatePrice: number;
+    evaluatePrice: number;
+    deductedPrice: number;
+  }> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const evaluationPriceFind = evaluationPriceIds?.length
+          ? await EvaluationPriceSchema.find({
+              _id: { $in: evaluationPriceIds },
+            }).select("price")
+          : [];
+        if (evaluationPriceIds?.length && !evaluationPriceFind.length)
+          throw new Error("Evaluation price id are error.");
+        const deductedPrice = evaluationPriceFind.reduce((ac, ele) => {
+          return ac + ele.price;
+        }, 0);
+        const sellPriceFind = await SalePriceModel.findById(sellPriceId).select(
+          "price"
+        );
+        if (!sellPriceFind)
+          throw new Error("Sale price of this model is not found.");
+        const evaluatePrice = sellPriceFind?.price - deductedPrice;
+
+        return resolve({
+          deductedPrice: deductedPrice,
+          estimatePrice: sellPriceFind.price,
+          evaluatePrice,
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
 }
 
 export default EvaluationLogic;
