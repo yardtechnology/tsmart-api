@@ -17,25 +17,21 @@ class Bank {
       fieldValidateError(req);
 
       // save bank data to database
-      let bankData = await BankModel.findOne(
+
+      const bankData = await BankModel.findOneAndUpdate(
         { user: req.currentUser?._id },
         {
           fullName: req.body?.fullName,
           accountNumber: req.body?.accountNumber,
           SORDCode: req.body?.SORDCode,
           bankName: req.body?.bankName,
-          user: req.currentUser?._id,
+        },
+        {
+          upsert: true,
+          runValidators: true,
+          new: true,
         }
       );
-      //if bank detail not exist, create it
-      if (!bankData) {
-        bankData = await new BankModel({
-          fullName: req.body?.fullName,
-          accountNumber: req.body?.accountNumber,
-          SORDCode: req.body?.SORDCode,
-          user: req.currentUser?._id,
-        }).save();
-      }
 
       // send response to client
       res.status(200).json({
