@@ -18,11 +18,17 @@ class WishListLogic {
   }): Promise<WishListType> {
     return new Promise<WishListType>(async (resolve, reject) => {
       try {
-        const userData: WishListType | null = await new WishListModel({
+        let wishListData = await WishListModel.findOne({
           user: Props.userId,
           product: Props.productId,
-        }).save();
-        resolve(userData);
+        });
+        if (!wishListData) {
+          wishListData = await new WishListModel({
+            user: Props.userId,
+            product: Props.productId,
+          }).save();
+        }
+        resolve(wishListData);
       } catch (error) {
         reject(error);
       }
