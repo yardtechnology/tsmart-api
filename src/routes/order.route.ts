@@ -18,6 +18,8 @@ class Order extends AuthenticateMiddleware {
     this.getOrderDetailsRoute();
     this.updateOrderStatusRoute();
     this.createOrderPaymentRoute();
+    this.reactNativePaymentIntentsControllerRoute();
+    this.makeOrderPaidRoute();
     this.createSellOrderRoute();
     this.getOrderSummaryRoute();
     this.addExtraChargesRoute();
@@ -106,6 +108,22 @@ class Order extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.orderController.validateOrderPaymentFields,
       this.orderController.payOrderAmount
+    );
+  }
+  //react-native payment initiate
+  private reactNativePaymentIntentsControllerRoute(): void {
+    this.router.post(
+      "/orders/bill/payment-initiate",
+      super.isAuthenticated,
+      this.orderController.reactNativePaymentIntentsController
+    );
+  }
+  //make order paid
+  private makeOrderPaidRoute(): void {
+    this.router.post(
+      "/orders/bill/payment-paid",
+      super.isAuthenticated,
+      this.orderController.reactNativePaymentIntentsController
     );
   }
 

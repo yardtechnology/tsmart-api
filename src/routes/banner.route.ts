@@ -21,7 +21,7 @@ class Banner extends AuthenticateMiddleware {
     this.router.post(
       "/banner",
       super.isAdmin,
-      this.BannerController.validateCreateBannerFields,
+      this.BannerController.validateUpdateBannerFields,
       this.BannerController.createBannerController
     );
   }
