@@ -413,7 +413,7 @@ class ProductLogic extends MediaLogic {
           sort: { createdAt: -1 },
           limit,
           chunk,
-          populate: ["category"],
+          populate: ["category color memory"],
         });
 
         // send response to client
