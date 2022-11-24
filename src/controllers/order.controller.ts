@@ -482,10 +482,6 @@ class Order extends OrderLogic {
   /**
    * make order paid
    */
-
-  /**
-   * order payment
-   */
   public async makeOrderPaid(
     req: AuthRequest,
     res: Response,
