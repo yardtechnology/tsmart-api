@@ -28,28 +28,16 @@ class StripeLogic {
           email: Props?.email,
           source: Props?.source,
           name: Props?.name,
-          // address: {
-          //   line1: "TC 9/4 Old MES colony",
-          //   postal_code: "452331",
-          //   city: "Indore",
-          //   state: "Madhya Pradesh",
-          //   country: "United Kingdom",
-          // },
-          // shipping: {
-          //   address: {
-          //     line1: "TC 9/4 Old MES colony",
-          //     postal_code: "452331",
-          //     city: "Indore",
-          //     state: "Madhya Pradesh",
-          //     country: "United Kingdom",
-          //   },
-          //   name: "Lalit sekhar behera",
-          // },
+          address: Props?.address,
+          shipping: {
+            address: Props?.address,
+            name: Props?.name,
+          },
         });
         console.log({ stripeCustomerData });
         const stripeChargeData = await stripe.charges.create({
           amount: Props.amount, // Charging Rs 25
-          description: "Web Development Product",
+          description: "tSmart Payment",
           currency: Props.currency,
           customer: stripeCustomerData.id,
           receipt_email: Props.email,
@@ -68,6 +56,38 @@ class StripeLogic {
         reject(error);
       }
     });
+  }
+  public async reactNativePaymentIntents({
+    amount,
+    currency,
+  }: {
+    amount: number;
+    currency: string;
+  }) {
+    // Use an existing Customer ID if this is a returning customer.
+    const stripe = new Stripe(process.env.STRIPE_KEY as string, {
+      apiVersion: "2022-08-01",
+    });
+    const customer = await stripe.customers.create();
+    const ephemeralKey = await stripe.ephemeralKeys.create(
+      { customer: customer.id },
+      { apiVersion: "2020-03-02" }
+    );
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency,
+      customer: customer.id,
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
+
+    return {
+      paymentIntent: paymentIntent.client_secret,
+      ephemeralKey: ephemeralKey.secret,
+      customer: customer.id,
+      publishableKey: process?.env?.PUBLISHABLE_KEY,
+    };
   }
 }
 

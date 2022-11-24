@@ -436,15 +436,88 @@ class Order extends OrderLogic {
         },
       });
       //update payment status on order
-      await OrderModel.findOneAndUpdate(
+      let orderData = await OrderModel.findOneAndUpdate(
         { _id: { $in: billingData?.orders?.map((item) => item?._id) } },
         { status: "INITIATED" }
       );
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Order paid Successfully",
+        data: orderData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  /**
+   * react-native specific PaymentIntents
+   */
+  public async reactNativePaymentIntentsController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      //charge amount to the customer\
+      const { billingId } = req.body;
+      const billingData = await BillingModel.findById(billingId).populate(
+        "orders"
+      );
+      const data = new StripeLogic().reactNativePaymentIntents({
+        amount: billingData?.total as number,
+        currency: "INR",
+      });
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Payment initiated Successfully",
+        data,
+      });
     } catch (error) {
       next(error);
     }
   }
 
+  /**
+   * make order paid
+   */
+  public async makeOrderPaid(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      //charge amount to the customer\
+      const { billingId } = req.body;
+      const billingData = await BillingModel.findById(billingId).populate(
+        "orders"
+      );
+      if (!billingData) throw new Error("billingData not found");
+      //update payment status on billing
+      await BillingModel.findByIdAndUpdate(billingData?._id, {
+        status: "PAID",
+        // metadata: {
+        //   charged_id: chargedData?.id,
+        //   balance_transaction: chargedData?.balance_transaction,
+        // },
+      });
+      //update payment status on order
+      let orderData = await OrderModel.findOneAndUpdate(
+        { _id: { $in: billingData?.orders?.map((item) => item?._id) } },
+        { status: "INITIATED" }
+      );
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Order paid Successfully",
+        data: orderData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
   /** order summery */
   public async productOrderSummery(
     req: AuthRequest,
@@ -639,18 +712,21 @@ class Order extends OrderLogic {
     body("modelId")
       .not()
       .isEmpty()
+      .withMessage("modelId is required")
       .isMongoId()
-      .withMessage("modelId must be a valid service id"),
+      .withMessage("modelId must be a valid modelId"),
     body("makeId")
       .not()
       .isEmpty()
+      .withMessage("makeId is required")
       .isMongoId()
-      .withMessage("makeId must be a valid service id"),
+      .withMessage("makeId must be a valid makeId"),
     body("deviceId")
       .not()
       .isEmpty()
+      .withMessage("deviceId is required")
       .isMongoId()
-      .withMessage("deviceId must be a valid service id"),
+      .withMessage("deviceId must be a valid deviceId"),
   ];
   public validateMailInOrderPlaceFields = [
     body("addressId")
@@ -731,18 +807,21 @@ class Order extends OrderLogic {
     body("modelId")
       .not()
       .isEmpty()
+      .withMessage("modelId is required")
       .isMongoId()
-      .withMessage("modelId must be a valid service id"),
+      .withMessage("modelId must be a valid modelId"),
     body("makeId")
       .not()
       .isEmpty()
+      .withMessage("makeId is required")
       .isMongoId()
-      .withMessage("makeId must be a valid service id"),
+      .withMessage("makeId must be a valid makeId"),
     body("deviceId")
       .not()
       .isEmpty()
+      .withMessage("deviceId is required")
       .isMongoId()
-      .withMessage("deviceId must be a valid service id"),
+      .withMessage("deviceId must be a valid deviceId"),
   ];
   public validateProductOrderPlaceFields = [
     body("productId")

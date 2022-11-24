@@ -505,6 +505,24 @@ class ProductLogic extends MediaLogic {
       { $match: query },
       {
         $lookup: {
+          from: "color",
+          localField: "color",
+          foreignField: "_id",
+          as: "color",
+        },
+      },
+      { $unwind: { path: "$color", preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: "memory",
+          localField: "memory",
+          foreignField: "_id",
+          as: "memory",
+        },
+      },
+      { $unwind: { path: "$memory", preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
           from: "cartitems",
           localField: "_id",
           foreignField: "product",
