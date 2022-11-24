@@ -18,10 +18,10 @@ export default class SalePriceRoutes extends AuthenticateMiddleware {
   private routes() {
     // create
     this.router.post(
-      "/sale-price/create-and-update",
+      "/sale-price/create",
       super.isAuthenticated,
       SalePriceControllerValidation.createAndUpdate,
-      this.salePriceController.createAndUpdate
+      this.salePriceController.create
     );
     // get all
     this.router.get(

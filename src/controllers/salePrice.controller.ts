@@ -7,25 +7,16 @@ import { SalePriceModel } from "../models";
 import { AuthRequest } from "../types/core";
 
 class SalePriceController {
-  async createAndUpdate(req: AuthRequest, res: Response, next: NextFunction) {
+  async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       fieldValidateError(req);
       const { price, modelId, memoryId, colorId } = req.body;
-      const createAndUpdateSalePrice = await SalePriceModel.findOneAndUpdate(
-        {
-          model: modelId,
-        },
-        {
-          price,
-          memory: memoryId,
-          color: colorId,
-        },
-        {
-          new: true,
-          runValidators: true,
-          upsert: true,
-        }
-      );
+      const createAndUpdateSalePrice = await SalePriceModel.create({
+        model: modelId,
+        price,
+        memory: memoryId,
+        color: colorId,
+      });
       if (!createAndUpdateSalePrice)
         throw new NotFound(
           `Something went wrong, data not saved. Please try again`

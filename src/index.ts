@@ -31,10 +31,7 @@ class App {
   //   DB connection
   private connectDB(): void {
     mongoose
-      .connect(
-        process.env.MONGODB_URI || "mongodb://localhost:27017/tsmart",
-        {}
-      )
+      .connect(String(process.env.MONGODB_URI), {})
       .then(() => {
         console.log(">>>>>>>>>>>>> DATABASE IS CONNECTED <<<<<<<<<<<<<<<<");
       })
