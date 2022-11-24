@@ -28,7 +28,7 @@ class EvaluationLogic {
         const evaluationPriceFind = evaluationPriceIds?.length
           ? await EvaluationPriceSchema.find({
               _id: { $in: evaluationPriceIds },
-            }).select("price")
+            })
           : [];
         if (evaluationPriceIds?.length && !evaluationPriceFind.length)
           throw new Error("Evaluation price id are error.");
@@ -48,6 +48,7 @@ class EvaluationLogic {
           deductedPrice: deductedPrice,
           estimatePrice: sellPriceFind.price,
           evaluatePrice,
+          // evaluationPriceFind,
         });
       } catch (error) {
         reject(error);
@@ -64,13 +65,14 @@ class EvaluationLogic {
     estimatePrice: number;
     evaluatePrice: number;
     deductedPrice: number;
+    evaluationPriceFind: any[];
   }> {
     return new Promise(async (resolve, reject) => {
       try {
         const evaluationPriceFind = evaluationPriceIds?.length
           ? await EvaluationPriceSchema.find({
               _id: { $in: evaluationPriceIds },
-            }).select("price")
+            })
           : [];
         if (evaluationPriceIds?.length && !evaluationPriceFind.length)
           throw new Error("Evaluation price id are error.");
@@ -88,6 +90,7 @@ class EvaluationLogic {
           deductedPrice: deductedPrice,
           estimatePrice: sellPriceFind.price,
           evaluatePrice,
+          evaluationPriceFind,
         });
       } catch (error) {
         reject(error);
