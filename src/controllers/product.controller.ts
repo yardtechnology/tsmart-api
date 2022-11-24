@@ -294,7 +294,7 @@ class Product extends ProductLogic {
             from: "wishlists",
             localField: "_id",
             foreignField: "product",
-            as: "isInWhishList",
+            as: "isInWishList",
             pipeline: [
               {
                 $match: {
@@ -306,8 +306,8 @@ class Product extends ProductLogic {
         },
         {
           $addFields: {
-            isInWhishList: {
-              $gte: [{ $size: "$isInWhishList" }, 1],
+            isInWishList: {
+              $gte: [{ $size: "$isInWishList" }, 1],
             },
           },
         },
