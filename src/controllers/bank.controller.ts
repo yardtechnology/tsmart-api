@@ -17,25 +17,21 @@ class Bank {
       fieldValidateError(req);
 
       // save bank data to database
-      let bankData = await BankModel.findOne(
+
+      const bankData = await BankModel.findOneAndUpdate(
         { user: req.currentUser?._id },
         {
           fullName: req.body?.fullName,
           accountNumber: req.body?.accountNumber,
           SORDCode: req.body?.SORDCode,
           bankName: req.body?.bankName,
-          user: req.currentUser?._id,
+        },
+        {
+          upsert: true,
+          runValidators: true,
+          new: true,
         }
       );
-      //if bank detail not exist, create it
-      if (!bankData) {
-        bankData = await new BankModel({
-          fullName: req.body?.fullName,
-          accountNumber: req.body?.accountNumber,
-          SORDCode: req.body?.SORDCode,
-          user: req.currentUser?._id,
-        }).save();
-      }
 
       // send response to client
       res.status(200).json({
@@ -110,30 +106,28 @@ class Bank {
   public validateUpdateBankFields = [
     body("fullName")
       .optional()
+      .exists()
       .isLength({ min: 3 })
       .withMessage("[fullName]:Full name must be at least 3 characters long")
       .isLength({ max: 25 })
       .withMessage("[fullName]:Full name must be at most 25 characters long"),
     body("accountNumber")
-      .not()
-      .isEmpty()
-      .withMessage("accountNumber is required.")
+      .optional()
+      .exists()
       .isLength({ min: 8 })
       .withMessage("accountNumber most be 8 digit.")
       .isLength({ max: 8 })
       .withMessage("accountNumber most be 8 digit."),
     body("SORDCode")
-      .not()
-      .isEmpty()
-      .withMessage("SORDCode is required.")
+      .optional()
+      .exists()
       .isLength({ min: 6 })
       .withMessage("SORDCode most be 6 digit.")
       .isLength({ max: 6 })
       .withMessage("SORDCode most be 6 digit."),
     body("bankName")
-      .not()
-      .isEmpty()
-      .withMessage("bankName is required.")
+      .optional()
+      .exists()
       .isLength({ min: 1 })
       .withMessage("[bankName]:Full name must be at least 1 characters long")
       .isLength({ max: 125 })

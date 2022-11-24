@@ -3,6 +3,7 @@ import { body, param, query } from "express-validator";
 import { NotFound } from "http-errors";
 import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
+import EvaluationLogic from "../logic/evaluation.logic";
 import { SalePriceModel } from "../models";
 import { AuthRequest } from "../types/core";
 
@@ -60,6 +61,14 @@ class SalePriceController {
           },
           {
             path: "model",
+            populate: [
+              {
+                path: "device",
+              },
+              {
+                path: "make",
+              },
+            ],
           },
         ],
         sort: {
@@ -72,7 +81,7 @@ class SalePriceController {
           getAllData?.data?.length === 1
             ? `SalePrice found successfully`
             : "All SalePrices found successfully.",
-        data: getAllData,
+        data: salePriceId ? getAllData?.data?.[0] : getAllData,
       });
     } catch (error) {
       next(error);
@@ -88,6 +97,23 @@ class SalePriceController {
       res.json({
         status: "SUCCESS",
         message: "SalePrice deleted successfully.",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async saleSummery(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { evaluationPriceIds, sellPriceId } = req.body;
+      fieldValidateError(req);
+      const saleSummery = await new EvaluationLogic().sellSummery({
+        evaluationPriceIds,
+        sellPriceId,
+      });
+      res.json({
+        status: "SUCCESS",
+        message: "SalePrice summery get successfully.",
+        data: saleSummery,
       });
     } catch (error) {
       next(error);
@@ -144,6 +170,19 @@ export const SalePriceControllerValidation = {
       .withMessage("modelId must be required")
       .isMongoId()
       .withMessage("salePriceId most be mongoose id."),
+  ],
+  saleSummery: [
+    body("evaluationPriceIds.*")
+      .optional()
+      .exists()
+      .isMongoId()
+      .withMessage("evaluationPriceIds most be mongooseId."),
+    body("sellPriceId")
+      .not()
+      .isEmpty()
+      .withMessage("sellPriceId is required.")
+      .isMongoId()
+      .withMessage("sellPriceId most be mongoose id."),
   ],
 };
 

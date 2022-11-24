@@ -15,6 +15,9 @@ const evaluationSchema = new Schema<EVALUATION_TYPE, Model<EVALUATION_TYPE>>(
       index: true,
       require: [true, "Device title is required."],
     },
+    description: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
