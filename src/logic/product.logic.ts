@@ -413,7 +413,7 @@ class ProductLogic extends MediaLogic {
           sort: { createdAt: -1 },
           limit,
           chunk,
-          populate: ["category color memory"],
+          populate: "category color memory",
         });
 
         // send response to client
@@ -505,7 +505,7 @@ class ProductLogic extends MediaLogic {
       { $match: query },
       {
         $lookup: {
-          from: "color",
+          from: "colors",
           localField: "color",
           foreignField: "_id",
           as: "color",
@@ -514,7 +514,7 @@ class ProductLogic extends MediaLogic {
       { $unwind: { path: "$color", preserveNullAndEmptyArrays: true } },
       {
         $lookup: {
-          from: "memory",
+          from: "memories",
           localField: "memory",
           foreignField: "_id",
           as: "memory",
