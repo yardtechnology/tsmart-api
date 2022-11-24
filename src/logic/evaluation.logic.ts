@@ -72,7 +72,14 @@ class EvaluationLogic {
         const evaluationPriceFind = evaluationPriceIds?.length
           ? await EvaluationPriceSchema.find({
               _id: { $in: evaluationPriceIds },
-            })
+            }).populate([
+              {
+                path: "model",
+              },
+              {
+                path: "evaluation",
+              },
+            ])
           : [];
         if (evaluationPriceIds?.length && !evaluationPriceFind.length)
           throw new Error("Evaluation price id are error.");
