@@ -33,7 +33,7 @@ export default class SalePriceRoutes extends AuthenticateMiddleware {
     );
     // delete
     this.router.delete(
-      "/sale-price/:SalePriceId",
+      "/sale-price/:_id",
       super.isAuthenticated,
       SalePriceControllerValidation.delete,
       this.salePriceController.delete
