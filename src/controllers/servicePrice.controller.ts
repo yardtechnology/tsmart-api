@@ -384,9 +384,11 @@ class ServicePrice extends MediaLogic {
     try {
       const { servicePriceIds, couponId } = req.body;
       fieldValidateError(req);
-
+      const arrayServicePriceId = Array.isArray(servicePriceIds)
+        ? servicePriceIds
+        : [servicePriceIds];
       let dataServiceSummery = await new ServiceLogic().getPriceBYServiceId({
-        servicePriceId: servicePriceIds,
+        servicePriceId: arrayServicePriceId,
       });
       const couponCalculation =
         dataServiceSummery?.salePrice && couponId
