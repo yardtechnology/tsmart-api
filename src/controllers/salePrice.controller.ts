@@ -61,6 +61,14 @@ class SalePriceController {
           },
           {
             path: "model",
+            populate: [
+              {
+                path: "device",
+              },
+              {
+                path: "make",
+              },
+            ],
           },
         ],
         sort: {
