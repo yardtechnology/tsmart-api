@@ -46,6 +46,7 @@ export default class ServiceLogic {
               _id: null,
               allData: { $push: "$$ROOT" },
               servicePrices: { $first: "$servicePrices" },
+              id: { $first: "$_id" },
             },
           },
           {
@@ -108,6 +109,7 @@ export default class ServiceLogic {
 
           {
             $project: {
+              _id: "$servicePrices._id",
               service: "$servicePrices.service",
               mrp: "$servicePrices.mrp",
               salePrice: "$servicePrices.salePrice",
