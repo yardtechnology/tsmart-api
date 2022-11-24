@@ -20,7 +20,7 @@ class Holiday extends AuthenticateMiddleware {
   private addHolidayRoute(): void {
     this.router.post(
       "/holiday",
-      super.isAdmin,
+      super.isManager,
       this.holidayController.validateCreateHoliday,
       this.holidayController.createHolidayController
     );
@@ -29,7 +29,7 @@ class Holiday extends AuthenticateMiddleware {
   private updateHolidayRoute(): void {
     this.router.put(
       "/holiday/:HolidayId",
-      super.isAdmin,
+      super.isManager,
       this.holidayController.validateUpdateHoliday,
       this.holidayController.updateHolidayController
     );
@@ -39,7 +39,7 @@ class Holiday extends AuthenticateMiddleware {
   private deleteHolidayRoute(): void {
     this.router.delete(
       "/holiday/:HolidayId",
-      super.isAdmin,
+      super.isManager,
       this.holidayController.deleteHolidayController
     );
   }
