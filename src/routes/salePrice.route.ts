@@ -39,7 +39,7 @@ export default class SalePriceRoutes extends AuthenticateMiddleware {
       this.salePriceController.delete
     );
     // sale summery
-    this.router.delete(
+    this.router.post(
       "/sale-price/sale-summery",
       super.isAuthenticated,
       SalePriceControllerValidation.saleSummery,
