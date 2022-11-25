@@ -1,6 +1,12 @@
 import { io } from "socket.io-client";
 import { getDistance } from "../helper/core.helper";
-import { DevicesSchema, EvaluationPriceSchema, MakeSchema } from "../models";
+import {
+  ColorSchema,
+  DevicesSchema,
+  EvaluationPriceSchema,
+  MakeSchema,
+  MemorySchema,
+} from "../models";
 import { AddressModel } from "../models/address.model";
 import { OrderModel } from "../models/order.model";
 import { ProductModel } from "../models/product.model";
@@ -417,10 +423,10 @@ class OrderLogic {
         const deviceData = await DevicesSchema.findById(deviceId);
         if (!deviceData) throw new Error("device not found");
         //check color if exist or not
-        const colorData = await DevicesSchema.findById(colorId);
+        const colorData = await ColorSchema.findById(colorId);
         if (!colorData) throw new Error("color not found");
         //check memory if exist or not
-        const memoryData = await DevicesSchema.findById(memoryId);
+        const memoryData = await MemorySchema.findById(memoryId);
         if (!memoryData) throw new Error("memory not found");
         //remove duplicate service ids
         const uniqFalsyEvaluatedValues = await EvaluationPriceSchema.find({
