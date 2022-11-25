@@ -24,7 +24,7 @@ export default class SalePriceRoutes extends AuthenticateMiddleware {
       this.salePriceController.create
     );
     this.router.put(
-      "/sale-price/update",
+      "/sale-price/update/:salePriceId",
       SalePriceControllerValidation.update,
       super.isAuthenticated,
       this.salePriceController.update
