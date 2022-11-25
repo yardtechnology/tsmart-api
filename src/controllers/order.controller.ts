@@ -465,14 +465,15 @@ class Order extends OrderLogic {
       const billingData = await BillingModel.findById(billingId).populate(
         "orders"
       );
-      const data = new StripeLogic().reactNativePaymentIntents({
+      console.log(billingData?.orders[0]?.address);
+      const data = await new StripeLogic().reactNativePaymentIntents({
         amount: billingData?.total as number,
         currency: "INR",
         address: {
           country: billingData?.orders[0]?.address?.country,
           line1: billingData?.orders[0]?.address?.street,
         },
-        name: billingData?.orders[0]?.user?.displayName,
+        name: billingData?.orders[0]?.address?.name,
       });
       res.status(200).json({
         status: "SUCCESS",

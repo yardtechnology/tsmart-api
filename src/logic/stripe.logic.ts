@@ -79,16 +79,14 @@ class StripeLogic {
       { apiVersion: "2020-03-02" }
     );
     const paymentIntent = await stripe.paymentIntents.create({
-      amount,
+      amount: amount * 100,
       currency,
       customer: customer.id,
       shipping: {
         name: name,
         address,
       },
-      automatic_payment_methods: {
-        enabled: true,
-      },
+      payment_method_types: ["card"],
     });
 
     return {
