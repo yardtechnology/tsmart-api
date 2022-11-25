@@ -107,6 +107,7 @@ class Holiday extends HolidayLogic {
       // send error to client
       next(error);
     }
+    // 
   }
 
   public validateCreateHoliday = [
