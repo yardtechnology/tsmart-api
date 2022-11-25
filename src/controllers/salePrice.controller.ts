@@ -122,6 +122,25 @@ class SalePriceController {
       next(error);
     }
   }
+  async update(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { salePriceId } = req.params;
+      const { price } = req.body;
+      const updateSalePrice = await SalePriceModel.findByIdAndUpdate(
+        salePriceId,
+        {
+          price,
+        }
+      );
+      res.json({
+        status: "SUCCESS",
+        message: "Price updated successfully.",
+        data: updateSalePrice,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 export const SalePriceControllerValidation = {
   createAndUpdate: [
@@ -186,6 +205,20 @@ export const SalePriceControllerValidation = {
       .withMessage("sellPriceId is required.")
       .isMongoId()
       .withMessage("sellPriceId most be mongoose id."),
+  ],
+  update: [
+    param("salePriceId")
+      .not()
+      .isEmpty()
+      .withMessage("sellPriceId is required.")
+      .isMongoId()
+      .withMessage("sellPriceId most be mongoose id."),
+    body("price")
+      .not()
+      .isEmpty()
+      .withMessage("price is required.")
+      .isNumeric()
+      .withMessage("price most be number."),
   ],
 };
 
