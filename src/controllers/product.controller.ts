@@ -862,9 +862,9 @@ class Product extends ProductLogic {
       .isLength({ max: 20 })
       .withMessage("title must be at most 20 characters long"),
     body("shortDescription")
-      .isLength({ min: 8 })
+      .isLength({ min: 3 })
       .withMessage("Short description must be at least 8 characters long")
-      .isLength({ max: 51 })
+      .isLength({ max: 250 })
       .withMessage("Short description must be at most 51 characters long"),
     body("description")
       .optional()
@@ -904,9 +904,9 @@ class Product extends ProductLogic {
       .withMessage("title must be at most 20 characters long"),
     body("shortDescription")
       .optional()
-      .isLength({ min: 8 })
+      .isLength({ min: 3 })
       .withMessage("Short description must be at least 8 characters long")
-      .isLength({ max: 51 })
+      .isLength({ max: 250 })
       .withMessage("Short description must be at most 51 characters long"),
     body("description")
       .optional()
