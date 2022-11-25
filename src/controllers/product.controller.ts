@@ -90,6 +90,10 @@ class Product extends ProductLogic {
         type: req.body?.type,
         images: imagesData,
         moq: req.body?.moq,
+        device: req?.body?.device,
+        make: req?.body?.make,
+        model: req?.body?.model,
+        //
       }).save();
 
       // send response to client
@@ -795,11 +799,17 @@ class Product extends ProductLogic {
   /** fields validators for the product creation request */
   public validateCreateProductFields = [
     body("title")
+      .not()
+      .isEmpty()
+      .withMessage("title must be required.")
       .isLength({ min: 3 })
       .withMessage("title must be at least 3 characters long")
       .isLength({ max: 20 })
       .withMessage("title must be at most 20 characters long"),
     body("shortDescription")
+      .not()
+      .isEmpty()
+      .withMessage("shortDescription must be required.")
       .isLength({ min: 8 })
       .withMessage("Short description must be at least 8 characters long")
       .isLength({ max: 250 })
@@ -821,6 +831,24 @@ class Product extends ProductLogic {
       .optional()
       .isIn(["REFURBISHED", "ACCESSORY"])
       .withMessage("type must be REFURBISHED, ACCESSORY"),
+    body("device")
+      .not()
+      .isEmpty()
+      .withMessage("device is required.")
+      .isMongoId()
+      .withMessage("device must be mongoes id."),
+    body("make")
+      .not()
+      .isEmpty()
+      .withMessage("make is required.")
+      .isMongoId()
+      .withMessage("make must be mongoes id."),
+    body("model")
+      .not()
+      .isEmpty()
+      .withMessage("model is required.")
+      .isMongoId()
+      .withMessage("model must be mongoes id."),
   ];
 
   /** fields validators for the product variant creation request */
