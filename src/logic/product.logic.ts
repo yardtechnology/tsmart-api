@@ -679,6 +679,7 @@ class ProductLogic extends MediaLogic {
       },
     };
     !filterJSON?.rating && delete queryTwo.rating;
+    !filterJSON?.discount && delete queryTwo.discount;
 
     let sorting: any = { _id: 1 };
     //sorting
@@ -705,6 +706,7 @@ class ProductLogic extends MediaLogic {
         );
     }
     console.log({ queryOne });
+    console.log({ queryTwo });
     // get all wishlist products
     const wishListData: { product: string }[] = userId
       ? await WishListModel.find({

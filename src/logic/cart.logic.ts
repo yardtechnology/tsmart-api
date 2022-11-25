@@ -93,8 +93,8 @@ class CartLogic {
           },
           { $project: { _id: 0 } },
         ]);
-        if (!cartItems.length) throw new Error("No items in cart");
-        resolve(cartItems[0]);
+
+        resolve(cartItems[0] || []);
       } catch (error) {
         reject(error);
       }
