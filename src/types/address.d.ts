@@ -18,4 +18,5 @@ export default interface AddressType extends Document {
   latitude: number;
   longitude: number;
   type?: "HOME" | "WORK" | "OTHER";
+  line1: string;
 }

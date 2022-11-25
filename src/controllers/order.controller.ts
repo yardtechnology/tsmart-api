@@ -468,6 +468,11 @@ class Order extends OrderLogic {
       const data = new StripeLogic().reactNativePaymentIntents({
         amount: billingData?.total as number,
         currency: "INR",
+        address: {
+          country: billingData?.orders[0]?.address?.country,
+          line1: billingData?.orders[0]?.address?.street,
+        },
+        name: billingData?.orders[0]?.user?.displayName,
       });
       res.status(200).json({
         status: "SUCCESS",

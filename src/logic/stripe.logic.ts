@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import AddressType from "../types/address";
 
 class StripeLogic {
   /**
@@ -60,9 +61,13 @@ class StripeLogic {
   public async reactNativePaymentIntents({
     amount,
     currency,
+    address,
+    name,
   }: {
     amount: number;
     currency: string;
+    address: Partial<AddressType>;
+    name: string;
   }) {
     // Use an existing Customer ID if this is a returning customer.
     const stripe = new Stripe(process.env.STRIPE_KEY as string, {
@@ -77,6 +82,10 @@ class StripeLogic {
       amount,
       currency,
       customer: customer.id,
+      shipping: {
+        name: name,
+        address,
+      },
       automatic_payment_methods: {
         enabled: true,
       },
