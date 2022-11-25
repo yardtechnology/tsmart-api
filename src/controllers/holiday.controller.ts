@@ -118,17 +118,13 @@ class Holiday extends HolidayLogic {
       .isMongoId()
       .withMessage("Please enter a valid store id"),
     body("title")
-      .not()
-      .isEmpty()
-      .withMessage("Title is required")
+      .optional()
       .isLength({ min: 3 })
       .withMessage("Title must be at least 3 characters long")
       .isLength({ max: 101 })
       .withMessage("Title must be at most 101 characters long"),
     body("description")
-      .not()
-      .isEmpty()
-      .withMessage("Description is required")
+      .optional()
       .isLength({ min: 3 })
       .withMessage("Description must be at least 3 characters long"),
   ];
