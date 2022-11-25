@@ -380,7 +380,7 @@ class Product extends ProductLogic {
                   count: {
                     $sum: 1,
                   },
-                  dataPush: {
+                  package: {
                     $push: {
                       _id: "$_id",
                       color: "$color",
@@ -392,10 +392,12 @@ class Product extends ProductLogic {
               },
               {
                 $project: {
-                  color: "$_id",
+                  color: "$_id.color",
+                  hashCode: "$_id.hashCode",
+                  _id: "$_id._id",
                   firstId: "$id",
                   count: 1,
-                  dataPush: 1,
+                  package: 1,
                 },
               },
             ],
@@ -450,7 +452,7 @@ class Product extends ProductLogic {
                   count: {
                     $sum: 1,
                   },
-                  dataPush: {
+                  package: {
                     $push: {
                       _id: "$_id",
                       color: "$color",
@@ -465,7 +467,7 @@ class Product extends ProductLogic {
                   condition: "$_id",
                   firstId: "$id",
                   count: 1,
-                  dataPush: 1,
+                  package: 1,
                 },
               },
             ],
@@ -521,7 +523,7 @@ class Product extends ProductLogic {
                   count: {
                     $sum: 1,
                   },
-                  dataPush: {
+                  package: {
                     $push: {
                       _id: "$_id",
                       color: "$color",
@@ -536,7 +538,7 @@ class Product extends ProductLogic {
                   condition: "$_id",
                   firstId: "$id",
                   count: 1,
-                  dataPush: 1,
+                  package: 1,
                 },
               },
             ],
