@@ -535,7 +535,9 @@ class Product extends ProductLogic {
               },
               {
                 $project: {
-                  condition: "$_id",
+                  internal: "$_id.internal",
+                  ram: "$_id.ram",
+                  _id: "$_id._id",
                   firstId: "$id",
                   count: 1,
                   package: 1,
