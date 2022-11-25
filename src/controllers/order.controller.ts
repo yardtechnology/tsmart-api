@@ -1,7 +1,7 @@
 import { NextFunction, Response } from "express";
 import { body, param } from "express-validator";
 import { io } from "socket.io-client";
-import { fieldValidateError } from "../helper";
+import { fieldValidateError, paginationHelper } from "../helper";
 import BillingLogic from "../logic/billing.logic";
 import CartLogic from "../logic/cart.logic";
 import OrderLogic from "../logic/order.logic";
@@ -692,6 +692,50 @@ class Order extends OrderLogic {
         status: "SUCCESS",
         message: "Job requests accepted successfully",
         data: jobRequests,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  /**
+   * get stores all orders
+   * @param req
+   * @param res
+   * @param next
+   */
+  public async getAllOrdersController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      let query = {
+        status: req.query.status?.toString()?.toUpperCase(),
+        userId: req?.currentUser?._id,
+        storeId: req.currentUser?.store,
+      };
+      !req?.query?.status && delete query?.status;
+      req?.currentUser?.role !== "MANAGER" && delete query?.storeId;
+
+      let orderData = paginationHelper({
+        model: OrderModel,
+        query,
+        populate: [
+          {
+            path: "service",
+            populate: {
+              path: "service",
+            },
+          },
+        ],
+        sort: { createdAt: -1 },
+        limit: req.query.limit ? Number(req.query.limit) : undefined,
+        chunk: req.query.chunk ? Number(req.query.chunk) : undefined,
+      });
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Orders found successfully",
+        data: orderData,
       });
     } catch (error) {
       next(error);
