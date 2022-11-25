@@ -158,6 +158,9 @@ class Product extends ProductLogic {
             images: imagesData,
           },
           moq: req.body?.moq,
+          device: req?.body?.device,
+          make: req?.body?.make,
+          model: req?.body?.model,
         });
       if (!updatedProduct) throw new Error("Product not found");
 
@@ -929,6 +932,22 @@ class Product extends ProductLogic {
       .optional()
       .isIn(["REFURBISHED", "ACCESSORY"])
       .withMessage("type must be REFURBISHED, ACCESSORY"),
+
+    body("device")
+      .optional()
+      .exists()
+      .isMongoId()
+      .withMessage("device must be mongoes id."),
+    body("make")
+      .optional()
+      .exists()
+      .isMongoId()
+      .withMessage("make must be mongoes id."),
+    body("model")
+      .optional()
+      .exists()
+      .isMongoId()
+      .withMessage("model must be mongoes id."),
   ];
 
   /** fields validators for the product stock add request */
