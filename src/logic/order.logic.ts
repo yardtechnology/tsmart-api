@@ -272,7 +272,9 @@ class OrderLogic {
         //send socket event to every
         const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
         socket.on("connect", () => {
+          console.log("SOCKET CONNECTED");
           for (const technicianId in nearByTechnicians) {
+            console.log("TECH: ", technicianId);
             socket.emit("NEW-JOB-REQUEST", {
               technicianId,
             });
