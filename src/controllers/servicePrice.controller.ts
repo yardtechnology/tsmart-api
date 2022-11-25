@@ -1,14 +1,17 @@
 import { NextFunction, Response } from "express";
 import { body, param, query } from "express-validator";
 import { Types } from "mongoose";
-import { aggregationData, fieldValidateError } from "../helper";
+import {
+  aggregationData,
+  fieldValidateError,
+  paginationHelper,
+} from "../helper";
 import CouponLogic from "../logic/coupon.logic";
 import MediaLogic from "../logic/media.logic";
 import ServiceLogic from "../logic/service.logic";
 import { ServicePriceModel } from "../models/servicePrice.model";
 import { AuthRequest } from "../types/core";
 import ServicePriceType from "../types/servicePrice";
-
 class ServicePrice extends MediaLogic {
   // create servicePrice
   public async createServicePrice(
@@ -124,18 +127,30 @@ class ServicePrice extends MediaLogic {
   ): Promise<any> {
     try {
       // save servicePrice data to database
-      const servicePriceData: ServicePriceType | null =
-        await ServicePriceModel.findById(req.params.servicePriceId)
-          .populate(["store", "model", "service"])
-          .select("-imagePath");
-
-      if (!servicePriceData) throw new Error("ServicePrice not found");
+      const { servicePriceId } = req.query;
+      const query: any = {};
+      servicePriceId && (query["_id"] = servicePriceId);
+      const getAllServicePrice = await paginationHelper({
+        model: ServicePriceModel,
+        query,
+        limit: req.query.limit,
+        chunk: req.query.chunk,
+        sort: { createdAt: -1 },
+        populate: [
+          {
+            path: "service",
+            select: "-imagePATH",
+          },
+        ],
+      });
 
       // send response to client
       res.status(200).json({
         status: "SUCCESS",
         message: "ServicePrice found successfully",
-        data: servicePriceData,
+        data: servicePriceId
+          ? getAllServicePrice?.data?.[0]
+          : getAllServicePrice,
       });
     } catch (error) {
       // send error to client

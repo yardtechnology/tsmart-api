@@ -39,14 +39,14 @@ class ServicePrice extends AuthenticateMiddleware {
       this.servicePriceController.updateServicePrice
     );
     this.router.get(
+      "/service-price/all",
+      this.servicePriceController.getServicePrice
+    );
+    this.router.get(
       "/service-prices/:model",
       super.isAuthenticated,
       ServicePriceControllerValidation.getAllServicePrice,
       this.servicePriceController.getAllServicePrice
-    );
-    this.router.get(
-      "/service-price/one/:servicePriceId",
-      this.servicePriceController.getServicePrice
     );
 
     this.router.post(
