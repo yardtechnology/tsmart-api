@@ -890,7 +890,7 @@ class Product extends ProductLogic {
       .withMessage("Invalid id provided for field variantOf"),
     body("condition")
       .optional()
-      .isIn([["GOOD", "BETTER", "BEST"]])
+      .isIn(["GOOD", "BETTER", "BEST"])
       .withMessage("Condition must be GOOD, BETTER, BEST"),
     body("type")
       .optional()
