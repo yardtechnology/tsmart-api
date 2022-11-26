@@ -28,6 +28,14 @@ class Order extends AuthenticateMiddleware {
     this.getAllOrders();
   }
 
+  //get all orders
+  private getAllOrders(): void {
+    this.router.get(
+      "/orders",
+      this.isAuthenticated,
+      this.orderController.getAllOrdersController
+    );
+  }
   // place store service order
   private createOrderRoute(): void {
     this.router.post(
@@ -161,14 +169,6 @@ class Order extends AuthenticateMiddleware {
       "/orders/:orderId/job-accept",
       this.isAuthenticated,
       this.orderController.acceptJobRequestController
-    );
-  }
-  //get all orders
-  private getAllOrders(): void {
-    this.router.get(
-      "/orders",
-      this.isAuthenticated,
-      this.orderController.getAllOrdersController
     );
   }
 }
