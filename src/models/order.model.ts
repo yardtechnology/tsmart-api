@@ -3,10 +3,7 @@ import OrderType from "../types/order";
 
 const orderSchema = new Schema<OrderType>(
   {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
+    user: {},
     store: {
       type: {},
     },
