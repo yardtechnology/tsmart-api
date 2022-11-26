@@ -646,10 +646,21 @@ class ProductLogic extends MediaLogic {
     console.log({ filterJSON });
     const queryOne = {
       type: type,
-      make: makeId,
-      model: modelId,
-      color: colorId,
-      memory: memoryId,
+      device: filterJSON?.device && {
+        $in: filterJSON?.device.map((item: string) => new Types.ObjectId(item)),
+      },
+      make: filterJSON?.make && {
+        $in: filterJSON?.make.map((item: string) => new Types.ObjectId(item)),
+      },
+      model: filterJSON?.model && {
+        $in: filterJSON?.model.map((item: string) => new Types.ObjectId(item)),
+      },
+      color: filterJSON?.color && {
+        $in: filterJSON?.color.map((item: string) => new Types.ObjectId(item)),
+      },
+      memory: filterJSON?.memory && {
+        $in: filterJSON?.memory.map((item: string) => new Types.ObjectId(item)),
+      },
       category: filterJSON?.category && {
         $in: filterJSON?.category.map(
           (item: string) => new Types.ObjectId(item)
@@ -661,12 +672,15 @@ class ProductLogic extends MediaLogic {
       },
     };
     !type && delete queryOne.type;
-    !filterJSON?.makeId && delete queryOne.make;
-    !filterJSON?.modelId && delete queryOne.model;
-    !filterJSON?.colorId && delete queryOne.color;
-    !filterJSON?.memoryId && delete queryOne.memory;
     (!filterJSON?.category || !filterJSON?.category?.length) &&
       delete queryOne.category;
+    (!filterJSON?.device || !filterJSON?.device?.length) &&
+      delete queryOne.device;
+    (!filterJSON?.make || !filterJSON?.make?.length) && delete queryOne.make;
+    (!filterJSON?.model || !filterJSON?.model?.length) && delete queryOne.model;
+    (!filterJSON?.color || !filterJSON?.color?.length) && delete queryOne.color;
+    (!filterJSON?.memory || !filterJSON?.memory?.length) &&
+      delete queryOne.memory;
     !filterJSON?.price && delete queryOne.salePrice;
     const queryTwo = {
       rating: filterJSON?.rating && {
