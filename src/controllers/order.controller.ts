@@ -715,30 +715,48 @@ class Order extends OrderLogic {
     try {
       // validator error handler
       fieldValidateError(req);
-      const technicianData = await UserModel.findById(
-        req?.body?.technicianID
-      ).select(
-        "displayName phoneNumber country avatar email gender role reviews"
-      );
-      const jobRequests = await OrderModel.findByIdAndUpdate({
-        nearByTechnicians: [],
-        technicianID: technicianData?._id,
-        technician: technicianData,
-      });
-      //send socket event to every
-      const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
-      socket.on("connect", () => {
-        for (const technicianId in jobRequests?.nearByTechnicians) {
-          socket.emit("NEW-JOB-REQUEST", {
-            technicianId,
+      switch (req?.body?.type) {
+        case "REJECT":
+          const rejectedOrder = await OrderModel.findByIdAndUpdate({
+            $pull: { nearByTechnicians: req?.currentUser?._id },
           });
-        }
-      });
-      res.json({
-        status: "SUCCESS",
-        message: "Job requests accepted successfully",
-        data: jobRequests,
-      });
+          res.json({
+            status: "SUCCESS",
+            message: "Job requests accepted successfully",
+            data: rejectedOrder,
+          });
+          break;
+
+        default:
+          const technicianData = await UserModel.findById(
+            req?.body?.technicianID
+          ).select(
+            "displayName phoneNumber country avatar email gender role reviews"
+          );
+          const jobRequests = await OrderModel.findByIdAndUpdate(
+            req?.params?.orderId,
+            {
+              nearByTechnicians: [],
+              technicianID: technicianData?._id,
+              technician: technicianData,
+            }
+          );
+          //send socket event to every
+          const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
+          socket.on("connect", () => {
+            for (const technicianId in jobRequests?.nearByTechnicians) {
+              socket.emit("NEW-JOB-REQUEST", {
+                technicianId,
+              });
+            }
+          });
+          res.json({
+            status: "SUCCESS",
+            message: "Job requests accepted successfully",
+            data: jobRequests,
+          });
+          break;
+      }
     } catch (error) {
       next(error);
     }
@@ -962,6 +980,15 @@ class Order extends OrderLogic {
       .withMessage("paymentToken.email is required"),
     // body("amount").not().isEmpty().withMessage("amount is required"),
     // body("currency").not().isEmpty().withMessage("currency is required"),
+  ];
+
+  public validateAcceptJobRequestFields = [
+    body("type")
+      .not()
+      .isEmpty()
+      .withMessage("type must be required.")
+      .isIn(["ACCEPT", "REJECT"])
+      .withMessage("type must be ACCEPT, REJECT"),
   ];
 
   public validateGetOrderDetails = [
