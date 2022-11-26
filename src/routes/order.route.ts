@@ -150,7 +150,7 @@ class Order extends AuthenticateMiddleware {
   //get job requests
   private getJobRequest(): void {
     this.router.get(
-      "/orders/:orderId/job-requests",
+      "/technician/job-requests",
       this.isAuthenticated,
       this.orderController.getJobRequestController
     );

@@ -9,6 +9,8 @@ export default interface BillingType extends Document {
   metadata?: {
     charged_id: string;
     balance_transaction: string;
+    paymentId: string;
+    clientSecret: string;
   };
   extraChargesMetadata?: {
     charged_id: string;
