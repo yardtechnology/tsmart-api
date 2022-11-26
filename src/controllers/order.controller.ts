@@ -111,15 +111,7 @@ class Order extends OrderLogic {
       //place Walk in Repairing Order [STORE]
       let orderData = await super.placeCallOutOrder({
         userId: req.currentUser?._id as string,
-        address: {
-          latitude: req.body?.latitude,
-          longitude: req.body?.longitude,
-          street: req.body?.street,
-          houseNumber: req?.body?.houseNumber,
-          city: req?.body?.city,
-          country: req?.body?.country,
-          zip: req?.body?.zip,
-        },
+        address: req.body?.address,
         serviceIds: req.body?.serviceIds,
         modelId: req.body?.modelId,
         deviceId: req.body?.deviceId,
