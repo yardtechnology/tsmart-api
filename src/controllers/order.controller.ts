@@ -519,9 +519,6 @@ class Order extends OrderLogic {
         { _id: { $in: billingData?.orders?.map((item) => item?._id) } },
         { status: "INITIATED" }
       );
-      console.log({ billingData });
-      console.log(billingData?.orders[0]?.serviceType, "CALL_OUT");
-      console.log(billingData?.orders[0]?.serviceType === "CALL_OUT");
       // IF ORDER IS CALLOUT THE SEND REQUEST TO ALL NEAR BY TECHNICIAN
       if (billingData?.orders[0]?.serviceType === "CALL_OUT") {
         //find all technician nearby
