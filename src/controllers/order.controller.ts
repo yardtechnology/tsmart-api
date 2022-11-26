@@ -3,6 +3,7 @@ import { body, param } from "express-validator";
 import { Types } from "mongoose";
 import { io } from "socket.io-client";
 import { fieldValidateError, paginationHelper } from "../helper";
+import { getDistance } from "../helper/core.helper";
 import BillingLogic from "../logic/billing.logic";
 import CartLogic from "../logic/cart.logic";
 import OrderLogic from "../logic/order.logic";
@@ -519,12 +520,44 @@ class Order extends OrderLogic {
         { status: "INITIATED" }
       );
       // IF ORDER IS CALLOUT THE SEND REQUEST TO ALL NEAR BY TECHNICIAN
-      if (billingData?.orders[0]?.serviceType === "CALL_OUT")
-        res.status(200).json({
-          status: "SUCCESS",
-          message: "Order paid Successfully",
-          data: orderData,
+      if (billingData?.orders[0]?.serviceType === "CALL_OUT") {
+        //find all technician nearby
+        const allTechnician = await UserModel.find({
+          role: "TECHNICIAN",
+          deviceType: billingData?.orders[0]?.device?._id,
+          makeType: billingData?.orders[0]?.make?._id,
         });
+        const nearByTechnicians: string[] = allTechnician
+          .filter(
+            (user: any) =>
+              50 >=
+              getDistance(
+                billingData?.orders[0]?.address?.latitude as number,
+                billingData?.orders[0]?.address?.longitude as number,
+                user?.latitude,
+                user?.longitude,
+                "K"
+              )
+          )
+          .map((user) => user?._id);
+        console.log("BEFORE SOCKET CONNECTED");
+        //send socket event to every
+        const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
+        socket.on("connect", () => {
+          console.log("SOCKET CONNECTED");
+          for (const technicianId of nearByTechnicians) {
+            console.log("TECH: ", technicianId);
+            socket.emit("NEW-JOB-REQUEST", {
+              technicianId,
+            });
+          }
+        });
+      }
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Order paid Successfully",
+        data: orderData,
+      });
     } catch (error) {
       next(error);
     }
