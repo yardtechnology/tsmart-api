@@ -875,8 +875,18 @@ export const storeControlValidator = {
       .withMessage("zip code must be grater then 5 digit")
       .isLength({ max: 11 })
       .withMessage("zip code must be at most 11 digit"),
-    body("latitude").not().isEmpty().withMessage("latitude is required"),
-    body("longitude").not().isEmpty().withMessage("longitude is required"),
+    body("latitude")
+      .not()
+      .isEmpty()
+      .withMessage("latitude is required")
+      .isNumeric()
+      .withMessage("must be number"),
+    body("longitude")
+      .not()
+      .isEmpty()
+      .withMessage("longitude is required")
+      .isNumeric()
+      .withMessage("must be number"),
     body("country")
       .not()
       .isEmpty()
