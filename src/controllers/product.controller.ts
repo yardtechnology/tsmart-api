@@ -834,19 +834,23 @@ class Product extends ProductLogic {
       .optional()
       .isIn(["REFURBISHED", "ACCESSORY"])
       .withMessage("type must be REFURBISHED, ACCESSORY"),
+
     body("device")
+      .if((value: string, { req }: any) => req.body.type === "REFURBISHED")
       .not()
       .isEmpty()
       .withMessage("device is required.")
       .isMongoId()
       .withMessage("device must be mongoes id."),
     body("make")
+      .if((value: string, { req }: any) => req.body.type === "REFURBISHED")
       .not()
       .isEmpty()
       .withMessage("make is required.")
       .isMongoId()
       .withMessage("make must be mongoes id."),
     body("model")
+      .if((value: string, { req }: any) => req.body.type === "REFURBISHED")
       .not()
       .isEmpty()
       .withMessage("model is required.")
