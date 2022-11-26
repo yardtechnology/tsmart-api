@@ -1,5 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body, param } from "express-validator";
+import { Types } from "mongoose";
 import { io } from "socket.io-client";
 import { fieldValidateError, paginationHelper } from "../helper";
 import { getDistance } from "../helper/core.helper";
@@ -688,10 +689,14 @@ class Order extends OrderLogic {
     try {
       // validator error handler
       fieldValidateError(req);
-      console.log(req?.currentUser?._id);
-      const jobRequests = await OrderModel.find({
-        nearByTechnicians: req?.currentUser?._id,
-      });
+      console.log("RANJIT", req?.currentUser?._id);
+      const jobRequests = await OrderModel.aggregate([
+        {
+          $match: {
+            nearByTechnicians: new Types.ObjectId(req?.currentUser?._id),
+          },
+        },
+      ]);
       res.json({
         status: "SUCCESS",
         message: "Job requests fetched successfully",
