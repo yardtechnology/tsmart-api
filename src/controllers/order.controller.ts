@@ -712,6 +712,7 @@ class Order extends OrderLogic {
         userId: req?.currentUser?._id,
         storeId: req.currentUser?.store,
         technicianID: req.currentUser?._id,
+        type: req.query.status?.toString()?.toUpperCase(),
       };
       !req?.query?.status && delete query?.status;
       req?.currentUser?.role !== "MANAGER" && delete query?.storeId;
