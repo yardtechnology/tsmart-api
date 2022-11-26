@@ -816,8 +816,8 @@ export const storeControlValidator = {
       .optional()
       .isLength({ min: 3 })
       .withMessage("Display name must be at least 3 characters long")
-      .isLength({ max: 10 })
-      .withMessage("Display name must be at most 20 characters long"),
+      .isLength({ max: 100 })
+      .withMessage("Display name must be at most 100 characters long"),
     body("email").optional().isEmail().withMessage("Invalid mail id"),
     body("phoneNumber")
       .optional()
