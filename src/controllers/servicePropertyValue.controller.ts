@@ -28,7 +28,11 @@ class ServicePropertyValueController {
     }
   }
 
-  async getAll(req: AuthRequest, res: Response, next: NextFunction) {
+  async getAllAccordingServicePrice(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const { limit, chunk, servicePropertyValueId } = req.query;
       const { servicePrice, serviceProperty } = req.params;
@@ -112,6 +116,32 @@ class ServicePropertyValueController {
       next(error);
     }
   }
+  async getAll(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { serviceId, chunk, limit } = req.query;
+      const query: any = {};
+      serviceId && (query["service"] = serviceId);
+      const allServiceProperty = await paginationHelper({
+        model: ServicePropertyValueSchema,
+        query,
+        chunk: chunk ? Number(chunk) : undefined,
+        limit: limit ? Number(limit) : undefined,
+        select: "",
+        populate: [
+          {
+            path: "service",
+          },
+        ],
+      });
+      res.json({
+        status: "SUCCESS",
+        message: "Service property found successfully",
+        data: allServiceProperty,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 export const ServicePropertyValueControllerValidation = {
   create: [
@@ -136,7 +166,7 @@ export const ServicePropertyValueControllerValidation = {
       .isMongoId()
       .withMessage("serviceProperty must be mongoesId."),
   ],
-  getAll: [
+  getAllAccordingServicePrice: [
     param("servicePrice")
       .not()
       .isEmpty()
@@ -179,6 +209,12 @@ export const ServicePropertyValueControllerValidation = {
       .withMessage("servicePropertyValueId is required.")
       .isMongoId()
       .withMessage("servicePropertyValueId must be mongoose id."),
+  ],
+  getAll: [
+    query("serviceId")
+      .optional()
+      .isMongoId()
+      .withMessage("serviceId must be mongoes id."),
   ],
 };
 
