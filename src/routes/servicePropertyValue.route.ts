@@ -25,10 +25,17 @@ export default class ServicePropertyValueRoutes extends AuthenticateMiddleware {
     );
     // get all
     this.router.get(
-      "/service-property-value/:servicePrice/:serviceProperty",
+      "/service-property-value",
       super.isAuthenticated,
       ServicePropertyValueControllerValidation.getAll,
       this.servicePropertyValueController.getAll
+    );
+    // get all
+    this.router.get(
+      "/service-property-value/:servicePrice/:serviceProperty",
+      super.isAuthenticated,
+      ServicePropertyValueControllerValidation.getAllAccordingServicePrice,
+      this.servicePropertyValueController.getAllAccordingServicePrice
     );
     // update
     this.router.put(
