@@ -168,6 +168,7 @@ class Order extends AuthenticateMiddleware {
     this.router.put(
       "/orders/:orderId/job-accept",
       this.isAuthenticated,
+      this.orderController.validateAcceptJobRequestFields,
       this.orderController.acceptJobRequestController
     );
   }
