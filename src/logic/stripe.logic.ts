@@ -76,7 +76,7 @@ class StripeLogic {
     const customer = await stripe.customers.create();
     const ephemeralKey = await stripe.ephemeralKeys.create(
       { customer: customer.id },
-      { apiVersion: "2020-03-02" }
+      { apiVersion: "2022-08-01" }
     );
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount * 100,
