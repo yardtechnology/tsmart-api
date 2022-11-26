@@ -735,7 +735,7 @@ class Order extends OrderLogic {
       });
       res.status(200).json({
         status: "SUCCESS",
-        message: "Orders found successfully",
+        message: "Orders2 found successfully",
         data: orderData,
       });
     } catch (error) {
