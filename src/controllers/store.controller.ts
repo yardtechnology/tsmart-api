@@ -126,7 +126,7 @@ class Store extends MediaLogic {
           email: req.body?.email,
           phoneNumber: req.body?.phoneNumber,
           countryCode: req.body?.countryCode,
-          address: req.body?.address,
+
           imageURL: imageData?.url,
           imagePath: imageData?.path,
           about: req.body?.about,
@@ -236,6 +236,19 @@ class Store extends MediaLogic {
   }
 
   // TODO: DELETE STORE
+  async deleteStore(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { storeId } = req.params;
+      // send response to client
+      res.json({
+        status: "SUCCESS",
+        message: `${storeId} Stores delete in the todo list.`,
+        data: storeId,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   // Assign store manager
   public async assignStoreManager(
@@ -816,8 +829,8 @@ export const storeControlValidator = {
       .optional()
       .isLength({ min: 3 })
       .withMessage("Display name must be at least 3 characters long")
-      .isLength({ max: 20 })
-      .withMessage("Display name must be at most 20 characters long"),
+      .isLength({ max: 100 })
+      .withMessage("Display name must be at most 100 characters long"),
     body("email").optional().isEmail().withMessage("Invalid mail id"),
     body("phoneNumber")
       .optional()
@@ -835,7 +848,7 @@ export const storeControlValidator = {
       .optional()
       .isLength({ min: 5 })
       .withMessage("About must be at least 5 characters long")
-      .isLength({ max: 101 })
+      .isLength({ max: 500 })
       .withMessage("About must be at most 101 characters long"),
     body("state")
       .optional()
@@ -875,8 +888,18 @@ export const storeControlValidator = {
       .withMessage("zip code must be grater then 5 digit")
       .isLength({ max: 11 })
       .withMessage("zip code must be at most 11 digit"),
-    body("latitude").not().isEmpty().withMessage("latitude is required"),
-    body("longitude").not().isEmpty().withMessage("longitude is required"),
+    body("latitude")
+      .not()
+      .isEmpty()
+      .withMessage("latitude is required")
+      .isNumeric()
+      .withMessage("must be number"),
+    body("longitude")
+      .not()
+      .isEmpty()
+      .withMessage("longitude is required")
+      .isNumeric()
+      .withMessage("must be number"),
     body("country")
       .not()
       .isEmpty()

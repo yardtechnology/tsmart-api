@@ -84,7 +84,7 @@ class ProductLogic extends MediaLogic {
         // get product variants
         const productData: ProductType[] = await ProductModel.find({
           variantOf: Id || this._productId,
-        }).populate("category");
+        }).populate("category color");
 
         // send response to client
         resolve(productData);

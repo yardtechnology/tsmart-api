@@ -56,7 +56,7 @@ class Category extends AuthenticateMiddleware {
     this.router.get("/store/all/stores", this.storeController.getAllStores);
 
     // TODO: DELETE STORE
-
+    this.router.delete("/store/:storeId", this.storeController.deleteStore);
     // assign manager
     this.router.put(
       "/store/manager/assign/:storeId",
