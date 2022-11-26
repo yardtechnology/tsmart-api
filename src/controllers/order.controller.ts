@@ -312,7 +312,7 @@ class Order extends OrderLogic {
       // validator error handler
       fieldValidateError(req);
       //place order for product
-      const orderData = await super.orderProduct({
+      let orderData = await super.orderProduct({
         productId: req.body?.productId,
         userId: req.currentUser?._id as string,
         quantity: req.body?.quantity,
@@ -325,14 +325,18 @@ class Order extends OrderLogic {
         price: orderData?.price,
       });
       //add billing id in order data
-      OrderModel.findByIdAndUpdate(orderData?._id, {
-        billing: billingData?._id,
-      });
+      const updatedData = await OrderModel.findByIdAndUpdate(
+        orderData?._id,
+        {
+          billing: billingData?._id,
+        },
+        { new: true }
+      );
 
       res.status(200).json({
         status: "SUCCESS",
         message: "Order placed successfully",
-        data: orderData,
+        data: updatedData,
       });
     } catch (error) {
       console.log({ error });
@@ -646,6 +650,7 @@ class Order extends OrderLogic {
     try {
       // validator error handler
       fieldValidateError(req);
+      console.log(req?.currentUser?._id);
       const jobRequests = await OrderModel.find({
         nearByTechnicians: req?.currentUser?._id,
       });
@@ -716,7 +721,7 @@ class Order extends OrderLogic {
       !req?.query?.status && delete query?.status;
       req?.currentUser?.role !== "MANAGER" && delete query?.storeId;
       req?.currentUser?.role !== "TECHNICIAN" && delete query?.technicianID;
-
+      req?.currentUser?.role !== "USER" && delete query?.userId;
       let orderData = paginationHelper({
         model: OrderModel,
         query,
