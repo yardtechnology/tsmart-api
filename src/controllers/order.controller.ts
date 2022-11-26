@@ -784,7 +784,7 @@ class Order extends OrderLogic {
       req?.currentUser?.role !== "MANAGER" && delete query?.storeId;
       req?.currentUser?.role !== "TECHNICIAN" && delete query?.technicianID;
       req?.currentUser?.role !== "USER" && delete query?.userId;
-      let orderData = paginationHelper({
+      const orderData = await paginationHelper({
         model: OrderModel,
         query,
         populate: [
@@ -799,9 +799,10 @@ class Order extends OrderLogic {
         limit: req.query.limit ? Number(req.query.limit) : undefined,
         chunk: req.query.chunk ? Number(req.query.chunk) : undefined,
       });
-      res.status(200).json({
+
+      res.json({
         status: "SUCCESS",
-        message: "Orders2 found successfully",
+        message: "Orders found successfully",
         data: orderData,
       });
     } catch (error) {
