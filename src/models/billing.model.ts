@@ -15,10 +15,14 @@ const billingSchema = new Schema<BillingType>(
     metadata: {
       charged_id: String,
       balance_transaction: String,
+      paymentId: String,
+      clientSecret: String,
     },
     extraChargesMetadata: {
       charged_id: String,
       balance_transaction: String,
+      paymentId: String,
+      clientSecret: String,
     },
     couponDiscount: {
       coupon: String,

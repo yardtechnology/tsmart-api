@@ -497,7 +497,7 @@ class Order extends OrderLogic {
       // validator error handler
       fieldValidateError(req);
       //charge amount to the customer\
-      const { billingId } = req.body;
+      const { billingId, paymentId, clientSecret } = req.body;
       const billingData = await BillingModel.findById(billingId).populate(
         "orders"
       );
@@ -505,10 +505,10 @@ class Order extends OrderLogic {
       //update payment status on billing
       await BillingModel.findByIdAndUpdate(billingData?._id, {
         status: "PAID",
-        // metadata: {
-        //   charged_id: chargedData?.id,
-        //   balance_transaction: chargedData?.balance_transaction,
-        // },
+        metadata: {
+          paymentId,
+          clientSecret,
+        },
       });
       //update payment status on order
       let orderData = await OrderModel.findOneAndUpdate(
