@@ -126,7 +126,7 @@ class Store extends MediaLogic {
           email: req.body?.email,
           phoneNumber: req.body?.phoneNumber,
           countryCode: req.body?.countryCode,
-          address: req.body?.address,
+
           imageURL: imageData?.url,
           imagePath: imageData?.path,
           about: req.body?.about,
@@ -816,7 +816,7 @@ export const storeControlValidator = {
       .optional()
       .isLength({ min: 3 })
       .withMessage("Display name must be at least 3 characters long")
-      .isLength({ max: 20 })
+      .isLength({ max: 10 })
       .withMessage("Display name must be at most 20 characters long"),
     body("email").optional().isEmail().withMessage("Invalid mail id"),
     body("phoneNumber")
@@ -835,7 +835,7 @@ export const storeControlValidator = {
       .optional()
       .isLength({ min: 5 })
       .withMessage("About must be at least 5 characters long")
-      .isLength({ max: 101 })
+      .isLength({ max: 500 })
       .withMessage("About must be at most 101 characters long"),
     body("state")
       .optional()
