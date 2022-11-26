@@ -379,14 +379,20 @@ class Order extends OrderLogic {
         price,
       });
       //add billing id in order data
-      OrderModel.updateMany([{ _id: { $in: orderIds } }], {
-        billing: billingData?._id,
-      });
+      const updatedData = await OrderModel.updateMany(
+        [{ _id: { $in: orderIds } }],
+        {
+          billing: billingData?._id,
+        },
+        {
+          new: true,
+        }
+      );
 
       res.status(200).json({
         status: "SUCCESS",
         message: "Orders placed successfully",
-        data: orderedItems,
+        data: updatedData,
       });
     } catch (error) {
       console.log({ error });
