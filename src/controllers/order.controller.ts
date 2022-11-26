@@ -543,6 +543,9 @@ class Order extends OrderLogic {
               )
           )
           .map((user) => user?._id);
+        await OrderModel.findByIdAndUpdate(billingData?.orders[0]?._id, {
+          nearByTechnicians,
+        });
         console.log("BEFORE SOCKET CONNECTED");
         //send socket event to every
         const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
