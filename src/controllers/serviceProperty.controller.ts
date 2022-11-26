@@ -10,11 +10,12 @@ class ServicePropertyController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       fieldValidateError(req);
-      const { title, serviceId, type } = req.body;
+      const { title, serviceId, type, description } = req.body;
       //   const user = req?.currentUser?._id;
 
       const createServiceProperty = await ServicePropertySchema.create({
         title,
+        description,
         service: serviceId,
         type,
       });
@@ -65,13 +66,14 @@ class ServicePropertyController {
   async update(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { servicePropertyId } = req.params;
-      const { title } = req.body;
+      const { title, description } = req.body;
       fieldValidateError(req);
       const updateServiceProperty =
         await ServicePropertySchema.findByIdAndUpdate(
           servicePropertyId,
           {
             title,
+            description,
           },
           {
             new: true,
@@ -121,6 +123,14 @@ export const ServicePropertyControllerValidation = {
       .withMessage("title must be at least 3 character.")
       .isLength({ max: 700 })
       .withMessage("title must be at most 700 characters long"),
+    body("description")
+      .not()
+      .isEmpty()
+      .withMessage("description is required.")
+      .isLength({ min: 3 })
+      .withMessage("description must be at least 3 character.")
+      .isLength({ max: 700 })
+      .withMessage("description must be at most 700 characters long"),
     body("type")
       .not()
       .isEmpty()
@@ -164,6 +174,14 @@ export const ServicePropertyControllerValidation = {
       .withMessage("title must be at least 3 character.")
       .isLength({ max: 700 })
       .withMessage("title must be at most 700 characters long"),
+    body("description")
+      .not()
+      .isEmpty()
+      .withMessage("description is required.")
+      .isLength({ min: 3 })
+      .withMessage("description must be at least 3 character.")
+      .isLength({ max: 700 })
+      .withMessage("description must be at most 700 characters long"),
   ],
   delete: [
     param("servicePropertyId")

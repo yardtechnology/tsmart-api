@@ -7,6 +7,7 @@ const servicePropertySchema = new Schema<
 >(
   {
     title: String,
+    description: String,
     service: {
       type: Schema.Types.ObjectId,
       ref: "Service",
