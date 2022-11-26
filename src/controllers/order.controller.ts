@@ -492,7 +492,7 @@ class Order extends OrderLogic {
   /**
    * make order paid
    */
-  public async makeOrderPaid(
+  public async makeOrderPaidController(
     req: AuthRequest,
     res: Response,
     next: NextFunction
