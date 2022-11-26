@@ -246,6 +246,7 @@ class OrderLogic {
           device: deviceData,
           deviceId: deviceData?._id,
         }).save();
+        resolve(orderData);
       } catch (error) {
         reject(error);
       }

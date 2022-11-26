@@ -132,7 +132,7 @@ class Order extends AuthenticateMiddleware {
     this.router.post(
       "/orders/bill/payment-paid",
       super.isAuthenticated,
-      this.orderController.reactNativePaymentIntentsController
+      this.orderController.makeOrderPaidController
     );
   }
 

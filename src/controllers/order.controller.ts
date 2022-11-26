@@ -492,7 +492,7 @@ class Order extends OrderLogic {
   /**
    * make order paid
    */
-  public async makeOrderPaid(
+  public async makeOrderPaidController(
     req: AuthRequest,
     res: Response,
     next: NextFunction
@@ -515,41 +515,50 @@ class Order extends OrderLogic {
         },
       });
       //update payment status on order
-      let orderData = await OrderModel.findOneAndUpdate(
+      let orderData = await OrderModel.updateMany(
         { _id: { $in: billingData?.orders?.map((item) => item?._id) } },
         { status: "INITIATED" }
       );
-      //find all technician nearby
-      const allTechnician = await UserModel.find({
-        role: "TECHNICIAN",
-        deviceType: orderData?.device?._id,
-        makeType: orderData?.make?._id,
-      });
-      const nearByTechnicians: string[] = allTechnician
-        .filter(
-          (user: any) =>
-            50 >=
-            getDistance(
-              orderData?.address?.latitude as number,
-              orderData?.address?.longitude as number,
-              user?.latitude,
-              user?.longitude,
-              "K"
-            )
-        )
-        .map((user) => user?._id);
-      console.log("BEFORE SOCKET CONNECTED");
-      //send socket event to every
-      const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
-      socket.on("connect", () => {
-        console.log("SOCKET CONNECTED");
-        for (const technicianId of nearByTechnicians) {
-          console.log("TECH: ", technicianId);
-          socket.emit("NEW-JOB-REQUEST", {
-            technicianId,
-          });
-        }
-      });
+      console.log({ billingData });
+      console.log(billingData?.orders[0]?.serviceType, "CALL_OUT");
+      console.log(billingData?.orders[0]?.serviceType === "CALL_OUT");
+      // IF ORDER IS CALLOUT THE SEND REQUEST TO ALL NEAR BY TECHNICIAN
+      if (billingData?.orders[0]?.serviceType === "CALL_OUT") {
+        //find all technician nearby
+        const allTechnician = await UserModel.find({
+          role: "TECHNICIAN",
+          deviceType: billingData?.orders[0]?.device?._id,
+          makeType: billingData?.orders[0]?.make?._id,
+        });
+        const nearByTechnicians: string[] = allTechnician
+          .filter(
+            (user: any) =>
+              50 >=
+              getDistance(
+                billingData?.orders[0]?.address?.latitude as number,
+                billingData?.orders[0]?.address?.longitude as number,
+                user?.latitude,
+                user?.longitude,
+                "K"
+              )
+          )
+          .map((user) => user?._id);
+        await OrderModel.findByIdAndUpdate(billingData?.orders[0]?._id, {
+          nearByTechnicians,
+        });
+        console.log("BEFORE SOCKET CONNECTED");
+        //send socket event to every
+        const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
+        socket.on("connect", () => {
+          console.log("SOCKET CONNECTED");
+          for (const technicianId of nearByTechnicians) {
+            console.log("TECH: ", technicianId);
+            socket.emit("NEW-JOB-REQUEST", {
+              technicianId,
+            });
+          }
+        });
+      }
       res.status(200).json({
         status: "SUCCESS",
         message: "Order paid Successfully",
