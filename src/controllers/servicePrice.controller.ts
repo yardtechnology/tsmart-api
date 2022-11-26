@@ -333,15 +333,15 @@ class ServicePrice extends MediaLogic {
           },
         },
       ];
-      if (role === "ADMIN") {
-        aggregationQuery.splice(4);
-      } else {
-        aggregationQuery.push({
-          $sort: {
-            cardSize: 1,
-          },
-        });
-      }
+      // if (role === "ADMIN") {
+      //   aggregationQuery.splice(4);
+      // } else {
+      aggregationQuery.push({
+        $sort: {
+          cardSize: 1,
+        },
+      });
+      // }
       const servicePriceData = await aggregationData<ServicePriceType>({
         model: ServicePriceModel,
         query: aggregationQuery,
