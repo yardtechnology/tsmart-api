@@ -129,7 +129,7 @@ class ServicePropertyValueController {
         select: "",
         populate: [
           {
-            path: "service",
+            path: "serviceProperty",
           },
         ],
       });
