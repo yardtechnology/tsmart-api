@@ -719,9 +719,11 @@ class Order extends OrderLogic {
         status: req.query.status?.toString()?.toUpperCase(),
         userId: req?.currentUser?._id,
         storeId: req.currentUser?.store,
+        technicianID: req.currentUser?._id,
       };
       !req?.query?.status && delete query?.status;
       req?.currentUser?.role !== "MANAGER" && delete query?.storeId;
+      req?.currentUser?.role !== "TECHNICIAN" && delete query?.technicianID;
 
       let orderData = paginationHelper({
         model: OrderModel,

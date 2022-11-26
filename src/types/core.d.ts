@@ -3,7 +3,7 @@ import { Request } from "express";
 export interface JwtDecodedType {
   _id: string;
   email: string;
-  role: "USER" | "MANAGER" | "ADMIN";
+  role: "USER" | "MANAGER" | "ADMIN" | "TECHNICIAN";
   store?: string;
 }
 
