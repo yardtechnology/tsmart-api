@@ -236,6 +236,19 @@ class Store extends MediaLogic {
   }
 
   // TODO: DELETE STORE
+  async deleteStore(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { storeId } = req.params;
+      // send response to client
+      res.json({
+        status: "SUCCESS",
+        message: `${storeId} Stores delete in the todo list.`,
+        data: storeId,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   // Assign store manager
   public async assignStoreManager(
