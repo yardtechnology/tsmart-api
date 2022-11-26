@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { body, query } from "express-validator";
+import { body, param, query } from "express-validator";
 import { Types } from "mongoose";
 import { fieldValidateError } from "../helper";
 import { getDistance } from "../helper/core.helper";
@@ -821,6 +821,23 @@ class Store extends MediaLogic {
     }
   }
 
+  async storeManagerGet(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { store } = req.params;
+      const findStoreManager = await UserModel.findOne({
+        role: "MANAGER",
+        store: store,
+      });
+      res.json({
+        status: "SUCCESS",
+        message: "Store manager get successfully",
+        data: findStoreManager,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   // finds validators for the user creation request
 }
 export const storeControlValidator = {
@@ -934,6 +951,14 @@ export const storeControlValidator = {
       .optional()
       .isMongoId()
       .withMessage("modelId must be mongoose id."),
+  ],
+  storeManagerGet: [
+    param("store")
+      .not()
+      .isEmpty()
+      .withMessage("store id is required.")
+      .isMongoId()
+      .withMessage("store must be mongoose id."),
   ],
 };
 

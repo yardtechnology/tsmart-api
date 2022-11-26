@@ -25,6 +25,12 @@ class Category extends AuthenticateMiddleware {
       storeControlValidator.getStoreListAccordingServiceAvailability,
       this.storeController.getStoreListAccordingServiceAvailability
     );
+    this.router.get(
+      "/store/store-manager/:store",
+      super.isAuthenticated,
+      storeControlValidator.storeManagerGet,
+      this.storeController.storeManagerGet
+    );
     // last seven days
     this.router.get(
       "/store/seven-day/:storeId",
