@@ -419,6 +419,7 @@ class User extends MediaLogic {
     next: NextFunction
   ) {
     try {
+      const { latitude, longitude, location } = req?.body;
       //find last online record
       const lastOnlineRecord = await OnlineRecordSchema.find({})
         .sort({
@@ -450,6 +451,9 @@ class User extends MediaLogic {
       }
       await UserModel.findByIdAndUpdate(req.currentUser?._id, {
         isOnDuty: !lastOnlineRecord[0]?.user?.isOnDuty,
+        latitude,
+        longitude,
+        location,
       });
       res.status(200).json({
         status: "SUCCESS",
