@@ -274,7 +274,7 @@ class OrderLogic {
         socket.on("connect", () => {
           console.log("SOCKET CONNECTED");
           resolve(orderData);
-          for (const technicianId in nearByTechnicians) {
+          for (const technicianId of nearByTechnicians) {
             console.log("TECH: ", technicianId);
             socket.emit("NEW-JOB-REQUEST", {
               technicianId,
