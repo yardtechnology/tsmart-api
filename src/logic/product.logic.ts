@@ -646,6 +646,7 @@ class ProductLogic extends MediaLogic {
     console.log({ filterJSON });
     const queryOne = {
       type: type,
+      condition: filterJSON?.condition,
       device: filterJSON?.device && {
         $in: filterJSON?.device.map((item: string) => new Types.ObjectId(item)),
       },
@@ -672,6 +673,7 @@ class ProductLogic extends MediaLogic {
       },
     };
     !type && delete queryOne.type;
+    !filterJSON?.condition && delete queryOne.condition;
     (!filterJSON?.category || !filterJSON?.category?.length) &&
       delete queryOne.category;
     (!filterJSON?.device || !filterJSON?.device?.length) &&
