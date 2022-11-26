@@ -1,7 +1,9 @@
 import { NextFunction, Response } from "express";
 import { body, param } from "express-validator";
+import { Types } from "mongoose";
 import { io } from "socket.io-client";
 import { fieldValidateError, paginationHelper } from "../helper";
+import { getDistance } from "../helper/core.helper";
 import BillingLogic from "../logic/billing.logic";
 import CartLogic from "../logic/cart.logic";
 import OrderLogic from "../logic/order.logic";
@@ -312,7 +314,7 @@ class Order extends OrderLogic {
       // validator error handler
       fieldValidateError(req);
       //place order for product
-      const orderData = await super.orderProduct({
+      let orderData = await super.orderProduct({
         productId: req.body?.productId,
         userId: req.currentUser?._id as string,
         quantity: req.body?.quantity,
@@ -325,14 +327,18 @@ class Order extends OrderLogic {
         price: orderData?.price,
       });
       //add billing id in order data
-      OrderModel.findByIdAndUpdate(orderData?._id, {
-        billing: billingData?._id,
-      });
+      OrderModel.findByIdAndUpdate(
+        orderData?._id,
+        {
+          billing: billingData?._id,
+        },
+        { new: true }
+      );
 
       res.status(200).json({
         status: "SUCCESS",
         message: "Order placed successfully",
-        data: orderData,
+        data: billingData,
       });
     } catch (error) {
       console.log({ error });
@@ -375,14 +381,20 @@ class Order extends OrderLogic {
         price,
       });
       //add billing id in order data
-      OrderModel.updateMany([{ _id: { $in: orderIds } }], {
-        billing: billingData?._id,
-      });
+      OrderModel.updateMany(
+        [{ _id: { $in: orderIds } }],
+        {
+          billing: billingData?._id,
+        },
+        {
+          new: true,
+        }
+      );
 
       res.status(200).json({
         status: "SUCCESS",
         message: "Orders placed successfully",
-        data: orderedItems,
+        data: billingData,
       });
     } catch (error) {
       console.log({ error });
@@ -507,6 +519,37 @@ class Order extends OrderLogic {
         { _id: { $in: billingData?.orders?.map((item) => item?._id) } },
         { status: "INITIATED" }
       );
+      //find all technician nearby
+      const allTechnician = await UserModel.find({
+        role: "TECHNICIAN",
+        deviceType: orderData?.device?._id,
+        makeType: orderData?.make?._id,
+      });
+      const nearByTechnicians: string[] = allTechnician
+        .filter(
+          (user: any) =>
+            50 >=
+            getDistance(
+              orderData?.address?.latitude as number,
+              orderData?.address?.longitude as number,
+              user?.latitude,
+              user?.longitude,
+              "K"
+            )
+        )
+        .map((user) => user?._id);
+      console.log("BEFORE SOCKET CONNECTED");
+      //send socket event to every
+      const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
+      socket.on("connect", () => {
+        console.log("SOCKET CONNECTED");
+        for (const technicianId of nearByTechnicians) {
+          console.log("TECH: ", technicianId);
+          socket.emit("NEW-JOB-REQUEST", {
+            technicianId,
+          });
+        }
+      });
       res.status(200).json({
         status: "SUCCESS",
         message: "Order paid Successfully",
@@ -646,9 +689,14 @@ class Order extends OrderLogic {
     try {
       // validator error handler
       fieldValidateError(req);
-      const jobRequests = await OrderModel.find({
-        nearByTechnicians: req?.currentUser?._id,
-      });
+      console.log("RANJIT", req?.currentUser?._id);
+      const jobRequests = await OrderModel.aggregate([
+        {
+          $match: {
+            nearByTechnicians: new Types.ObjectId(req?.currentUser?._id),
+          },
+        },
+      ]);
       res.json({
         status: "SUCCESS",
         message: "Job requests fetched successfully",
@@ -717,7 +765,7 @@ class Order extends OrderLogic {
       !req?.query?.status && delete query?.status;
       req?.currentUser?.role !== "MANAGER" && delete query?.storeId;
       req?.currentUser?.role !== "TECHNICIAN" && delete query?.technicianID;
-
+      req?.currentUser?.role !== "USER" && delete query?.userId;
       let orderData = paginationHelper({
         model: OrderModel,
         query,

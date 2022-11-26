@@ -1,5 +1,3 @@
-import { io } from "socket.io-client";
-import { getDistance } from "../helper/core.helper";
 import {
   ColorSchema,
   DevicesSchema,
@@ -231,25 +229,6 @@ class OrderLogic {
         //check device if exist or not
         const deviceData = await DevicesSchema.findById(deviceId);
         if (!deviceData) throw new Error("device not found");
-        //find all technician nearby
-        const allTechnician = await UserModel.find({
-          role: "TECHNICIAN",
-          deviceType: deviceData?._id,
-          makeType: makeData?._id,
-        });
-        const nearByTechnicians: string[] = allTechnician
-          .filter(
-            (user: any) =>
-              50 >=
-              getDistance(
-                address?.latitude as number,
-                address?.longitude as number,
-                user?.latitude,
-                user?.longitude,
-                "K"
-              )
-          )
-          .map((user) => user?._id);
         const orderData = await new OrderModel({
           user: userData,
           address,
@@ -266,21 +245,7 @@ class OrderLogic {
           modelId: modelData?._id,
           device: deviceData,
           deviceId: deviceData?._id,
-          nearByTechnicians,
         }).save();
-        console.log("BEFORE SOCKET CONNECTED");
-        //send socket event to every
-        const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
-        socket.on("connect", () => {
-          console.log("SOCKET CONNECTED");
-          resolve(orderData);
-          for (const technicianId of nearByTechnicians) {
-            console.log("TECH: ", technicianId);
-            socket.emit("NEW-JOB-REQUEST", {
-              technicianId,
-            });
-          }
-        });
       } catch (error) {
         reject(error);
       }
