@@ -44,10 +44,14 @@ class Auth extends AuthLogic {
           activeOTP,
         }).save();
       }
-      new SMSLogic().sendOTP({
-        message: `your otp is ${activeOTP?.otp}`,
-        phoneNumber: `${newUser?.country?.code}${newUser?.phoneNumber}`,
-      });
+
+      //if the number is not a white listed number then send otp to there number
+      if (!whiteListedUserData) {
+        new SMSLogic().sendOTP({
+          message: `your otp is ${activeOTP?.otp}`,
+          phoneNumber: `${newUser?.country?.code}${newUser?.phoneNumber}`,
+        });
+      }
 
       // send response to client
       res.status(200).json({
