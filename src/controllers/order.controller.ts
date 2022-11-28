@@ -736,7 +736,7 @@ class Order extends OrderLogic {
 
         default:
           const technicianData = await UserModel.findById(
-            req?.body?.technicianID
+            req?.currentUser?._id
           ).select(
             "displayName phoneNumber country avatar email gender role reviews"
           );
