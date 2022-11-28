@@ -740,6 +740,8 @@ class Order extends OrderLogic {
           ).select(
             "displayName phoneNumber country avatar email gender role reviews"
           );
+          if (!technicianData) throw new Error("Technician not found");
+
           const jobRequests = await OrderModel.findByIdAndUpdate(
             req?.params?.orderId,
             {
