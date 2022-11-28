@@ -67,7 +67,7 @@ class OrderLogic {
         const uniqServiceIds = new Set([...serviceIds]);
         const servicePriceDetails = await ServicePriceModel.find({
           _id: { $in: serviceIds },
-        });
+        }).populate("service");
         const priceDetails = servicePriceDetails.reduce(
           (prev: { salePrice: number; mrp: number }, curr) => {
             return (prev = {
@@ -83,7 +83,7 @@ class OrderLogic {
           userID: userId,
           storeID: storeId,
           scheduledTime,
-          service: Array.from(uniqServiceIds),
+          service: servicePriceDetails,
           type: "BUY",
           price: priceDetails?.salePrice,
           mrp: priceDetails?.mrp,
@@ -149,7 +149,7 @@ class OrderLogic {
         const uniqServiceIds = new Set([...serviceIds]);
         const servicePriceDetails = await ServicePriceModel.find({
           _id: { $in: serviceIds },
-        });
+        }).populate("service");
         const priceDetails = servicePriceDetails.reduce(
           (prev: { salePrice: number; mrp: number }, curr) => {
             return (prev = {
@@ -213,7 +213,7 @@ class OrderLogic {
         const uniqServiceIds = new Set([...serviceIds]);
         const servicePriceDetails = await ServicePriceModel.find({
           _id: { $in: serviceIds },
-        });
+        }).populate("service");
         const priceDetails = servicePriceDetails.reduce(
           (prev: { salePrice: number; mrp: number }, curr) => {
             return (prev = {
@@ -236,7 +236,7 @@ class OrderLogic {
           user: userData,
           address,
           userID: userId,
-          service: uniqServiceIds,
+          service: servicePriceDetails,
           type: "BUY",
           price: priceDetails?.salePrice,
           mrp: priceDetails?.mrp,

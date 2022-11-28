@@ -423,10 +423,10 @@ class Order extends OrderLogic {
       if (!billingData) throw new Error("billingData not found");
       const chargedData = await new StripeLogic().paymentSession({
         amount: billingData?.total,
-        currency: "GBP",
+        currency: "INR",
         source: id,
         email,
-        name: billingData?.orders[0]?.user?.displayName,
+        name: billingData?.orders[0]?.address?.name,
         address: {
           country: billingData.orders[0]?.address?.country,
           line1: billingData?.orders[0]?.address?.street,
@@ -736,7 +736,7 @@ class Order extends OrderLogic {
 
         default:
           const technicianData = await UserModel.findById(
-            req?.body?.technicianID
+            req?.currentUser?._id
           ).select(
             "displayName phoneNumber country avatar email gender role reviews"
           );
@@ -790,12 +790,24 @@ class Order extends OrderLogic {
         userId: req?.currentUser?._id,
         storeId: req.currentUser?.store,
         technicianID: req.currentUser?._id,
-        type: req.query.status?.toString()?.toUpperCase(),
+        serviceType:
+          req?.query?.type?.toString()?.toUpperCase() === "REPAIR"
+            ? ["IN_STOR", "MAIL_IN", "CALL_OUT"]
+            : req?.query?.type?.toString()?.toUpperCase(),
+        type: req.query.type?.toString()?.toUpperCase(),
       };
       !req?.query?.status && delete query?.status;
+      !req.query.serviceType &&
+        req?.query?.type?.toString()?.toUpperCase() !== "REPAIR" &&
+        delete query?.serviceType;
       req?.currentUser?.role !== "MANAGER" && delete query?.storeId;
       req?.currentUser?.role !== "TECHNICIAN" && delete query?.technicianID;
       req?.currentUser?.role !== "USER" && delete query?.userId;
+      req?.currentUser?.role !== "USER" && delete query?.userId;
+      (!req.query.type ||
+        req?.query?.type?.toString()?.toUpperCase() === "REPAIR") &&
+        delete query?.type;
+      console.log(query);
       const orderData = await paginationHelper({
         model: OrderModel,
         query,
