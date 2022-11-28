@@ -780,7 +780,10 @@ class Order extends OrderLogic {
   ) {
     try {
       let query = {
-        status: req.query.status?.toString()?.toUpperCase(),
+        status:
+          req?.query.status?.toString()?.toUpperCase() === "ONGOING"
+            ? { $nin: ["PENDING", "COMPLETED", "CANCELLED", "DELIVERED"] }
+            : req.query.status?.toString()?.toUpperCase(),
         userId: req?.currentUser?._id,
         storeId: req.currentUser?.store,
         technicianID: req.currentUser?._id,
@@ -910,7 +913,7 @@ class Order extends OrderLogic {
       .withMessage("Country must be at least 2 characters long")
       .isLength({ max: 25 })
       .withMessage("Country must be at most 25 characters long"),
-    body("zip")
+    body("address.zip")
       .optional()
       .isInt()
       .isLength({ min: 5 })
@@ -1027,6 +1030,9 @@ class Order extends OrderLogic {
   ];
   public validateSellOrderPlaceFields = [
     body("addressId")
+      .if((value: string, { req }: any) => {
+        return req?.body?.paymentMethod === "CHEQUE";
+      })
       .not()
       .isEmpty()
       .withMessage("AddressId is required")
