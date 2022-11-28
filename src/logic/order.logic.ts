@@ -192,6 +192,7 @@ class OrderLogic {
     modelId,
     makeId,
     deviceId,
+    scheduledTime,
   }: {
     userId: string;
     address: Partial<AddressType>;
@@ -199,6 +200,7 @@ class OrderLogic {
     modelId: string;
     makeId: string;
     deviceId: string;
+    scheduledTime: Date;
   }): Promise<any> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -221,6 +223,7 @@ class OrderLogic {
           },
           { salePrice: 0, mrp: 0 }
         );
+        const scheduledTimeData = new Date(scheduledTime);
         const makeData = await MakeSchema.findById(makeId);
         if (!makeData) throw new Error("make not found");
         //check model if exist or not
@@ -245,6 +248,7 @@ class OrderLogic {
           modelId: modelData?._id,
           device: deviceData,
           deviceId: deviceData?._id,
+          scheduledTime: scheduledTimeData,
         }).save();
         resolve(orderData);
       } catch (error) {
@@ -380,7 +384,8 @@ class OrderLogic {
         if (!userData) throw new Error("User not found");
         //check address if exist or not
         const addressData = await AddressModel.findById(addressId);
-        if (!addressData) throw new Error("address not found");
+        if (!addressData && !bankDetails?.fullName)
+          throw new Error("address not found");
         //check make if exist or not
         const makeData = await MakeSchema.findById(makeId);
         if (!makeData) throw new Error("make not found");

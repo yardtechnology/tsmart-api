@@ -118,6 +118,7 @@ class Order extends OrderLogic {
         modelId: req.body?.modelId,
         deviceId: req.body?.deviceId,
         makeId: req.body?.makeId,
+        scheduledTime: req?.body?.scheduledTime,
       });
       const billingData = await new BillingLogic().createBill({
         orderIds: orderData?._id,
@@ -739,6 +740,8 @@ class Order extends OrderLogic {
           ).select(
             "displayName phoneNumber country avatar email gender role reviews"
           );
+          if (!technicianData) throw new Error("Technician not found");
+
           const jobRequests = await OrderModel.findByIdAndUpdate(
             req?.params?.orderId,
             {
@@ -937,6 +940,10 @@ class Order extends OrderLogic {
       .withMessage("makeId is required")
       .isMongoId()
       .withMessage("makeId must be a valid makeId"),
+    body("scheduledTime")
+      .not()
+      .isEmpty()
+      .withMessage("Scheduled time is required"),
     body("deviceId")
       .not()
       .isEmpty()
