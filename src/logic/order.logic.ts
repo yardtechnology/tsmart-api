@@ -84,7 +84,7 @@ class OrderLogic {
           storeID: storeId,
           scheduledTime,
           service: servicePriceDetails,
-          type: "BUY",
+          type: "REPAIR",
           price: priceDetails?.salePrice,
           mrp: priceDetails?.mrp,
           status: "INITIATED",
@@ -166,7 +166,7 @@ class OrderLogic {
           userID: userId,
           storeID: storeData?._id,
           service: uniqServiceIds,
-          type: "BUY",
+          type: "REPAIR",
           price: priceDetails?.salePrice,
           mrp: priceDetails?.mrp,
           status: "INITIATED",
@@ -214,6 +214,7 @@ class OrderLogic {
         const servicePriceDetails = await ServicePriceModel.find({
           _id: { $in: serviceIds },
         }).populate("service");
+        console.log({ servicePriceDetails });
         const priceDetails = servicePriceDetails.reduce(
           (prev: { salePrice: number; mrp: number }, curr) => {
             return (prev = {
@@ -237,7 +238,7 @@ class OrderLogic {
           address,
           userID: userId,
           service: servicePriceDetails,
-          type: "BUY",
+          type: "REPAIR",
           price: priceDetails?.salePrice,
           mrp: priceDetails?.mrp,
           status: "INITIATED",
@@ -290,6 +291,7 @@ class OrderLogic {
       store: storeData,
       storeID: storeData?._id,
       product: productData,
+      type: productData?.type === "ACCESSORY" ? "ACCESSORY" : "REFURBISH",
       quantity: quantity,
       billing: billingId,
       address: deliveryAddressData,
@@ -331,6 +333,27 @@ class OrderLogic {
 
   /**get order details */
   public async getOrderDetails(orderId: string): Promise<OrderType> {
+    const orderData: OrderType | null = await OrderModel.findById(
+      orderId
+    ).populate([
+      {
+        path: "service",
+        populate: {
+          path: "service",
+        },
+      },
+    ]);
+    if (!orderData) {
+      throw new Error("order not found");
+    }
+    return orderData;
+  }
+  /**update order details */
+  public async updateOrderDetails({
+    orderId,
+  }: {
+    orderId: string;
+  }): Promise<OrderType> {
     const orderData: OrderType | null = await OrderModel.findById(
       orderId
     ).populate([

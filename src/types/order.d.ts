@@ -65,7 +65,7 @@ export default interface OrderType extends Document {
     isVerified: boolean;
     otp: number;
   };
-  type: "BUY" | "SELL";
+  type: "REPAIR" | "SELL" | "ACCESSORY" | "REFURBISH";
   price: number;
   mrp: number;
   serviceType: "IN_STOR" | "MAIL_IN" | "CALL_OUT";

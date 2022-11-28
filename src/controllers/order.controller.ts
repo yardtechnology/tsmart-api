@@ -201,6 +201,30 @@ class Order extends OrderLogic {
     }
   }
 
+  /** get order details*/
+  public async updateOrderDetailsController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+
+      const orderData = await super.updateOrderDetails({
+        orderId: req.params.orderId,
+      });
+
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Order info updated successfully",
+        data: orderData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   //TODO: add extra charges
   public async addExtraChargesController(
     req: AuthRequest,
@@ -790,35 +814,19 @@ class Order extends OrderLogic {
         userId: req?.currentUser?._id,
         storeId: req.currentUser?.store,
         technicianID: req.currentUser?._id,
-        serviceType:
-          req?.query?.type?.toString()?.toUpperCase() === "REPAIR"
-            ? ["IN_STOR", "MAIL_IN", "CALL_OUT"]
-            : req?.query?.type?.toString()?.toUpperCase(),
+        serviceType: req?.query?.serviceType,
         type: req.query.type?.toString()?.toUpperCase(),
       };
       !req?.query?.status && delete query?.status;
-      !req.query.serviceType &&
-        req?.query?.type?.toString()?.toUpperCase() !== "REPAIR" &&
-        delete query?.serviceType;
+      !req.query.serviceType && delete query?.serviceType;
       req?.currentUser?.role !== "MANAGER" && delete query?.storeId;
       req?.currentUser?.role !== "TECHNICIAN" && delete query?.technicianID;
       req?.currentUser?.role !== "USER" && delete query?.userId;
-      req?.currentUser?.role !== "USER" && delete query?.userId;
-      (!req.query.type ||
-        req?.query?.type?.toString()?.toUpperCase() === "REPAIR") &&
-        delete query?.type;
+      !req.query.type && delete query?.type;
       console.log(query);
       const orderData = await paginationHelper({
         model: OrderModel,
         query,
-        populate: [
-          {
-            path: "service",
-            populate: {
-              path: "service",
-            },
-          },
-        ],
         sort: { createdAt: -1 },
         limit: req.query.limit ? Number(req.query.limit) : undefined,
         chunk: req.query.chunk ? Number(req.query.chunk) : undefined,
