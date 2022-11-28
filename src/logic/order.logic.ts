@@ -383,7 +383,8 @@ class OrderLogic {
         if (!userData) throw new Error("User not found");
         //check address if exist or not
         const addressData = await AddressModel.findById(addressId);
-        if (!addressData) throw new Error("address not found");
+        if (!addressData && !bankDetails?.fullName)
+          throw new Error("address not found");
         //check make if exist or not
         const makeData = await MakeSchema.findById(makeId);
         if (!makeData) throw new Error("make not found");
