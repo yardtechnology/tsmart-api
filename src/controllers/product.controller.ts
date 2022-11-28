@@ -1,5 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body } from "express-validator";
+import { NotFound } from "http-errors";
 import { Types } from "mongoose";
 import { fieldValidateError } from "../helper";
 import aggregationHelper, {
@@ -52,7 +53,7 @@ class Product extends ProductLogic {
     try {
       // validator error handler
       fieldValidateError(req);
-
+      const { variantOf } = req.body;
       // upload user profile picture
       const displayImageFile = req.files?.displayImage;
       const filePath = `product`;
@@ -266,6 +267,234 @@ class Product extends ProductLogic {
       const { productId } = req.params;
       const userId = req?.currentUser?._id;
 
+      const findProduct = await ProductModel.findById(productId).select("type");
+      if (!findProduct?.type) throw new NotFound("No product found.");
+
+      const productVariant =
+        findProduct?.type === "ACCESSORY"
+          ? []
+          : [
+              // memory look up
+              {
+                $lookup: {
+                  from: "memories",
+                  localField: "memory",
+                  foreignField: "_id",
+                  as: "memory",
+                },
+              },
+              {
+                $unwind: {
+                  path: "$memory",
+                  preserveNullAndEmptyArrays: true,
+                },
+              },
+              // memory lookup end
+
+              // color variants
+              {
+                $lookup: {
+                  from: "products",
+                  localField: "model",
+                  foreignField: "model",
+                  as: "colorVariants",
+                  pipeline: [
+                    // color look up
+                    {
+                      $lookup: {
+                        from: "colors",
+                        localField: "color",
+                        foreignField: "_id",
+                        as: "color",
+                      },
+                    },
+                    {
+                      $unwind: {
+                        path: "$color",
+                        preserveNullAndEmptyArrays: true,
+                      },
+                    },
+                    // color lookup end
+                    // memory lookup
+                    // {},
+                    // memory lookup end
+                    {
+                      $group: {
+                        _id: "$color",
+
+                        id: {
+                          $first: "$_id",
+                        },
+                        count: {
+                          $sum: 1,
+                        },
+                        package: {
+                          $push: {
+                            _id: "$_id",
+                            color: "$color",
+                            memory: "$memory",
+                            condition: "$condition",
+                          },
+                        },
+                      },
+                    },
+                    {
+                      $project: {
+                        color: "$_id.color",
+                        hashCode: "$_id.hashCode",
+                        _id: "$_id._id",
+                        firstId: "$id",
+                        count: 1,
+                        package: 1,
+                      },
+                    },
+                  ],
+                },
+              },
+              // condition variants
+              {
+                $lookup: {
+                  from: "products",
+                  localField: "model",
+                  foreignField: "model",
+                  as: "conditionVariants",
+                  pipeline: [
+                    // color look up
+                    {
+                      $lookup: {
+                        from: "colors",
+                        localField: "color",
+                        foreignField: "_id",
+                        as: "color",
+                      },
+                    },
+                    {
+                      $unwind: {
+                        path: "$color",
+                        preserveNullAndEmptyArrays: true,
+                      },
+                    },
+                    // color lookup end
+                    // memory look up
+                    {
+                      $lookup: {
+                        from: "memories",
+                        localField: "memory",
+                        foreignField: "_id",
+                        as: "memory",
+                      },
+                    },
+                    {
+                      $unwind: {
+                        path: "$memory",
+                        preserveNullAndEmptyArrays: true,
+                      },
+                    },
+                    // memory lookup end
+                    {
+                      $group: {
+                        _id: "$condition",
+                        id: {
+                          $first: "$_id",
+                        },
+                        count: {
+                          $sum: 1,
+                        },
+                        package: {
+                          $push: {
+                            _id: "$_id",
+                            color: "$color",
+                            memory: "$memory",
+                            condition: "$condition",
+                          },
+                        },
+                      },
+                    },
+                    {
+                      $project: {
+                        condition: "$_id",
+                        firstId: "$id",
+                        count: 1,
+                        package: 1,
+                      },
+                    },
+                  ],
+                },
+              },
+              // memory variant
+              {
+                $lookup: {
+                  from: "products",
+                  localField: "model",
+                  foreignField: "model",
+                  as: "memoryVariants",
+                  pipeline: [
+                    // color look up
+                    {
+                      $lookup: {
+                        from: "colors",
+                        localField: "color",
+                        foreignField: "_id",
+                        as: "color",
+                      },
+                    },
+                    {
+                      $unwind: {
+                        path: "$color",
+                        preserveNullAndEmptyArrays: true,
+                      },
+                    },
+                    // color lookup end
+                    // memory look up
+                    {
+                      $lookup: {
+                        from: "memories",
+                        localField: "memory",
+                        foreignField: "_id",
+                        as: "memory",
+                      },
+                    },
+                    {
+                      $unwind: {
+                        path: "$memory",
+                        preserveNullAndEmptyArrays: true,
+                      },
+                    },
+                    // memory lookup end
+                    {
+                      $group: {
+                        _id: "$memory",
+                        id: {
+                          $first: "$_id",
+                        },
+
+                        count: {
+                          $sum: 1,
+                        },
+                        package: {
+                          $push: {
+                            _id: "$_id",
+                            color: "$color",
+                            memory: "$memory",
+                            condition: "$condition",
+                          },
+                        },
+                      },
+                    },
+                    {
+                      $project: {
+                        internal: "$_id.internal",
+                        ram: "$_id.ram",
+                        _id: "$_id._id",
+                        firstId: "$id",
+                        count: 1,
+                        package: 1,
+                      },
+                    },
+                  ],
+                },
+              },
+            ];
       const productList = await ProductModel.aggregate([
         {
           $match: {
@@ -334,225 +563,6 @@ class Product extends ProductLogic {
           },
         },
         // color lookup end
-        // memory look up
-        {
-          $lookup: {
-            from: "memories",
-            localField: "memory",
-            foreignField: "_id",
-            as: "memory",
-          },
-        },
-        {
-          $unwind: {
-            path: "$memory",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        // memory lookup end
-        // color variants
-        {
-          $lookup: {
-            from: "products",
-            localField: "model",
-            foreignField: "model",
-            as: "colorVariants",
-            pipeline: [
-              // color look up
-              {
-                $lookup: {
-                  from: "colors",
-                  localField: "color",
-                  foreignField: "_id",
-                  as: "color",
-                },
-              },
-              {
-                $unwind: {
-                  path: "$color",
-                  preserveNullAndEmptyArrays: true,
-                },
-              },
-              // color lookup end
-              // memory lookup
-              // {},
-              // memory lookup end
-              {
-                $group: {
-                  _id: "$color",
-
-                  id: {
-                    $first: "$_id",
-                  },
-                  count: {
-                    $sum: 1,
-                  },
-                  package: {
-                    $push: {
-                      _id: "$_id",
-                      color: "$color",
-                      memory: "$memory",
-                      condition: "$condition",
-                    },
-                  },
-                },
-              },
-              {
-                $project: {
-                  color: "$_id.color",
-                  hashCode: "$_id.hashCode",
-                  _id: "$_id._id",
-                  firstId: "$id",
-                  count: 1,
-                  package: 1,
-                },
-              },
-            ],
-          },
-        },
-        // condition variants
-        {
-          $lookup: {
-            from: "products",
-            localField: "model",
-            foreignField: "model",
-            as: "conditionVariants",
-            pipeline: [
-              // color look up
-              {
-                $lookup: {
-                  from: "colors",
-                  localField: "color",
-                  foreignField: "_id",
-                  as: "color",
-                },
-              },
-              {
-                $unwind: {
-                  path: "$color",
-                  preserveNullAndEmptyArrays: true,
-                },
-              },
-              // color lookup end
-              // memory look up
-              {
-                $lookup: {
-                  from: "memories",
-                  localField: "memory",
-                  foreignField: "_id",
-                  as: "memory",
-                },
-              },
-              {
-                $unwind: {
-                  path: "$memory",
-                  preserveNullAndEmptyArrays: true,
-                },
-              },
-              // memory lookup end
-              {
-                $group: {
-                  _id: "$condition",
-                  id: {
-                    $first: "$_id",
-                  },
-                  count: {
-                    $sum: 1,
-                  },
-                  package: {
-                    $push: {
-                      _id: "$_id",
-                      color: "$color",
-                      memory: "$memory",
-                      condition: "$condition",
-                    },
-                  },
-                },
-              },
-              {
-                $project: {
-                  condition: "$_id",
-                  firstId: "$id",
-                  count: 1,
-                  package: 1,
-                },
-              },
-            ],
-          },
-        },
-        // memory variant
-        {
-          $lookup: {
-            from: "products",
-            localField: "model",
-            foreignField: "model",
-            as: "memoryVariants",
-            pipeline: [
-              // color look up
-              {
-                $lookup: {
-                  from: "colors",
-                  localField: "color",
-                  foreignField: "_id",
-                  as: "color",
-                },
-              },
-              {
-                $unwind: {
-                  path: "$color",
-                  preserveNullAndEmptyArrays: true,
-                },
-              },
-              // color lookup end
-              // memory look up
-              {
-                $lookup: {
-                  from: "memories",
-                  localField: "memory",
-                  foreignField: "_id",
-                  as: "memory",
-                },
-              },
-              {
-                $unwind: {
-                  path: "$memory",
-                  preserveNullAndEmptyArrays: true,
-                },
-              },
-              // memory lookup end
-              {
-                $group: {
-                  _id: "$memory",
-                  id: {
-                    $first: "$_id",
-                  },
-
-                  count: {
-                    $sum: 1,
-                  },
-                  package: {
-                    $push: {
-                      _id: "$_id",
-                      color: "$color",
-                      memory: "$memory",
-                      condition: "$condition",
-                    },
-                  },
-                },
-              },
-              {
-                $project: {
-                  internal: "$_id.internal",
-                  ram: "$_id.ram",
-                  _id: "$_id._id",
-                  firstId: "$id",
-                  count: 1,
-                  package: 1,
-                },
-              },
-            ],
-          },
-        },
       ]);
 
       res.json({

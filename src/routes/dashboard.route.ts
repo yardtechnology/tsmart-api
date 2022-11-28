@@ -10,6 +10,7 @@ import {
   RepairerDashboardController,
   StoreDashboardController,
   UserDashboardController,
+  userDashboardValidation,
 } from "../dashboardController";
 import AuthenticateMiddleware from "../middleware/authenticate.middleware";
 
@@ -94,6 +95,14 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.userDashboardController.customerCount
     );
+    // technician
+    this.router.get(
+      "/dashboard/user/technician/:technicianId",
+      super.isAuthenticated,
+      userDashboardValidation.technician,
+      this.userDashboardController.technician
+    );
+
     // ================================================================= >>>> STORE DASHBOARD <<<< =================================================================
     this.router.get(
       "/dashboard/store/monthly-join",

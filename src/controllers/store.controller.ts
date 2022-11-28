@@ -421,9 +421,9 @@ class Store extends MediaLogic {
         : [servicesId]?.map((item) => new Types.ObjectId(String(item)));
 
       let getStore = await StoreModel.aggregate([
-        {
-          $match: query,
-        },
+        // {
+        //   $match: query,
+        // },
         {
           $lookup: {
             from: "serviceprices",

@@ -1,7 +1,7 @@
 import { NextFunction, Response } from "express";
+import { param } from "express-validator";
 import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
-
 class UserDashboardController {
   async userLastWeeklyJoin(
     req: AuthRequest,
@@ -187,6 +187,34 @@ class UserDashboardController {
       next(error);
     }
   }
+  // technician details count
+  async technician(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const {} = req.params;
+      res.json({
+        status: "SUCCESS",
+        message: "Customer count successfully.",
+        data: {
+          completeJob: 1,
+          todayJobs: 1,
+          totalSale: 100,
+          ratings: 1,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
+export const userDashboardValidation = {
+  technician: [
+    param("technicianId")
+      .not()
+      .isEmpty()
+      .withMessage("technicianId is required.")
+      .isMongoId()
+      .withMessage("technicianId must be mongoes id"),
+  ],
+};
 
 export default UserDashboardController;
