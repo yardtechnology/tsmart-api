@@ -15,6 +15,10 @@ const servicePropertyValueSchema = new Schema<
       type: Schema.Types.ObjectId,
       ref: "ServiceProperty",
     },
+    model: {
+      type: Schema.Types.ObjectId,
+      ref: "Model",
+    },
   },
   { timestamps: true }
 );

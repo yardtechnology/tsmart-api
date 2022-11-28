@@ -118,21 +118,35 @@ class ServicePropertyValueController {
   }
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { serviceId, chunk, limit } = req.query;
+      const { serviceId, chunk, limit, modelId } = req.query;
       const query: any = {};
       serviceId && (query["service"] = serviceId);
-      const allServiceProperty = await paginationHelper({
-        model: ServicePropertyValueSchema,
-        query,
-        chunk: chunk ? Number(chunk) : undefined,
-        limit: limit ? Number(limit) : undefined,
-        select: "",
-        populate: [
-          {
-            path: "serviceProperty",
+      modelId && (query["service"] = modelId);
+      const allServiceProperty = await ServicePropertyValueSchema.aggregate([
+        {
+          $group: {
+            _id: {
+              model: "$model",
+              serviceProperty: "$serviceProperty",
+            },
+            serviceProperty: { $first: "$serviceProperty" },
           },
-        ],
-      });
+        },
+        {
+          $lookup: {
+            from: "serviceproperties",
+            localField: "serviceProperty",
+            foreignField: "_id",
+            as: "serviceProperty",
+          },
+        },
+        {
+          $unwind: {
+            path: "$serviceProperty",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+      ]);
       res.json({
         status: "SUCCESS",
         message: "Service property found successfully",
@@ -165,6 +179,12 @@ export const ServicePropertyValueControllerValidation = {
       .withMessage("serviceProperty is required.")
       .isMongoId()
       .withMessage("serviceProperty must be mongoesId."),
+    body("allServices.*.model")
+      .not()
+      .isEmpty()
+      .withMessage("model is required.")
+      .isMongoId()
+      .withMessage("model must be mongoesId."),
   ],
   getAllAccordingServicePrice: [
     param("servicePrice")
