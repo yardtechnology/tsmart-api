@@ -798,13 +798,14 @@ class Order extends OrderLogic {
       };
       !req?.query?.status && delete query?.status;
       (!req.query.serviceType ||
-        req?.query?.toString()?.toUpperCase() === "REPAIR") &&
+        req?.query?.type?.toString()?.toUpperCase() === "REPAIR") &&
         delete query?.serviceType;
       req?.currentUser?.role !== "MANAGER" && delete query?.storeId;
       req?.currentUser?.role !== "TECHNICIAN" && delete query?.technicianID;
       req?.currentUser?.role !== "USER" && delete query?.userId;
       req?.currentUser?.role !== "USER" && delete query?.userId;
-      (!req.query.type || req?.query?.toString()?.toUpperCase() === "REPAIR") &&
+      (!req.query.type ||
+        req?.query?.type?.toString()?.toUpperCase() === "REPAIR") &&
         delete query?.type;
       console.log(query);
       const orderData = await paginationHelper({

@@ -4,6 +4,7 @@ import md5 from "md5";
 import { fieldValidateError } from "../helper";
 import { createOTP } from "../helper/core.helper";
 import AuthLogic from "../logic/auth.logic";
+import SMSLogic from "../logic/sms.logic";
 import { AddressModel } from "../models/address.model";
 import { UserModel } from "../models/user.model";
 import { WhiteListModel } from "../models/whitelist.model";
@@ -43,6 +44,10 @@ class Auth extends AuthLogic {
           activeOTP,
         }).save();
       }
+      new SMSLogic().sendOTP({
+        message: `your otp is ${activeOTP?.otp}`,
+        phoneNumber: `${newUser?.country?.code}${newUser?.phoneNumber}`,
+      });
 
       // send response to client
       res.status(200).json({
