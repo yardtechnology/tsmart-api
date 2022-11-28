@@ -797,8 +797,8 @@ class Order extends OrderLogic {
         type: req.query.type?.toString()?.toUpperCase(),
       };
       !req?.query?.status && delete query?.status;
-      (!req.query.serviceType ||
-        req?.query?.type?.toString()?.toUpperCase() === "REPAIR") &&
+      !req.query.serviceType &&
+        req?.query?.type?.toString()?.toUpperCase() !== "REPAIR" &&
         delete query?.serviceType;
       req?.currentUser?.role !== "MANAGER" && delete query?.storeId;
       req?.currentUser?.role !== "TECHNICIAN" && delete query?.technicianID;
