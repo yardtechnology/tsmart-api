@@ -192,6 +192,7 @@ class OrderLogic {
     modelId,
     makeId,
     deviceId,
+    scheduledTime,
   }: {
     userId: string;
     address: Partial<AddressType>;
@@ -199,6 +200,7 @@ class OrderLogic {
     modelId: string;
     makeId: string;
     deviceId: string;
+    scheduledTime: Date;
   }): Promise<any> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -245,6 +247,7 @@ class OrderLogic {
           modelId: modelData?._id,
           device: deviceData,
           deviceId: deviceData?._id,
+          scheduledTime,
         }).save();
         resolve(orderData);
       } catch (error) {

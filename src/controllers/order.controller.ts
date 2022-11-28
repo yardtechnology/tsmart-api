@@ -118,6 +118,7 @@ class Order extends OrderLogic {
         modelId: req.body?.modelId,
         deviceId: req.body?.deviceId,
         makeId: req.body?.makeId,
+        scheduledTime: req?.body?.scheduledTime,
       });
       const billingData = await new BillingLogic().createBill({
         orderIds: orderData?._id,
