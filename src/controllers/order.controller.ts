@@ -815,7 +815,13 @@ class Order extends OrderLogic {
         storeId: req.currentUser?.store,
         technicianID: req.currentUser?._id,
         serviceType: req?.query?.serviceType,
-        type: req.query.type?.toString()?.toUpperCase(),
+        type: req?.query?.type
+          ? {
+              $in: Array.isArray(req?.query?.type)
+                ? req?.query?.type
+                : [req?.query?.type],
+            }
+          : undefined,
       };
       !req?.query?.status && delete query?.status;
       !req.query.serviceType && delete query?.serviceType;
