@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body, oneOf, param } from "express-validator";
-import { InternalServerError, NotFound } from "http-errors";
+import { Conflict, NotFound } from "http-errors";
 import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import { ReviewSchema } from "../models";
@@ -14,6 +14,7 @@ class ReviewController {
       fieldValidateError(req);
       const { comment, ratings, productId, storeId, technicianId } = req.body;
       const user = req?.currentUser?._id;
+      let queryArg: any = {};
 
       //if rating for technician
       if (technicianId) {
@@ -23,6 +24,10 @@ class ReviewController {
             "reviews.stars": Number(ratings),
           },
         });
+        queryArg = {
+          user,
+          technician: { $ne: technicianId },
+        };
       }
       //if rating for product
       if (productId) {
@@ -32,6 +37,10 @@ class ReviewController {
             "reviews.stars": Number(ratings),
           },
         });
+        queryArg = {
+          user,
+          product: { $ne: productId },
+        };
       }
       //if rating for store
       if (storeId) {
@@ -41,20 +50,31 @@ class ReviewController {
             "reviews.stars": Number(ratings),
           },
         });
+        queryArg = {
+          user,
+          store: { $ne: storeId },
+        };
       }
 
-      const reviewDevice = await ReviewSchema.create({
-        comment,
-        ratings: +ratings,
-        product: productId,
-        user,
-        store: storeId,
-        technician: technicianId,
-      });
-      if (!reviewDevice)
-        throw new InternalServerError(
-          "Something went wrong, Review is not created."
-        );
+      const reviewDevice = await ReviewSchema.findOneAndUpdate(
+        {
+          ...queryArg,
+        },
+        {
+          comment,
+          ratings: +ratings,
+          product: productId,
+          user,
+          store: storeId,
+          technician: technicianId,
+        },
+        {
+          upsert: true,
+          new: true,
+          runValidators: true,
+        }
+      );
+      if (!reviewDevice) throw new Conflict("Your review already recorded.");
       res.json({
         status: "SUCCESS",
         message: "Review is created successfully.",
