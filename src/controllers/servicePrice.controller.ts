@@ -127,10 +127,12 @@ class ServicePrice extends MediaLogic {
   ): Promise<any> {
     try {
       // save servicePrice data to database
-      const { servicePriceId, store } = req.query;
+      const { servicePriceId, store, serviceId, modelId } = req.query;
       const query: any = {};
       servicePriceId && (query["_id"] = servicePriceId);
       store && (query["store"] = store);
+      serviceId && (query["service"] = serviceId);
+      modelId && (query["model"] = modelId);
       const getAllServicePrice = await paginationHelper({
         model: ServicePriceModel,
         query,
