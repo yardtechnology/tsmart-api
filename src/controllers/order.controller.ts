@@ -426,7 +426,7 @@ class Order extends OrderLogic {
         currency: "GBP",
         source: id,
         email,
-        name: billingData?.orders[0]?.user?.displayName,
+        name: billingData?.orders[0]?.address?.name,
         address: {
           country: billingData.orders[0]?.address?.country,
           line1: billingData?.orders[0]?.address?.street,
