@@ -272,7 +272,67 @@ class Product extends ProductLogic {
 
       const productVariant =
         findProduct?.type === "ACCESSORY"
-          ? []
+          ? [
+              {
+                $lookup: {
+                  from: "products",
+                  foreignField: "variantOf",
+                  localField: "_id",
+                  as: "colorVariants",
+                  pipeline: [
+                    // color look up
+                    {
+                      $lookup: {
+                        from: "colors",
+                        localField: "color",
+                        foreignField: "_id",
+                        as: "color",
+                      },
+                    },
+                    {
+                      $unwind: {
+                        path: "$color",
+                        preserveNullAndEmptyArrays: true,
+                      },
+                    },
+                    // color lookup end
+                    // memory lookup
+                    // {},
+                    // memory lookup end
+                    {
+                      $group: {
+                        _id: "$color",
+
+                        id: {
+                          $first: "$_id",
+                        },
+                        count: {
+                          $sum: 1,
+                        },
+                        package: {
+                          $push: {
+                            _id: "$_id",
+                            color: "$color",
+                            memory: "$memory",
+                            condition: "$condition",
+                          },
+                        },
+                      },
+                    },
+                    {
+                      $project: {
+                        color: "$_id.color",
+                        hashCode: "$_id.hashCode",
+                        _id: "$_id._id",
+                        firstId: "$id",
+                        count: 1,
+                        package: 1,
+                      },
+                    },
+                  ],
+                },
+              },
+            ]
           : [
               // memory look up
               {
@@ -563,6 +623,7 @@ class Product extends ProductLogic {
           },
         },
         // color lookup end
+        ...productVariant,
       ]);
 
       res.json({
