@@ -790,12 +790,23 @@ class Order extends OrderLogic {
         userId: req?.currentUser?._id,
         storeId: req.currentUser?.store,
         technicianID: req.currentUser?._id,
-        type: req.query.status?.toString()?.toUpperCase(),
+        serviceType:
+          req?.query?.type?.toString()?.toUpperCase() === "REPAIR"
+            ? ["IN_STOR", "MAIL_IN", "CALL_OUT"]
+            : req?.query?.type?.toString()?.toUpperCase(),
+        type: req.query.type?.toString()?.toUpperCase(),
       };
       !req?.query?.status && delete query?.status;
+      (!req.query.serviceType ||
+        req?.query?.toString()?.toUpperCase() === "REPAIR") &&
+        delete query?.serviceType;
       req?.currentUser?.role !== "MANAGER" && delete query?.storeId;
       req?.currentUser?.role !== "TECHNICIAN" && delete query?.technicianID;
       req?.currentUser?.role !== "USER" && delete query?.userId;
+      req?.currentUser?.role !== "USER" && delete query?.userId;
+      (!req.query.type || req?.query?.toString()?.toUpperCase() === "REPAIR") &&
+        delete query?.type;
+      console.log(query);
       const orderData = await paginationHelper({
         model: OrderModel,
         query,
