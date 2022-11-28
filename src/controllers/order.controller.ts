@@ -423,7 +423,7 @@ class Order extends OrderLogic {
       if (!billingData) throw new Error("billingData not found");
       const chargedData = await new StripeLogic().paymentSession({
         amount: billingData?.total,
-        currency: "GBP",
+        currency: "INR",
         source: id,
         email,
         name: billingData?.orders[0]?.address?.name,
