@@ -821,6 +821,37 @@ class Order extends OrderLogic {
       next(error);
     }
   }
+  /**
+   * order cancelation
+   */
+  public async orderCancelationController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const orderData = await OrderModel.findByIdAndUpdate(
+        req?.params?.orderId,
+        {
+          status: "CANCELLED",
+        }
+      );
+      if (!orderData) throw new Error("Order not found");
+      BillingModel.updateMany(
+        { orders: orderData?._id },
+        {
+          status: "CANCELLED",
+        }
+      );
+      res.json({
+        status: "SUCCESS",
+        message: "Orders cancelled successfully",
+        data: orderData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   public validateOrderPlaceFields = [
     body("storeId")

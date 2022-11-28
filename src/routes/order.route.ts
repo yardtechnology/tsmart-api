@@ -26,6 +26,7 @@ class Order extends AuthenticateMiddleware {
     this.getJobRequest();
     this.acceptJobRequest();
     this.getAllOrders();
+    this.orderCancelationRoute();
   }
 
   //get all orders
@@ -170,6 +171,14 @@ class Order extends AuthenticateMiddleware {
       this.isAuthenticated,
       this.orderController.validateAcceptJobRequestFields,
       this.orderController.acceptJobRequestController
+    );
+  }
+  //order cancelation
+  private orderCancelationRoute(): void {
+    this.router.put(
+      "/orders/:orderId/cancel",
+      this.isAuthenticated,
+      this.orderController.orderCancelationController
     );
   }
 }
