@@ -938,6 +938,7 @@ class Order extends OrderLogic {
       .withMessage("makeId is required")
       .isMongoId()
       .withMessage("makeId must be a valid makeId"),
+    body("serviceTime").not().isEmpty().withMessage("Service time is required"),
     body("deviceId")
       .not()
       .isEmpty()
