@@ -223,6 +223,7 @@ class OrderLogic {
           },
           { salePrice: 0, mrp: 0 }
         );
+        const scheduledTimeData = new Date(scheduledTime);
         const makeData = await MakeSchema.findById(makeId);
         if (!makeData) throw new Error("make not found");
         //check model if exist or not
@@ -247,7 +248,7 @@ class OrderLogic {
           modelId: modelData?._id,
           device: deviceData,
           deviceId: deviceData?._id,
-          scheduledTime,
+          scheduledTime: scheduledTimeData,
         }).save();
         resolve(orderData);
       } catch (error) {
