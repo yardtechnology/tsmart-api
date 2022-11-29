@@ -135,7 +135,6 @@ class Order extends AuthenticateMiddleware {
     this.router.post(
       "/orders/:orderId/verify-otp",
       super.isAuthenticated,
-      this.orderController.validateUpdateOrderStatus,
       this.orderController.verifyOrderOtpController
     );
   }
