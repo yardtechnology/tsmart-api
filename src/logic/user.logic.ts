@@ -1,8 +1,13 @@
+import MailController from "../controllers/mail.controller";
 import paginationHelper, {
   PaginationResult,
 } from "../helper/pagination.helper";
+import { AddressModel } from "../models/address.model";
+import { CartItemModel } from "../models/cartItem.model";
 import { UserModel } from "../models/user.model";
+import { WishListModel } from "../models/wishlist.model";
 import UserType from "../types/user";
+import MediaLogic from "./media.logic";
 
 class UserLogic {
   private userId: string | undefined;
@@ -116,7 +121,44 @@ class UserLogic {
     return true;
   }
 
-  //TODO : DELETE USER AND CORRESPONDING DATA
+  //delete user
+  public async deleteUser(id: string): Promise<any> {
+    const userId = id || this.userId;
+    //find user data
+    const userData = await UserModel.findById(userId);
+    //if user not found
+    if (!userData) throw new Error("User not found");
+
+    //delete all cart items
+    await CartItemModel.deleteMany({ user: userData._id });
+    //delete all wishlist items
+    await WishListModel.deleteMany({ user: userData._id });
+    //delete all addresses
+    await AddressModel.deleteMany({ user: userData._id });
+    //delete all notifications
+    // await NotificationModel.deleteMany({ user: userData._id });
+    const mediaLogic = new MediaLogic();
+    // delete avatar
+    userData.avatarPath && mediaLogic.deleteMedia(userData?.avatarPath);
+    // delete faceVideo
+    userData.faceVideoPATH && mediaLogic.deleteMedia(userData?.faceVideoPATH);
+    // delete faceVideo
+    userData.documentPATH && mediaLogic.deleteMedia(userData?.documentPATH);
+
+    const deletedUser: UserType | null = await UserModel.findByIdAndDelete(
+      userId
+    );
+
+    new MailController().sendHtmlMail({
+      to: userData?.email as string,
+      subject: "Account Deleted",
+      html: `
+      <h1>Account Deleted</h1>
+      <p>Your account has been deleted</p>
+      `,
+    });
+    return deletedUser;
+  }
 }
 
 export default UserLogic;

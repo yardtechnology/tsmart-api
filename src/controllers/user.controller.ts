@@ -345,17 +345,23 @@ class User extends MediaLogic {
             .replace(/[,]/g, " and ")
         );
       }
-      const userData = await UserModel.findByIdAndUpdate(req.params?.userId, {
-        status: req.body?.status,
-      });
+      let userData = await UserModel.findById(req.params?.userId);
       if (!userData) throw new Error("User not found");
-      new MailController().sendHtmlMail({
-        to: userData.email,
-        subject: `Your account has been ${req.body?.status
-          ?.toString()
-          ?.toLowerCase()}`,
-        templet: "normal",
-        html: `
+      if (req.body?.status?.toUpperCase() === "REJECTED") {
+        new UserLogic().deleteUser(req.params?.userId);
+      } else {
+        userData = await UserModel.findByIdAndUpdate(req.params?.userId, {
+          status: req.body?.status,
+        });
+      }
+      if (userData?.email) {
+        new MailController().sendHtmlMail({
+          to: userData?.email,
+          subject: `Your account has been ${req.body?.status
+            ?.toString()
+            ?.toLowerCase()}`,
+          templet: "normal",
+          html: `
         <div>
           <h1>Your account has been ${req.body?.status
             ?.toString()
@@ -373,7 +379,8 @@ class User extends MediaLogic {
           </p>
         </div>
         `,
-      });
+        });
+      }
       res.status(200).json({
         status: "SUCCESS",
         message: "User updated successfully",
