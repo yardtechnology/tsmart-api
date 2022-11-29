@@ -8,6 +8,7 @@ import BillingLogic from "../logic/billing.logic";
 import CartLogic from "../logic/cart.logic";
 import OrderLogic from "../logic/order.logic";
 import StripeLogic from "../logic/stripe.logic";
+import { ConfigSchema } from "../models";
 import { BillingModel } from "../models/billing.model";
 import { CartItemModel } from "../models/cartItem.model";
 import { ProductModel } from "../models/product.model";
@@ -353,6 +354,7 @@ class Order extends OrderLogic {
       next(error);
     }
   }
+
   /**
    * verify otp
    */
@@ -372,6 +374,7 @@ class Order extends OrderLogic {
             await OrderModel.findByIdAndUpdate(orderData?._id, {
               "startOTP.verifiedAt": new Date(),
               "startOTP.isVerified": true,
+              status: "TECHNICIAN_REACHED",
             });
           } else {
             throw new Error("invalid startOtp");
@@ -382,6 +385,7 @@ class Order extends OrderLogic {
             await OrderModel.findByIdAndUpdate(orderData?._id, {
               "endOTP.verifiedAt": new Date(),
               "endOTP.isVerified": true,
+              status: "COMPLETED",
             });
           } else {
             throw new Error("invalid endOtp");
@@ -827,7 +831,7 @@ class Order extends OrderLogic {
 
         default:
           const technicianData = await UserModel.findById(
-            req?.currentUser?._id
+            req?.currentUser?._id || req?.body?.technicianId
           ).select(
             "displayName phoneNumber country avatar email gender role reviews"
           );
@@ -839,6 +843,7 @@ class Order extends OrderLogic {
               nearByTechnicians: [],
               technicianID: technicianData?._id,
               technician: technicianData,
+              status: "TECHNICIAN_ASSIGNED",
             }
           );
           //send socket event to every
@@ -922,13 +927,22 @@ class Order extends OrderLogic {
     next: NextFunction
   ) {
     try {
-      const orderData = await OrderModel.findByIdAndUpdate(
-        req?.params?.orderId,
-        {
-          status: "CANCELLED",
-        }
-      );
+      const configData = await ConfigSchema.findOne({});
+      // orderCancelTime is in minutes
+      let orderData = await OrderModel?.findById(req?.params?.orderId);
       if (!orderData) throw new Error("Order not found");
+      const orderPlacedTime =
+        new Date().getTime() -
+        new Date(orderData?.createdAt).getTime() / (1000 * 60);
+      if (configData?.orderCancelTime) {
+        if (orderPlacedTime >= configData?.orderCancelTime)
+          throw new Error(
+            "Order cannot be canceled after order cancelation time has passed"
+          );
+      }
+      orderData = await OrderModel.findByIdAndUpdate(req?.params?.orderId, {
+        status: "CANCELLED",
+      });
       BillingModel.updateMany(
         { orders: orderData?._id },
         {
