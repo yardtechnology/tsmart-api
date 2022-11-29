@@ -879,7 +879,16 @@ class Order extends OrderLogic {
       let query = {
         status:
           req?.query.status?.toString()?.toUpperCase() === "ONGOING"
-            ? { $nin: ["PENDING", "COMPLETED", "CANCELLED", "DELIVERED"] }
+            ? {
+                $nin: [
+                  "PENDING",
+                  "COMPLETED",
+                  "CANCELLED",
+                  "DELIVERED",
+                  "TECHNICIAN_ASSIGNED",
+                  "TECHNICIAN_REACHED",
+                ],
+              }
             : req.query.status?.toString()?.toUpperCase(),
         userID: req?.currentUser?._id,
         storeID: req.currentUser?.store,
