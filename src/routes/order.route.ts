@@ -29,6 +29,7 @@ class Order extends AuthenticateMiddleware {
     this.orderCancelationRoute();
     this.getOrderInvoiceRoute();
     this.updateOrderDetailsRoute();
+    this.verifyOrderOtpRoute();
   }
 
   //get all orders
@@ -135,7 +136,7 @@ class Order extends AuthenticateMiddleware {
       "/orders/:orderId/verify-otp",
       super.isAuthenticated,
       this.orderController.validateUpdateOrderStatus,
-      this.orderController.updateOrderStatusController
+      this.orderController.verifyOrderOtpController
     );
   }
 

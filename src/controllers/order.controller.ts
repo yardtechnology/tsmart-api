@@ -353,6 +353,53 @@ class Order extends OrderLogic {
       next(error);
     }
   }
+  /**
+   * verify otp
+   */
+  public async verifyOrderOtpController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      const orderData = await OrderModel.findById(req?.params?.orderId);
+      if (!orderData) throw new Error("order not found");
+      switch (req?.body?.type) {
+        case "START_OTP":
+          if (orderData?.startOTP?.otp === req?.body?.otp) {
+            await OrderModel.findByIdAndUpdate(orderData?._id, {
+              "startOTP.verifiedAt": new Date(),
+              "startOTP.isVerified": true,
+            });
+          } else {
+            throw new Error("invalid startOtp");
+          }
+          break;
+        case "END_OTP":
+          if (orderData?.endOTP?.otp === req?.body?.otp) {
+            await OrderModel.findByIdAndUpdate(orderData?._id, {
+              "endOTP.verifiedAt": new Date(),
+              "endOTP.isVerified": true,
+            });
+          } else {
+            throw new Error("invalid endOtp");
+          }
+          break;
+
+        default:
+          throw new Error("type is required, and must be START_OTP, END_OTP");
+      }
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Order Otp verified Successfully",
+        data: orderData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   /**
    * order single product
