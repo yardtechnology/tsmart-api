@@ -107,7 +107,7 @@ class Order extends AuthenticateMiddleware {
       "/orders/:orderId/invoice",
       super.isAuthenticated,
       this.orderController.validateGetOrderInvoice,
-      this.orderController.getOrderDetailsController
+      this.orderController.getOrderInvoiceController
     );
   }
 
