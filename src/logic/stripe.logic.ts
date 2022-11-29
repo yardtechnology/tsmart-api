@@ -37,7 +37,7 @@ class StripeLogic {
         });
         console.log({ stripeCustomerData });
         const stripeChargeData = await stripe.charges.create({
-          amount: Props.amount, // Charging Rs 25
+          amount: Props.amount * 100, // Charging Rs 25
           description: "tSmart Payment",
           currency: Props.currency,
           customer: stripeCustomerData.id,
