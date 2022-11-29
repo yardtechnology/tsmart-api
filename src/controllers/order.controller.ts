@@ -187,15 +187,13 @@ class Order extends OrderLogic {
       // validator error handler
       fieldValidateError(req);
 
-      const orderData = await super.getOrderDetails(req.params.orderId);
-      // await new BillingLogic().createBill(orderData?._id, {
-      //   status: "PAID",
-      // });
-
+      await super.sendInvoiceToMail({
+        orderId: req.params.orderId,
+        mail: req?.body?.mail,
+      });
       res.status(200).json({
         status: "SUCCESS",
         message: "Order details found successfully",
-        data: orderData,
       });
     } catch (error) {
       next(error);
@@ -883,8 +881,8 @@ class Order extends OrderLogic {
           req?.query.status?.toString()?.toUpperCase() === "ONGOING"
             ? { $nin: ["PENDING", "COMPLETED", "CANCELLED", "DELIVERED"] }
             : req.query.status?.toString()?.toUpperCase(),
-        userId: req?.currentUser?._id,
-        storeId: req.currentUser?.store,
+        userID: req?.currentUser?._id,
+        storeID: req.currentUser?.store,
         technicianID: req.currentUser?._id,
         serviceType: req?.query?.serviceType,
         type: req?.query?.type
@@ -897,9 +895,9 @@ class Order extends OrderLogic {
       };
       !req?.query?.status && delete query?.status;
       !req.query.serviceType && delete query?.serviceType;
-      req?.currentUser?.role !== "MANAGER" && delete query?.storeId;
+      req?.currentUser?.role !== "MANAGER" && delete query?.storeID;
       req?.currentUser?.role !== "TECHNICIAN" && delete query?.technicianID;
-      req?.currentUser?.role !== "USER" && delete query?.userId;
+      req?.currentUser?.role !== "USER" && delete query?.userID;
       !req.query.type && delete query?.type;
       const orderData = await paginationHelper({
         model: OrderModel,
