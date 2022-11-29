@@ -92,6 +92,11 @@ class BlogLogic extends MediaLogic {
     }).save();
     return commentData;
   }
+  //delete comment
+  public async deleteComment({ commentId }: { commentId: string }) {
+    const commentData = await CommentSchema.findByIdAndDelete(commentId);
+    return commentData;
+  }
   //get comment
   public async getComments({
     blogId,

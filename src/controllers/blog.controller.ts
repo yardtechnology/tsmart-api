@@ -134,6 +134,27 @@ class Blog extends BlogLogic {
       next(error);
     }
   }
+  //delete comment
+  public async deleteCommentController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+      const blogData = await super.deleteComment({
+        commentId: req.params?.commentId as string,
+      });
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "comment deleted successfully",
+        data: blogData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
   //get comments
   public async getCommentsController(
     req: AuthRequest,
