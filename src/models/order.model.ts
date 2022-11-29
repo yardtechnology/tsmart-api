@@ -80,13 +80,13 @@ const orderSchema = new Schema<OrderType>(
         ref: "User",
       },
     },
-    color: {
+    color: {},
+    memory: {},
+    colorId: {
       type: Schema.Types.ObjectId,
       ref: "Color",
     },
-    memory: { type: Schema.Types.ObjectId, ref: "Memory" },
-    colorId: String,
-    memoryId: String,
+    memoryId: { type: Schema.Types.ObjectId, ref: "Memory" },
     extraServices: [],
     accessory: [],
     imei: String,

@@ -65,9 +65,16 @@ class OrderLogic {
         if (!deviceData) throw new Error("device not found");
         //remove duplicate service ids
         const uniqServiceIds = new Set([...serviceIds]);
-        const servicePriceDetails = await ServicePriceModel.find({
-          _id: { $in: serviceIds },
-        }).populate("service");
+        let servicePriceDetails = [];
+        for (const servicePriceId of Array.from(uniqServiceIds)) {
+          const servicePriceData = await ServicePriceModel.findById(
+            servicePriceId
+          ).populate("service");
+          if (!servicePriceData)
+            throw new Error(`${servicePriceId} is not a valid servicePrice id`);
+
+          servicePriceDetails.push(servicePriceData);
+        }
         const priceDetails = servicePriceDetails.reduce(
           (prev: { salePrice: number; mrp: number }, curr) => {
             return (prev = {
@@ -147,9 +154,16 @@ class OrderLogic {
         if (!deviceData) throw new Error("device not found");
         //remove duplicate service ids
         const uniqServiceIds = new Set([...serviceIds]);
-        const servicePriceDetails = await ServicePriceModel.find({
-          _id: { $in: serviceIds },
-        }).populate("service");
+        let servicePriceDetails = [];
+        for (const servicePriceId of Array.from(uniqServiceIds)) {
+          const servicePriceData = await ServicePriceModel.findById(
+            servicePriceId
+          ).populate("service");
+          if (!servicePriceData)
+            throw new Error(`${servicePriceId} is not a valid servicePrice id`);
+
+          servicePriceDetails.push(servicePriceData);
+        }
         const priceDetails = servicePriceDetails.reduce(
           (prev: { salePrice: number; mrp: number }, curr) => {
             return (prev = {
@@ -211,10 +225,16 @@ class OrderLogic {
         if (!userData) throw new Error("User not found");
         //remove duplicate service ids
         const uniqServiceIds = new Set([...serviceIds]);
-        const servicePriceDetails = await ServicePriceModel.find({
-          _id: { $in: serviceIds },
-        }).populate("service");
-        console.log({ servicePriceDetails });
+        let servicePriceDetails = [];
+        for (const servicePriceId of Array.from(uniqServiceIds)) {
+          const servicePriceData = await ServicePriceModel.findById(
+            servicePriceId
+          ).populate("service");
+          if (!servicePriceData)
+            throw new Error(`${servicePriceId} is not a valid servicePrice id`);
+
+          servicePriceDetails.push(servicePriceData);
+        }
         const priceDetails = servicePriceDetails.reduce(
           (prev: { salePrice: number; mrp: number }, curr) => {
             return (prev = {
@@ -427,7 +447,7 @@ class OrderLogic {
         //remove duplicate service ids
         const uniqFalsyEvaluatedValues = await EvaluationPriceSchema.find({
           _id: { $in: falsyEvaluatedIds },
-        });
+        }).populate("evaluation");
 
         const evaluatedPrice = await new EvaluationLogic().deviceEvaluation({
           colorId: colorData?._id,

@@ -155,6 +155,24 @@ class ProductLogic extends MediaLogic {
               },
             },
           },
+          {
+            $lookup: {
+              from: "colors",
+              localField: "color",
+              foreignField: "_id",
+              as: "color",
+            },
+          },
+          { $unwind: { path: "$color", preserveNullAndEmptyArrays: true } },
+          {
+            $lookup: {
+              from: "memories",
+              localField: "memory",
+              foreignField: "_id",
+              as: "memory",
+            },
+          },
+          { $unwind: { path: "$memory", preserveNullAndEmptyArrays: true } },
         ]);
 
         const mainProductData = await ProductModel.findById(productId);
@@ -297,6 +315,24 @@ class ProductLogic extends MediaLogic {
               },
             },
           },
+          {
+            $lookup: {
+              from: "colors",
+              localField: "color",
+              foreignField: "_id",
+              as: "color",
+            },
+          },
+          { $unwind: { path: "$color", preserveNullAndEmptyArrays: true } },
+          {
+            $lookup: {
+              from: "memories",
+              localField: "memory",
+              foreignField: "_id",
+              as: "memory",
+            },
+          },
+          { $unwind: { path: "$memory", preserveNullAndEmptyArrays: true } },
         ]);
 
         const mainProductData = await ProductModel.findById(productId);
@@ -804,6 +840,24 @@ class ProductLogic extends MediaLogic {
       {
         $limit: limit + 1,
       },
+      {
+        $lookup: {
+          from: "colors",
+          localField: "color",
+          foreignField: "_id",
+          as: "color",
+        },
+      },
+      { $unwind: { path: "$color", preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: "memories",
+          localField: "memory",
+          foreignField: "_id",
+          as: "memory",
+        },
+      },
+      { $unwind: { path: "$memory", preserveNullAndEmptyArrays: true } },
     ]);
     const totalLength = productsData.length;
     if (totalLength > Number(limit)) productsData.pop();

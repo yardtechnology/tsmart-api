@@ -83,8 +83,8 @@ export default interface OrderType extends Document {
   bankDetails: BankType;
   color: COLOR_TYPE;
   memory: MEMORY_TYPE;
-  colorId: string;
-  memoryId: string;
+  colorId: COLOR_TYPE;
+  memoryId: MEMORY_TYPE;
   extraServices?: ServicePriceType[];
   accessory?: ProductType[];
   imei: string;
