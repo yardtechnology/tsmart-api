@@ -1176,6 +1176,14 @@ class Order extends OrderLogic {
       .isMongoId()
       .withMessage("accessoryIds must be an array of accessoryId"),
   ];
+  public validateGetOrderInvoice = [
+    body("email")
+      .not()
+      .isEmpty()
+      .withMessage("email is required")
+      .isEmail()
+      .withMessage("please enter a valid email"),
+  ];
 }
 
 export default Order;
