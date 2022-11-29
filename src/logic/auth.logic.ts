@@ -12,8 +12,6 @@ class AuthLogic extends JWTLogic {
       //   if user not fount
       if (!userData) throw new Error("User not found");
 
-      console.log("secret: ", secret);
-
       // check if user exists
       if (!userData) {
         throw new Error("User not found");

@@ -82,7 +82,7 @@ class User extends MediaLogic {
           isAcademicCourses: req.body?.isAcademicCourses,
           experience: req.body?.experience,
           age: req.body?.age,
-          status: email ? "INACTIVE" : undefined,
+          status: email ? undefined : "INACTIVE",
           documentType: req.body?.documentType,
           document: documentData?.url,
           documentPATH: documentData?.path,
@@ -139,7 +139,6 @@ class User extends MediaLogic {
         },
       });
     } catch (error) {
-      console.log({ error });
       // send error to client
       next(error);
     }

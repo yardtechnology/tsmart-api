@@ -21,7 +21,6 @@ class WishList extends WishListLogic {
         data: wishlist,
       });
     } catch (error) {
-      console.log({ error });
       // send error to client
       next(error);
     }
@@ -47,7 +46,6 @@ class WishList extends WishListLogic {
         data: wishlist,
       });
     } catch (error) {
-      console.log({ error });
       // send error to client
       next(error);
     }
@@ -89,7 +87,6 @@ class WishList extends WishListLogic {
         data: wishlist,
       });
     } catch (error) {
-      console.log({ error });
       // send error to client
       next(error);
     }

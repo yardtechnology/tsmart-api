@@ -45,6 +45,8 @@ class ConfigController {
         shoppingPolicy,
         mailInstructions,
         ourWarranty,
+        storeRange,
+        orderCancelTime,
       } = req.body;
 
       const createConfig = await ConfigSchema.findOneAndUpdate(
@@ -88,6 +90,8 @@ class ConfigController {
           shoppingPolicy,
           mailInstructions,
           ourWarranty,
+          storeRange,
+          orderCancelTime,
         },
         {
           runValidators: true,

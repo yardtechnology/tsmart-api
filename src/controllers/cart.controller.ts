@@ -31,7 +31,6 @@ class Cart extends CartLogic {
     next: NextFunction
   ) {
     try {
-      console.log("remove", req.body);
       await super.removeProductFromCart(req);
       const cartItems =
         req.currentUser && (await super.getCartItems(req.currentUser?._id));

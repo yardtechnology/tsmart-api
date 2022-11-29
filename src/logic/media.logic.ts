@@ -24,7 +24,6 @@ class MediaLogic {
   ): Promise<{ url: string; path: string }> {
     return new Promise(async (resolve, reject) => {
       try {
-        console.log(file);
         const result = await cloudinary.uploader.upload(file.tempFilePath, {
           folder: `TSMART/${folder || "common"}`,
           resource_type: file?.mimetype.split("/")[0],
@@ -35,7 +34,6 @@ class MediaLogic {
           path: result.public_id,
         });
       } catch (error) {
-        console.log({ error });
         reject(error);
       }
     });

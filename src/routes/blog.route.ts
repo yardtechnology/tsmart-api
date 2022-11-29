@@ -17,6 +17,7 @@ class Blog extends AuthenticateMiddleware {
     this.getBlogRoute();
     this.addCommentRoute();
     this.getCommentsRoute();
+    this.deleteCommentRoute();
   }
 
   //create blog
@@ -48,6 +49,14 @@ class Blog extends AuthenticateMiddleware {
       "/blog/:blogId/comment",
       this?.isAuthenticated,
       this.BlogController.addCommentController
+    );
+  }
+  //delete comment
+  private deleteCommentRoute(): void {
+    this.router.delete(
+      "/blog/:blogId/comment/:commentId",
+      this?.isAuthenticated,
+      this.BlogController.deleteCommentController
     );
   }
   //get comments

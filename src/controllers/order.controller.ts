@@ -366,7 +366,6 @@ class Order extends OrderLogic {
         data: billingData,
       });
     } catch (error) {
-      console.log({ error });
       next(error);
     }
   }
@@ -422,7 +421,6 @@ class Order extends OrderLogic {
         data: billingData,
       });
     } catch (error) {
-      console.log({ error });
       next(error);
     }
   }
@@ -494,7 +492,6 @@ class Order extends OrderLogic {
       const billingData = await BillingModel.findById(billingId).populate(
         "orders"
       );
-      console.log(billingData?.orders[0]?.address);
       const data = await new StripeLogic().reactNativePaymentIntents({
         amount: billingData?.total as number,
         currency: "INR",
@@ -568,13 +565,10 @@ class Order extends OrderLogic {
         await OrderModel.findByIdAndUpdate(billingData?.orders[0]?._id, {
           nearByTechnicians,
         });
-        console.log("BEFORE SOCKET CONNECTED");
         //send socket event to every
         const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
         socket.on("connect", () => {
-          console.log("SOCKET CONNECTED");
           for (const technicianId of nearByTechnicians) {
-            console.log("TECH: ", technicianId);
             socket.emit("NEW-JOB-REQUEST", {
               technicianId,
             });
@@ -720,7 +714,6 @@ class Order extends OrderLogic {
     try {
       // validator error handler
       fieldValidateError(req);
-      console.log("RANJIT", req?.currentUser?._id);
       const jobRequests = await OrderModel.aggregate([
         {
           $match: {
@@ -829,7 +822,6 @@ class Order extends OrderLogic {
       req?.currentUser?.role !== "TECHNICIAN" && delete query?.technicianID;
       req?.currentUser?.role !== "USER" && delete query?.userId;
       !req.query.type && delete query?.type;
-      console.log(query);
       const orderData = await paginationHelper({
         model: OrderModel,
         query,
