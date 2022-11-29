@@ -234,6 +234,9 @@ class Order extends OrderLogic {
 
       const orderData = await super.updateOrderDetails({
         orderId: req.params.orderId,
+        faceVideo: req?.files?.faceVideo,
+        startImage: req?.files?.startImage,
+        endImage: req?.files?.endImage,
       });
 
       res.status(200).json({

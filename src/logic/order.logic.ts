@@ -13,14 +13,17 @@ import { UserModel } from "../models/user.model";
 import AddressType from "../types/address";
 import BankType from "../types/bank";
 import OrderType, { OrderStatus } from "../types/order";
+import { createOTP } from "./../helper/core.helper";
 import { ModelModel } from "./../models/model.model";
 import { ServicePriceModel } from "./../models/servicePrice.model";
 import EvaluationLogic from "./evaluation.logic";
+import MediaLogic from "./media.logic";
 // import NotificationLogic from "./notification.logic";
 
-class OrderLogic {
+class OrderLogic extends MediaLogic {
   public _orderId: string | undefined;
   constructor(id?: string) {
+    super();
     this._orderId = id;
   }
 
@@ -102,6 +105,9 @@ class OrderLogic {
           modelId: modelData?._id,
           device: deviceData,
           deviceId: deviceData?._id,
+          startOTP: {
+            otp: createOTP(4),
+          },
         }).save();
         resolve(orderData);
       } catch (error) {
@@ -371,19 +377,40 @@ class OrderLogic {
   /**update order details */
   public async updateOrderDetails({
     orderId,
+    faceVideo,
+    startImage,
+    endImage,
   }: {
     orderId: string;
+    faceVideo: any;
+    startImage: any;
+    endImage: any;
   }): Promise<OrderType> {
-    const orderData: OrderType | null = await OrderModel.findById(
-      orderId
-    ).populate([
+    const faceVideoData =
+      faceVideo && !Array.isArray(faceVideo)
+        ? await super.uploadMedia(faceVideo, `${orderId}`)
+        : undefined;
+    const startImageData =
+      startImage && !Array.isArray(startImage)
+        ? await super.uploadMedia(startImage, `${orderId}`)
+        : undefined;
+    const endImageData =
+      endImage && !Array.isArray(endImage)
+        ? await super.uploadMedia(endImage, `${orderId}`)
+        : undefined;
+    const orderData: OrderType | null = await OrderModel.findByIdAndUpdate(
+      orderId,
       {
-        path: "service",
-        populate: {
-          path: "service",
-        },
-      },
-    ]);
+        faceVideo: faceVideoData?.url,
+        faceVideoPath: faceVideoData?.path,
+        startImage: startImageData?.url,
+        startImagePATH: startImageData?.path,
+        endImage: endImageData?.url,
+        endImagePATH: endImageData?.path,
+        "endOTP.otp": faceVideo ? createOTP(4) : undefined,
+        "startOTP.otp": endImage ? createOTP(4) : undefined,
+      }
+    );
     if (!orderData) {
       throw new Error("order not found");
     }

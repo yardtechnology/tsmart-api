@@ -25,6 +25,8 @@ const orderSchema = new Schema<OrderType>(
     trackingNumber: String,
     totalPrice: Number,
     totalMrp: Number,
+    faceVideo: String,
+    faceVideoPath: String,
     startImage: String,
     startImagePATH: String,
     technician: {

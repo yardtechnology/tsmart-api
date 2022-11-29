@@ -43,6 +43,8 @@ export default interface OrderType extends Document {
   trackingNumber: string;
   totalPrice: number;
   totalMrp: number;
+  faceVideo: String;
+  faceVideoPath: String;
   startImage: string;
   startImagePATH: string;
   technician: UserType;
