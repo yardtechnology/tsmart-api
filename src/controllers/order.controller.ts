@@ -200,6 +200,27 @@ class Order extends OrderLogic {
       next(error);
     }
   }
+  /** get order details*/
+  public async getOrderInvoiceController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+
+      const orderData = await super.getOrderDetails(req.params.orderId);
+
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Invoice send successfully",
+        data: orderData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   /** get order details*/
   public async updateOrderDetailsController(
