@@ -27,6 +27,7 @@ class Order extends AuthenticateMiddleware {
     this.acceptJobRequest();
     this.getAllOrders();
     this.orderCancelationRoute();
+    this.getOrderInvoiceRoute();
   }
 
   //get all orders
@@ -97,6 +98,15 @@ class Order extends AuthenticateMiddleware {
       "/orders/:orderId",
       super.isAuthenticated,
       this.orderController.validateGetOrderDetails,
+      this.orderController.getOrderDetailsController
+    );
+  }
+  // get order invoice
+  private getOrderInvoiceRoute(): void {
+    this.router.put(
+      "/orders/:orderId/invoice",
+      super.isAuthenticated,
+      this.orderController.validateGetOrderInvoice,
       this.orderController.getOrderDetailsController
     );
   }
