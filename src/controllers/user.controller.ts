@@ -2,6 +2,7 @@ import { NextFunction, Response } from "express";
 import { body, validationResult } from "express-validator";
 import { NotAcceptable } from "http-errors";
 import { getTimeDeference } from "../helper/core.helper";
+import JWTLogic from "../logic/jwt.logic";
 import MediaLogic from "../logic/media.logic";
 import UserLogic from "../logic/user.logic";
 import { UserModel } from "../models/user.model";
@@ -98,6 +99,30 @@ class User extends MediaLogic {
         super.deleteMedia(updatedUser?.faceVideoPATH);
 
       if (!updatedUser) throw new Error("User not found");
+
+      if (email) {
+        // create secret
+        const secret: string = await new JWTLogic().getAccessToken(
+          {
+            _id: updatedUser?._id,
+            email: email,
+          },
+          "1d"
+        );
+        // send mail for email verification
+        new MailController().sendHtmlMail({
+          to: email,
+          templet: "normal",
+          subject: "Email Verification",
+          html: `<h1>Email Verification</h1>
+        <p>
+          Please click on the link below to verify your email:
+          </p>
+          <a href="${process.env.API_END_POINT}/auth/verify-email/${secret}">
+            Verify Email
+            </a>`,
+        });
+      }
 
       // send response to client
       res.status(200).json({
