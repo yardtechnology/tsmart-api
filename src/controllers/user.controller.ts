@@ -385,10 +385,10 @@ class User extends MediaLogic {
         status: "SUCCESS",
         message: "User updated successfully",
         data: {
-          _id: userData._id,
-          status: userData.status,
-          email: userData.email,
-          phoneNumber: userData.phoneNumber,
+          _id: userData?._id,
+          status: userData?.status,
+          email: userData?.email,
+          phoneNumber: userData?.phoneNumber,
         },
       });
     } catch (error) {
