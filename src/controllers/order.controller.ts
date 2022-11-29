@@ -187,10 +187,11 @@ class Order extends OrderLogic {
       // validator error handler
       fieldValidateError(req);
 
-      await super.sendInvoiceToMail({
-        orderId: req.params.orderId,
-        mail: req?.body?.mail,
-        res: res,
+      const orderData = await super.getOrderDetails(req.params.orderId);
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Order details found successfully",
+        data: orderData,
       });
     } catch (error) {
       next(error);
@@ -206,12 +207,14 @@ class Order extends OrderLogic {
       // validator error handler
       fieldValidateError(req);
 
-      const orderData = await super.getOrderDetails(req.params.orderId);
+      await super.sendInvoiceToMail({
+        orderId: req.params.orderId,
+        mail: req?.body?.mail,
+      });
 
       res.status(200).json({
         status: "SUCCESS",
         message: "Invoice send successfully",
-        data: orderData,
       });
     } catch (error) {
       next(error);

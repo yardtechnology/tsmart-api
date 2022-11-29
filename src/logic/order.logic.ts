@@ -1,4 +1,3 @@
-import { Response } from "express";
 import MailController from "../controllers/mail.controller";
 import {
   ColorSchema,
@@ -23,6 +22,7 @@ import MediaLogic from "./media.logic";
 // import NotificationLogic from "./notification.logic";
 import fs from "fs";
 import pdf from "html-pdf";
+import path from "path";
 
 class OrderLogic extends MediaLogic {
   public _orderId: string | undefined;
@@ -524,25 +524,45 @@ class OrderLogic extends MediaLogic {
   public async sendInvoiceToMail({
     orderId,
     mail,
-    res,
   }: {
     orderId: string;
     mail: string;
-    res: Response;
   }) {
     const orderData = await OrderModel.findById(orderId);
-    const invoiceTemplate = `order invoice`;
+    const invoiceTemplate = `<h1>order invoice</h1>`;
 
     pdf
       .create(invoiceTemplate, { format: "A4" })
       .toFile(
-        `./uploads/invoice-${orderData?._id}.pdf`,
+        path.join(
+          __dirname,
+          "..",
+          "..",
+          "uploads",
+          `invoice-${orderData?._id}.pdf`
+        ),
         (writeFileErr: any, result: any) => {
-          if (writeFileErr) return res.status(400).send({ writeFileErr });
+          if (writeFileErr) throw new Error(writeFileErr);
+          console.log(
+            path.join(
+              __dirname,
+              "..",
+              "..",
+              "uploads",
+              `invoice-${orderData?._id}.pdf`
+            )
+          );
           fs.readFile(
-            `./uploads/invoice-${orderData?._id}.pdf`,
+            path.join(
+              __dirname,
+              "..",
+              "..",
+              "uploads",
+              `invoice-${orderData?._id}.pdf`
+            ),
             async (err: any, data: any) => {
               try {
+                console.log({ err });
                 if (err)
                   throw new Error("Error while reading file in Invoice mail");
                 const mailOptions = {
@@ -562,6 +582,7 @@ class OrderLogic extends MediaLogic {
                   console.log("Invoice file removed");
                 });
               } catch (error) {
+                console.log({ error });
                 throw new Error("Error while reading file");
               }
             }
