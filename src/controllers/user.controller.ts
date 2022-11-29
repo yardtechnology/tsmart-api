@@ -139,7 +139,6 @@ class User extends MediaLogic {
         },
       });
     } catch (error) {
-      console.log({ error });
       // send error to client
       next(error);
     }

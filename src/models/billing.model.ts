@@ -49,23 +49,5 @@ const billingSchema = new Schema<BillingType>(
   },
   { timestamps: true }
 );
-// if not paid in a day then delete the billing
-// billingSchema.index(
-//   { createdAt: 1 },
-//   {
-//     expireAfterSeconds: 60,
-//     partialFilterExpression: { status: "PENDING", type: "REGULAR" },
-//   }
-// );
 
 export const BillingModel = model<BillingType>("Billing", billingSchema);
-// BillingModel.watch().on("change", async (data: any) => {
-//   try {
-//     if (data.operationType === "delete") {
-//       console.log(data?.documentKey?._id);
-//       await OrderModel.deleteMany({ billing: data?.documentKey?._id });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//   }
-// });

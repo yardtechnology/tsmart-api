@@ -23,7 +23,6 @@ class ProductLogic extends MediaLogic {
   public createAProduct(req: Request): Promise<ProductType> {
     return new Promise(async (resolve, reject) => {
       try {
-        console.log({ req: req.body });
         // upload product image
         const displayImageFile = req.files?.displayImage;
         const filePath = `product`;
@@ -677,9 +676,7 @@ class ProductLogic extends MediaLogic {
   }): Promise<
     PaginationResult<ProductType & { discount: number; rating: number }>
   > {
-    console.log({ filter });
     const filterJSON = JSON.parse(filter);
-    console.log({ filterJSON });
     const queryOne = {
       type: type,
       condition: filterJSON?.condition,
@@ -757,8 +754,6 @@ class ProductLogic extends MediaLogic {
           "Invalid sortBy, sortBy must be  popularity, latest, high-to-low, low-to-high and default"
         );
     }
-    console.log({ queryOne });
-    console.log({ queryTwo });
     // get all wishlist products
     const wishListData: { product: string }[] = userId
       ? await WishListModel.find({
@@ -909,7 +904,6 @@ class ProductLogic extends MediaLogic {
    * get values from an products array
    */
   public async getProductsValues(productIds: Types.ObjectId[]) {
-    console.log(productIds);
     const data = await ProductModel.aggregate([
       {
         $match: {
@@ -926,7 +920,6 @@ class ProductLogic extends MediaLogic {
         },
       },
     ]);
-    console.log(data);
     return {
       totalMrp: data[0]?.totalMrp,
       totalSalePrice: data[0]?.totalSalePrice,

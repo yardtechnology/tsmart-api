@@ -29,7 +29,6 @@ class Payment extends StripeLogic {
           country: "United Kingdom",
         },
       });
-      console.log({ data });
       res.json({
         status: "SUCCESS",
         message: "Charged Successfully",
