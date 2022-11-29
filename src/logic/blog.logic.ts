@@ -86,7 +86,7 @@ class BlogLogic extends MediaLogic {
     comment: string;
   }) {
     const commentData = await new CommentSchema({
-      blogId,
+      blog: blogId,
       user: userId,
       comment,
     }).save();
