@@ -28,6 +28,7 @@ class Order extends AuthenticateMiddleware {
     this.getAllOrders();
     this.orderCancelationRoute();
     this.getOrderInvoiceRoute();
+    this.updateOrderDetailsRoute();
   }
 
   //get all orders
@@ -101,6 +102,14 @@ class Order extends AuthenticateMiddleware {
       this.orderController.getOrderDetailsController
     );
   }
+  // get order details
+  private updateOrderDetailsRoute(): void {
+    this.router.put(
+      "/orders/:orderId",
+      super.isAuthenticated,
+      this.orderController.updateOrderDetailsController
+    );
+  }
   // get order invoice
   private getOrderInvoiceRoute(): void {
     this.router.put(
@@ -115,6 +124,15 @@ class Order extends AuthenticateMiddleware {
   private updateOrderStatusRoute(): void {
     this.router.put(
       "/orders/:orderId/status",
+      super.isAuthenticated,
+      this.orderController.validateUpdateOrderStatus,
+      this.orderController.updateOrderStatusController
+    );
+  }
+  //order status and ETA update
+  private verifyOrderOtpRoute(): void {
+    this.router.post(
+      "/orders/:orderId/verify-otp",
       super.isAuthenticated,
       this.orderController.validateUpdateOrderStatus,
       this.orderController.updateOrderStatusController
