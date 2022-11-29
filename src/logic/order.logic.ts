@@ -368,6 +368,9 @@ class OrderLogic extends MediaLogic {
           path: "service",
         },
       },
+      {
+        path: "billing",
+      },
     ]);
     if (!orderData) {
       throw new Error("order not found");
