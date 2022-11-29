@@ -189,7 +189,7 @@ class ServicePrice extends MediaLogic {
       fieldValidateError(req);
 
       const { model } = req.params;
-      const { serviceId } = req.query;
+      const { serviceId, servicePriceId } = req.query;
       const serviceArg = [];
       serviceId &&
         serviceArg.push({
@@ -204,11 +204,21 @@ class ServicePrice extends MediaLogic {
           ? servicePriceIds.map((item) => new Types.ObjectId(String(item)))
           : [new Types.ObjectId(String(servicePriceIds))]
         : [];
-
+      const matchArray: any = [
+        {
+          $eq: ["$model", new Types.ObjectId(model)],
+        },
+      ];
+      servicePriceId &&
+        matchArray.push({
+          $eq: ["$_id", new Types.ObjectId(String(servicePriceId))],
+        });
       const aggregationQuery: any[] = [
         {
           $match: {
-            model: new Types.ObjectId(model),
+            $expr: {
+              $and: matchArray,
+            },
           },
         },
         {
