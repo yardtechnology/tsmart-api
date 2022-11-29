@@ -407,8 +407,8 @@ class OrderLogic extends MediaLogic {
         startImagePATH: startImageData?.path,
         endImage: endImageData?.url,
         endImagePATH: endImageData?.path,
-        "endOTP.otp": faceVideo ? createOTP(4) : undefined,
-        "startOTP.otp": endImage ? createOTP(4) : undefined,
+        "startOTP.otp": faceVideo ? createOTP(4) : undefined,
+        "endOTP.otp": endImage ? createOTP(4) : undefined,
       }
     );
     if (!orderData) {
