@@ -24,7 +24,7 @@ class Blog extends BlogLogic {
         author,
         article,
         tags,
-        posterFile: req.body?.poster,
+        posterFile: req.files?.poster,
       });
       res.status(200).json({
         status: "SUCCESS",
@@ -53,7 +53,7 @@ class Blog extends BlogLogic {
         author,
         article,
         tags,
-        posterFile: req.body?.poster,
+        posterFile: req.files?.poster,
       });
       res.status(200).json({
         status: "SUCCESS",

@@ -24,7 +24,7 @@ class News extends NewsLogic {
         author,
         article,
         tags,
-        posterFile: req.body?.poster,
+        posterFile: req.files?.poster,
         link,
       });
       res.status(200).json({
@@ -54,7 +54,7 @@ class News extends NewsLogic {
         author,
         article,
         tags,
-        posterFile: req.body?.poster,
+        posterFile: req.files?.poster,
         link,
       });
       res.status(200).json({
