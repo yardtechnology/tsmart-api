@@ -508,6 +508,11 @@ class ServicePrice extends MediaLogic {
       // delete previous servicePrice image
       servicePriceData?.imagePATH &&
         super.deleteMedia(servicePriceData?.imagePATH);
+      // delete serviceProperty value
+      const deleteServicePropertyValue =
+        await ServicePropertyValueSchema.deleteMany({
+          servicePrice: req.params.servicePriceId,
+        });
 
       // send response to client
       res.status(200).json({
