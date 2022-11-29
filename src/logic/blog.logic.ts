@@ -78,16 +78,16 @@ class BlogLogic extends MediaLogic {
   //add comment
   public async addComment({
     blogId,
-    commentId,
+    userId,
     comment,
   }: {
     blogId: string;
-    commentId: string;
+    userId: string;
     comment: string;
   }) {
     const commentData = await new CommentSchema({
       blogId,
-      commentId,
+      user: userId,
       comment,
     }).save();
     return commentData;
@@ -118,6 +118,12 @@ class BlogLogic extends MediaLogic {
       chunk,
       limit,
       sort: { createdAt: -1 },
+      populate: [
+        {
+          path: "user",
+          select: "avatar displayName",
+        },
+      ],
     });
 
     return commentData;

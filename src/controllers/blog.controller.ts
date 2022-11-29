@@ -122,10 +122,10 @@ class Blog extends BlogLogic {
       fieldValidateError(req);
       const blogData = await super.addComment({
         blogId: req.params?.blogId as string,
-        comment: req.body?.comment,
-        commentId: req.body?.commentId as string,
+        comment: req.body?.commentId,
+        userId: req?.currentUser?._id as string,
       });
-      res.status(200).json({
+      res.json({
         status: "SUCCESS",
         message: "comment added successfully",
         data: blogData,
