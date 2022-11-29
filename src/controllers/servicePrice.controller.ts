@@ -1,5 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body, param, query } from "express-validator";
+import { InternalServerError } from "http-errors";
 import { Types } from "mongoose";
 import {
   aggregationData,
@@ -9,6 +10,7 @@ import {
 import CouponLogic from "../logic/coupon.logic";
 import MediaLogic from "../logic/media.logic";
 import ServiceLogic from "../logic/service.logic";
+import { ServicePropertyValueSchema } from "../models";
 import { ServicePriceModel } from "../models/servicePrice.model";
 import { AuthRequest } from "../types/core";
 import ServicePriceType from "../types/servicePrice";
@@ -32,6 +34,7 @@ class ServicePrice extends MediaLogic {
         modelId,
         type,
         isMostPopular,
+        allServices,
       } = req.body;
       // upload servicePrice picture
       const imageFile = req.files?.image;
@@ -56,6 +59,20 @@ class ServicePrice extends MediaLogic {
         isMostPopular,
       }).save();
 
+      const allServicesCheck = allServices
+        ? allServices?.map((item: any) => ({
+            ...item,
+            model: modelId,
+            servicePrice: servicePriceData?._id,
+          }))
+        : undefined;
+      const createServicePropertyValue = allServicesCheck
+        ? await ServicePropertyValueSchema.insertMany(allServices)
+        : undefined;
+      if (!createServicePropertyValue && allServicesCheck)
+        throw new InternalServerError(
+          "Something went wrong, Service property value is not created."
+        );
       // send response to client
       res.status(200).json({
         status: "SUCCESS",
@@ -542,6 +559,18 @@ export const ServicePriceControllerValidation = {
       .exists()
       .isBoolean()
       .withMessage("isMostPopular must be boolean."),
+
+    body("allServices.*.value")
+      .optional()
+      .isLength({ min: 3 })
+      .withMessage("value must be at least 3 character.")
+      .isLength({ max: 700 })
+      .withMessage("value must be at most 700 characters long"),
+
+    body("allServices.*.serviceProperty")
+      .optional()
+      .isMongoId()
+      .withMessage("serviceProperty must be mongoesId."),
   ],
   getAllServicePrice: [
     param("model")

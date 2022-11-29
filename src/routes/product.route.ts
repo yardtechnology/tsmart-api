@@ -10,6 +10,7 @@ class Product extends AuthenticateMiddleware {
     super();
     this.router = Router();
     this.productController = new ProductController();
+    this.productTemp();
     this.createStoreRoute();
     this.addVariantRoute();
     this.updateProductRoute();
@@ -149,6 +150,14 @@ class Product extends AuthenticateMiddleware {
       "/product/:productId/store-stock",
       this.isAdmin,
       this.productController.getStoresStocksController
+    );
+  }
+  //add product stock
+  private productTemp(): void {
+    this.router.get(
+      "/product/temp",
+
+      this.productController.productTemp
     );
   }
 }

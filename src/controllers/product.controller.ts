@@ -870,6 +870,16 @@ class Product extends ProductLogic {
     }
   }
 
+  async productTemp(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const hubId = "63808bd7be93a20006ce2d05";
+      const updateData = await ProductModel.find({}).select("store");
+      res.json({ data: updateData });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   /** fields validators for the product creation request */
   public validateCreateProductFields = [
     body("title")
