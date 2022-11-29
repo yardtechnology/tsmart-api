@@ -316,10 +316,13 @@ class Order extends OrderLogic {
     try {
       // validator error handler
       fieldValidateError(req);
+      const validETAData = req?.body?.eta
+        ? new Date(req.body.eta as string)
+        : undefined;
       const orderData = await super.updateOrderStatus({
         orderId: req.params.orderId,
         status: req.body.status as OrderStatus,
-        eta: new Date(req.body.eta as string),
+        eta: validETAData,
       });
       //send mail to user to notify about order status
       new MailController().sendMail({
