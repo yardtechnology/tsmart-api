@@ -192,8 +192,8 @@ class Blog extends BlogLogic {
       .withMessage("description must be between 11 and 250 characters"),
     body("author")
       .optional()
-      .isLength({ min: 11, max: 21 })
-      .withMessage("author must be between 5 and 21 characters"),
+      .isLength({ min: 2, max: 21 })
+      .withMessage("author must be between 2 and 21 characters"),
   ];
   public validateUpdateBlogFields = [
     body("title")
