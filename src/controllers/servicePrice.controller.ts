@@ -66,9 +66,14 @@ class ServicePrice extends MediaLogic {
             servicePrice: servicePriceData?._id,
           }))
         : undefined;
+      // console.log({ allServices, allServicesCheck });
+
       const createServicePropertyValue = allServicesCheck
-        ? await ServicePropertyValueSchema.insertMany(allServices)
+        ? await ServicePropertyValueSchema.insertMany(
+            JSON.parse(JSON.stringify(allServicesCheck))
+          )
         : undefined;
+      console.log(createServicePropertyValue);
       if (!createServicePropertyValue && allServicesCheck)
         throw new InternalServerError(
           "Something went wrong, Service property value is not created."
