@@ -98,6 +98,7 @@ const configSchema = new Schema<CONFIG_TYPE, Model<CONFIG_TYPE>>(
     mailInstructions: String,
     ourWarranty: String,
     storeRange: Number,
+    orderCancelTime: Number,
   },
   { timestamps: true }
 );
