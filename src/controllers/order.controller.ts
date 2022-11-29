@@ -190,10 +190,7 @@ class Order extends OrderLogic {
       await super.sendInvoiceToMail({
         orderId: req.params.orderId,
         mail: req?.body?.mail,
-      });
-      res.status(200).json({
-        status: "SUCCESS",
-        message: "Order details found successfully",
+        res: res,
       });
     } catch (error) {
       next(error);

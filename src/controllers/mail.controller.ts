@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 
 class MailController {
-  private transporter = nodemailer.createTransport({
+  public transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
       user: process.env.EMAIL,
