@@ -4,9 +4,9 @@ import { InternalServerError, NotFound } from "http-errors";
 import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import MediaLogic from "../logic/media.logic";
+import NotificationLogic from "../logic/notification.logics";
 import { NotificationSchema } from "../models";
 import { AuthRequest } from "../types/core";
-
 class NotificationController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     let iconData: any | undefined;
@@ -28,10 +28,17 @@ class NotificationController {
         iconPATH: iconData?.path,
         redirectLink,
       });
+
       if (!createNotification)
         throw new InternalServerError(
           "Something went wrong, Notification is not created."
         );
+      await new NotificationLogic().pushNotification({
+        title,
+        body: description,
+        imageUrl: iconData?.url,
+        userIds: [userId],
+      });
       res.json({
         status: "SUCCESS",
         message: "Notification created successfully.",
