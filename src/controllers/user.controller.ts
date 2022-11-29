@@ -106,6 +106,7 @@ class User extends MediaLogic {
           {
             _id: updatedUser?._id,
             email: email,
+            role: updatedUser?.role,
           },
           "1d"
         );
