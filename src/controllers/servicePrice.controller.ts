@@ -562,10 +562,10 @@ export const ServicePriceControllerValidation = {
 
     body("allServices.*.value")
       .optional()
-      .isLength({ min: 3 })
-      .withMessage("value must be at least 3 character.")
-      .isLength({ max: 700 })
-      .withMessage("value must be at most 700 characters long"),
+      .isLength({ min: 1 })
+      .withMessage("value must be at least 1 character.")
+      .isLength({ max: 100 })
+      .withMessage("value must be at most 100 characters long"),
 
     body("allServices.*.serviceProperty")
       .optional()
