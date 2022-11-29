@@ -46,7 +46,10 @@ const orderSchema = new Schema<OrderType>(
     },
     endOTP: {
       verifiedAt: Date,
-      isVerified: Boolean,
+      isVerified: {
+        type: Boolean,
+        default: false,
+      },
       otp: Number,
     },
     endImage: String,
@@ -57,7 +60,10 @@ const orderSchema = new Schema<OrderType>(
     technicianImagePATH: String,
     startOTP: {
       verifiedAt: Date,
-      isVerified: Boolean,
+      isVerified: {
+        type: Boolean,
+        default: false,
+      },
       otp: Number,
     },
     type: String,
