@@ -1250,16 +1250,12 @@ class Order extends OrderLogic {
   ];
   public validateAddExtraChargesFields = [
     body("serviceIds")
-      .not()
-      .isEmpty()
-      .withMessage("serviceIds is required")
+      .optional()
       .isArray()
       .isMongoId()
       .withMessage("serviceIds must be an array of serviceId"),
     body("accessoryIds")
-      .not()
-      .isEmpty()
-      .withMessage("accessoryIds is required")
+      .optional()
       .isArray()
       .isMongoId()
       .withMessage("accessoryIds must be an array of accessoryId"),
