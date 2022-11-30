@@ -26,6 +26,18 @@ class App {
         useTempFiles: true,
       })
     );
+    this.express.use((req, res, next) => {
+      console.table([
+        {
+          METHOD: req.method,
+          PATH: req.path,
+          BODY: req?.body,
+          ip: req.ip,
+          AGENT: req?.get("user-agent")?.split("/")[0],
+        },
+      ]);
+      next();
+    });
   }
 
   //   DB connection
