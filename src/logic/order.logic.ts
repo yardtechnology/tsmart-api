@@ -4,7 +4,7 @@ import {
   DevicesSchema,
   EvaluationPriceSchema,
   MakeSchema,
-  MemorySchema
+  MemorySchema,
 } from "../models";
 import { AddressModel } from "../models/address.model";
 import { OrderModel } from "../models/order.model";
@@ -384,20 +384,6 @@ class OrderLogic extends MediaLogic {
       {
         $match: {
           _id: new Types.ObjectId(orderId),
-        },
-      },
-      {
-        $lookup: {
-          from: "services",
-          localField: "service",
-          foreignField: "_id",
-          as: "service",
-        },
-      },
-      {
-        $unwind: {
-          path: "$service",
-          preserveNullAndEmptyArrays: true,
         },
       },
       {
