@@ -265,20 +265,11 @@ class Order extends OrderLogic {
         _id: { $in: accessoryIds },
       }).select("-images");
       const orderPrevData = await OrderModel.findById(orderId);
-      const extraServices = orderPrevData?.extraServices
-        ? [...orderPrevData?.extraServices, ...servicesData]
-        : servicesData;
-      const accessory = orderPrevData?.accessory
-        ? [
-            ...orderPrevData?.accessory,
-            ...JSON.parse(JSON.stringify(accessoriesData)),
-          ]
-        : accessoriesData;
       const orderData = await OrderModel.findByIdAndUpdate(
         orderId,
         {
-          extraServices: JSON.parse(JSON.stringify(extraServices)),
-          accessory,
+          extraServices: JSON.parse(JSON.stringify(servicesData)),
+          accessory: JSON.parse(JSON.stringify(accessoriesData)),
         },
         { new: true }
       );
