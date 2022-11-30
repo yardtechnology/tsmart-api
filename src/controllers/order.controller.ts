@@ -280,7 +280,8 @@ class Order extends OrderLogic {
         { new: true }
       );
       const accessoryData = orderData?.accessory?.reduce((prev, curr) => {
-        return (prev += curr?.salePrice);
+        prev = prev + curr?.salePrice;
+        return prev;
       }, 0);
       const servicePriceData: number | undefined =
         orderData?.extraServices?.reduce(
@@ -295,7 +296,7 @@ class Order extends OrderLogic {
         basePrice,
       });
       await OrderModel?.findById(orderId, {
-        extraBilling: extraBilling,
+        extraBilling: extraBilling?._id,
       });
       res.status(200).json({
         status: "SUCCESS",
