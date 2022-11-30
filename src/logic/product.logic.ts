@@ -486,7 +486,7 @@ class ProductLogic extends MediaLogic {
       query,
       limit,
       chunk,
-      populate: ["category"],
+      populate: "category color memory",
     });
 
     // send response to client
@@ -641,7 +641,7 @@ class ProductLogic extends MediaLogic {
       query,
       limit,
       chunk,
-      populate: ["category"],
+      populate: "category color memory",
     });
     return productsData;
   }
