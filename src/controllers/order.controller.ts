@@ -294,7 +294,7 @@ class Order extends OrderLogic {
         orderId: [orderId],
         basePrice,
       });
-      OrderModel?.findById(orderId, {
+      await OrderModel?.findById(orderId, {
         extraBilling: extraBilling,
       });
       res.status(200).json({
