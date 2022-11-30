@@ -15,6 +15,10 @@ const orderSchema = new Schema<OrderType>(
       type: Schema.Types.ObjectId,
       ref: "Billing",
     },
+    extraBilling: {
+      type: Schema.Types.ObjectId,
+      ref: "Billing",
+    },
     address: {
       type: {},
     },

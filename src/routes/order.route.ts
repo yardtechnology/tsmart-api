@@ -176,7 +176,7 @@ class Order extends AuthenticateMiddleware {
 
   // add  extra fees
   private addExtraChargesRoute(): void {
-    this.router.get(
+    this.router.post(
       "/orders/:orderId/extra-fees",
       super.isAuthenticated,
       this.orderController.validateAddExtraChargesFields,

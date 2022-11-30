@@ -294,6 +294,9 @@ class Order extends OrderLogic {
         orderId: [orderId],
         basePrice,
       });
+      OrderModel?.findById(orderId, {
+        extraBilling: extraBilling,
+      });
       res.status(200).json({
         status: "SUCCESS",
         message: "Extra charges added successfully",

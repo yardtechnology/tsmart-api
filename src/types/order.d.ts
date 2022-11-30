@@ -37,6 +37,7 @@ export default interface OrderType extends Document {
   product: ProductType;
   quantity: number;
   billing: BillingType;
+  extraBilling: BillingType;
   address: AddressType;
   ETA: Date;
   status: OrderStatus;

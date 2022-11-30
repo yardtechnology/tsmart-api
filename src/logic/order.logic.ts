@@ -23,6 +23,7 @@ import MediaLogic from "./media.logic";
 import fs from "fs";
 import pdf from "html-pdf";
 import path from "path";
+import InvoiceLogic from "./invoice.logic";
 
 class OrderLogic extends MediaLogic {
   public _orderId: string | undefined;
@@ -375,6 +376,9 @@ class OrderLogic extends MediaLogic {
       {
         path: "billing",
       },
+      {
+        path: "extraBilling",
+      },
     ]);
     if (!orderData) {
       throw new Error("order not found");
@@ -528,8 +532,8 @@ class OrderLogic extends MediaLogic {
     orderId: string;
     mail: string;
   }) {
-    const orderData = await OrderModel.findById(orderId);
-    const invoiceTemplate = `<h1>order invoice</h1>`;
+    const orderData = await new InvoiceLogic().getInvoiceHTML({ orderId });
+    const invoiceTemplate = orderData?.invoiceHTML;
 
     pdf
       .create(invoiceTemplate, { format: "A4" })
@@ -539,7 +543,7 @@ class OrderLogic extends MediaLogic {
           "..",
           "..",
           "uploads",
-          `invoice-${orderData?._id}.pdf`
+          `invoice-${orderData?.orderData?._id}.pdf`
         ),
         (writeFileErr: any, result: any) => {
           if (writeFileErr) throw new Error(writeFileErr);
@@ -549,7 +553,7 @@ class OrderLogic extends MediaLogic {
               "..",
               "..",
               "uploads",
-              `invoice-${orderData?._id}.pdf`
+              `invoice-${orderData?.orderData?._id}.pdf`
             )
           );
           fs.readFile(
@@ -558,7 +562,7 @@ class OrderLogic extends MediaLogic {
               "..",
               "..",
               "uploads",
-              `invoice-${orderData?._id}.pdf`
+              `invoice-${orderData?.orderData?._id}.pdf`
             ),
             async (err: any, data: any) => {
               try {
@@ -567,19 +571,22 @@ class OrderLogic extends MediaLogic {
                 const mailOptions = {
                   from: process.env.EMAIL,
                   to: mail,
-                  subject: `Invoice for your ride ${orderData?._id}`,
+                  subject: `Invoice for your ride ${orderData?.orderData?._id}`,
                   html: invoiceTemplate,
                   attachments: [
                     {
-                      filename: `invoice-${orderData?._id}.pdf`,
+                      filename: `invoice-${orderData?.orderData?._id}.pdf`,
                       content: data,
                     },
                   ],
                 };
                 await new MailController().transporter.sendMail(mailOptions);
-                fs.rm(`./uploads/invoice-${orderData?._id}.pdf`, () => {
-                  console.log("Invoice file removed");
-                });
+                fs.rm(
+                  `./uploads/invoice-${orderData?.orderData?._id}.pdf`,
+                  () => {
+                    console.log("Invoice file removed");
+                  }
+                );
               } catch (error) {
                 console.log({ error });
                 throw new Error("Error while reading file");
