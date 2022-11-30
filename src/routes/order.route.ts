@@ -179,7 +179,6 @@ class Order extends AuthenticateMiddleware {
     this.router.post(
       "/orders/:orderId/extra-fees",
       super.isAuthenticated,
-      this.orderController.validateAddExtraChargesFields,
       this.orderController.addExtraChargesController
     );
   }
