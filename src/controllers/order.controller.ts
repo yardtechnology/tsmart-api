@@ -258,27 +258,20 @@ class Order extends OrderLogic {
       fieldValidateError(req);
       const { serviceIds, accessoryIds } = req.body;
       const { orderId } = req.params;
+      const orderPrevData = await OrderModel.findById(orderId);
+      if (!orderPrevData) throw new Error("order not found");
+
       const servicesData = await ServicePriceModel.find({
         _id: { $in: serviceIds },
       }).populate("service");
       const accessoriesData = await ProductModel.find({
         _id: { $in: accessoryIds },
       }).select("-images");
-      const orderPrevData = await OrderModel.findById(orderId);
-      const extraServices = orderPrevData?.extraServices
-        ? [...orderPrevData?.extraServices, ...servicesData]
-        : servicesData;
-      const accessory = orderPrevData?.accessory
-        ? [
-            ...orderPrevData?.accessory,
-            ...JSON.parse(JSON.stringify(accessoriesData)),
-          ]
-        : accessoriesData;
       const orderData = await OrderModel.findByIdAndUpdate(
         orderId,
         {
-          extraServices: JSON.parse(JSON.stringify(extraServices)),
-          accessory,
+          extraServices: JSON.parse(JSON.stringify(servicesData)),
+          accessory: JSON.parse(JSON.stringify(accessoriesData)),
         },
         { new: true }
       );
@@ -1257,16 +1250,12 @@ class Order extends OrderLogic {
   ];
   public validateAddExtraChargesFields = [
     body("serviceIds")
-      .not()
-      .isEmpty()
-      .withMessage("serviceIds is required")
+      .optional()
       .isArray()
       .isMongoId()
       .withMessage("serviceIds must be an array of serviceId"),
     body("accessoryIds")
-      .not()
-      .isEmpty()
-      .withMessage("accessoryIds is required")
+      .optional()
       .isArray()
       .isMongoId()
       .withMessage("accessoryIds must be an array of accessoryId"),
