@@ -4,7 +4,7 @@ import {
   DevicesSchema,
   EvaluationPriceSchema,
   MakeSchema,
-  MemorySchema,
+  MemorySchema
 } from "../models";
 import { AddressModel } from "../models/address.model";
 import { OrderModel } from "../models/order.model";
@@ -568,7 +568,7 @@ class OrderLogic extends MediaLogic {
           user: userData,
           address: addressData,
           userID: userId,
-          evaluatedValues: uniqFalsyEvaluatedValues,
+          evaluatedValues: JSON.parse(JSON.stringify(uniqFalsyEvaluatedValues)),
           type: "SELL",
           evaluatedPrice: evaluatedPrice?.evaluatePrice,
           status: "INITIATED",
