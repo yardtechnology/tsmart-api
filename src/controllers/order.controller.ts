@@ -258,13 +258,15 @@ class Order extends OrderLogic {
       fieldValidateError(req);
       const { serviceIds, accessoryIds } = req.body;
       const { orderId } = req.params;
+      const orderPrevData = await OrderModel.findById(orderId);
+      if (!orderPrevData) throw new Error("order not found");
+
       const servicesData = await ServicePriceModel.find({
         _id: { $in: serviceIds },
       }).populate("service");
       const accessoriesData = await ProductModel.find({
         _id: { $in: accessoryIds },
       }).select("-images");
-      const orderPrevData = await OrderModel.findById(orderId);
       const orderData = await OrderModel.findByIdAndUpdate(
         orderId,
         {
