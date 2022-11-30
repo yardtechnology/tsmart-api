@@ -260,7 +260,7 @@ class Order extends OrderLogic {
       const { orderId } = req.params;
       const servicesData = await ServicePriceModel.find({
         _id: { $in: serviceIds },
-      });
+      }).populate("service");
       const accessoriesData = await ProductModel.find({
         _id: { $in: accessoryIds },
       });
@@ -274,7 +274,7 @@ class Order extends OrderLogic {
       const orderData = await OrderModel.findByIdAndUpdate(
         orderId,
         {
-          extraServices,
+          extraServices: JSON.parse(JSON.stringify(extraServices)),
           accessory,
         },
         { new: true }
