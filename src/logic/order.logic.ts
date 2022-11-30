@@ -562,7 +562,6 @@ class OrderLogic extends MediaLogic {
             ),
             async (err: any, data: any) => {
               try {
-                console.log({ err });
                 if (err)
                   throw new Error("Error while reading file in Invoice mail");
                 const mailOptions = {

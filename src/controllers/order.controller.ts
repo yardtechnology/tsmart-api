@@ -209,7 +209,7 @@ class Order extends OrderLogic {
 
       await super.sendInvoiceToMail({
         orderId: req.params.orderId,
-        mail: req?.body?.mail,
+        mail: req?.body?.email,
       });
 
       res.status(200).json({
