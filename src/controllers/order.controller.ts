@@ -543,6 +543,43 @@ class Order extends OrderLogic {
         { _id: { $in: billingData?.orders?.map((item) => item?._id) } },
         { status: "INITIATED" }
       );
+      // IF ORDER IS CALLOUT THE SEND REQUEST TO ALL NEAR BY TECHNICIAN
+      if (
+        billingData?.orders[0]?.serviceType === "CALL_OUT" &&
+        billingData?.type !== "EXTRA"
+      ) {
+        //find all technician nearby
+        const allTechnician = await UserModel.find({
+          role: "TECHNICIAN",
+          deviceType: billingData?.orders[0]?.device?._id,
+          makeType: billingData?.orders[0]?.make?._id,
+        });
+        const nearByTechnicians: string[] = allTechnician
+          .filter(
+            (user: any) =>
+              50 >=
+              getDistance(
+                billingData?.orders[0]?.address?.latitude as number,
+                billingData?.orders[0]?.address?.longitude as number,
+                user?.latitude,
+                user?.longitude,
+                "K"
+              )
+          )
+          .map((user) => user?._id);
+        await OrderModel.findByIdAndUpdate(billingData?.orders[0]?._id, {
+          nearByTechnicians,
+        });
+        //send socket event to every
+        const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
+        socket.on("connect", () => {
+          for (const technicianId of nearByTechnicians) {
+            socket.emit("NEW-JOB-REQUEST", {
+              technicianId,
+            });
+          }
+        });
+      }
       res.status(200).json({
         status: "SUCCESS",
         message: "Order paid Successfully",
@@ -618,7 +655,10 @@ class Order extends OrderLogic {
         { status: "INITIATED" }
       );
       // IF ORDER IS CALLOUT THE SEND REQUEST TO ALL NEAR BY TECHNICIAN
-      if (billingData?.orders[0]?.serviceType === "CALL_OUT") {
+      if (
+        billingData?.orders[0]?.serviceType === "CALL_OUT" &&
+        billingData?.type !== "EXTRA"
+      ) {
         //find all technician nearby
         const allTechnician = await UserModel.find({
           role: "TECHNICIAN",
