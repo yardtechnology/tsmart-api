@@ -2,6 +2,7 @@ import { Document } from "mongoose";
 import OrderType from "./order.type";
 
 export default interface BillingType extends Document {
+  createdAt: string | number | Date;
   orders: OrderType[];
   subPrice: number;
   tax?: number;
