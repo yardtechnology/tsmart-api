@@ -18,14 +18,14 @@ export default class WarrantyRoutes extends AuthenticateMiddleware {
   private routes() {
     // create
     this.router.post(
-      "/support/",
+      "/warranty/",
       super.isAuthenticated,
       WarrantyControllerValidation.create,
       this.warrantyController.create
     );
     // get all
     this.router.get(
-      "/support",
+      "/warranty",
       super.isAuthenticated,
       WarrantyControllerValidation.getAll,
       this.warrantyController.getAll
@@ -33,7 +33,7 @@ export default class WarrantyRoutes extends AuthenticateMiddleware {
 
     // delete
     this.router.delete(
-      "/support/:supportId",
+      "/warranty/:warrantyId",
       super.isAuthenticated,
       WarrantyControllerValidation.delete,
       this.warrantyController.delete
