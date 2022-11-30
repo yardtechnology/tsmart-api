@@ -21,15 +21,11 @@ class InvoiceLogic {
               path: "orders",
             },
           },
+          {
+            path: "extraBilling",
+          },
         ]);
         if (!orderInfo) throw new Error("Order not found");
-        console.log({ orderInfo });
-        console.log({ billing: orderInfo.billing });
-
-        const subTotal = orderInfo?.billing?.orders?.reduce(
-          (acc, curr) => (acc += curr?.totalPrice),
-          0
-        );
 
         const commonTemplet = `<!DOCTYPE html>
                 <html lang="en">

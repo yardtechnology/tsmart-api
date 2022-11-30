@@ -541,7 +541,7 @@ class Order extends OrderLogic {
       //update payment status on order
       let orderData = await OrderModel.findOneAndUpdate(
         { _id: { $in: billingData?.orders?.map((item) => item?._id) } },
-        { status: "INITIATED" }
+        { status: billingData?.type !== "EXTRA" ? "INITIATED" : undefined }
       );
       // IF ORDER IS CALLOUT THE SEND REQUEST TO ALL NEAR BY TECHNICIAN
       if (
@@ -652,7 +652,7 @@ class Order extends OrderLogic {
       //update payment status on order
       let orderData = await OrderModel.updateMany(
         { _id: { $in: billingData?.orders?.map((item) => item?._id) } },
-        { status: "INITIATED" }
+        { status: billingData?.type !== "EXTRA" ? "INITIATED" : undefined }
       );
       // IF ORDER IS CALLOUT THE SEND REQUEST TO ALL NEAR BY TECHNICIAN
       if (
