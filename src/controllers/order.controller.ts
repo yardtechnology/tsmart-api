@@ -857,9 +857,12 @@ class Order extends OrderLogic {
       fieldValidateError(req);
       switch (req?.body?.type) {
         case "REJECT":
-          const rejectedOrder = await OrderModel.findByIdAndUpdate({
-            $pull: { nearByTechnicians: req?.currentUser?._id },
-          });
+          const rejectedOrder = await OrderModel.findByIdAndUpdate(
+            req?.params?.orderId,
+            {
+              $pull: { nearByTechnicians: req?.currentUser?._id },
+            }
+          );
           res.json({
             status: "SUCCESS",
             message: "Job requests accepted successfully",
