@@ -263,13 +263,16 @@ class Order extends OrderLogic {
       }).populate("service");
       const accessoriesData = await ProductModel.find({
         _id: { $in: accessoryIds },
-      });
+      }).select("-images");
       const orderPrevData = await OrderModel.findById(orderId);
       const extraServices = orderPrevData?.extraServices
         ? [...orderPrevData?.extraServices, ...servicesData]
         : servicesData;
       const accessory = orderPrevData?.accessory
-        ? [...orderPrevData?.accessory, ...accessoriesData]
+        ? [
+            ...orderPrevData?.accessory,
+            ...JSON.parse(JSON.stringify(accessoriesData)),
+          ]
         : accessoriesData;
       const orderData = await OrderModel.findByIdAndUpdate(
         orderId,
@@ -295,7 +298,7 @@ class Order extends OrderLogic {
         orderId: [orderId],
         basePrice,
       });
-      await OrderModel?.findById(orderId, {
+      await OrderModel?.findByIdAndUpdate(orderId, {
         extraBilling: extraBilling?._id,
       });
       res.status(200).json({
