@@ -5,7 +5,7 @@ import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import EvaluationLogic from "../logic/evaluation.logic";
 import MediaLogic from "../logic/media.logic";
-import { EvaluationSchema } from "../models";
+import { EvaluationPriceSchema, EvaluationSchema } from "../models";
 import { AuthRequest } from "../types/core";
 
 class EvaluationController {
@@ -115,7 +115,7 @@ class EvaluationController {
       next(error);
     }
   }
-  async deleteData(req: AuthRequest, res: Response, next: NextFunction) {
+  async delete(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { evaluationId } = req.params;
       fieldValidateError(req);
@@ -126,7 +126,9 @@ class EvaluationController {
       //   delete device image
       deleteEvaluation?.imagePATH &&
         new MediaLogic().deleteMedia(deleteEvaluation?.imagePATH);
-
+      await EvaluationPriceSchema.deleteMany({
+        evaluation: evaluationId,
+      });
       res.json({
         status: "SUCCESS",
         message: "Evaluation deleted successfully",

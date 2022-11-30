@@ -48,7 +48,7 @@ export default class EvaluationRoutes extends AuthenticateMiddleware {
       "/evaluation/:evaluationId",
       super.isAuthenticated,
       EvaluationControllerValidation.delete,
-      this.evaluationController.deleteData
+      this.evaluationController.delete
     );
   }
 }
