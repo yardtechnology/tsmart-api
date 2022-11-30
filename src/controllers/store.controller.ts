@@ -416,10 +416,20 @@ class Store extends MediaLogic {
       !req?.query?.zip && delete query?.address;
       const { servicesId, modelId } = req.query;
       fieldValidateError(req);
-      const servicePriceArrayCheck = Array.isArray(servicesId)
-        ? servicesId?.map((item) => new Types.ObjectId(String(item)))
-        : [servicesId]?.map((item) => new Types.ObjectId(String(item)));
-
+      const servicePriceArrayCheck = servicesId
+        ? Array.isArray(servicesId)
+          ? servicesId?.map((item) => new Types.ObjectId(String(item)))
+          : [servicesId]?.map((item) => new Types.ObjectId(String(item)))
+        : undefined;
+      const argArray: any = [];
+      modelId &&
+        argArray.push({
+          $eq: ["$model", new Types.ObjectId(String(modelId))],
+        });
+      servicePriceArrayCheck &&
+        argArray.push({
+          $in: ["$service", servicePriceArrayCheck],
+        });
       let getStore = await StoreModel.aggregate([
         // {
         //   $match: query,
@@ -434,14 +444,7 @@ class Store extends MediaLogic {
               {
                 $match: {
                   $expr: {
-                    $and: [
-                      {
-                        $in: ["$service", servicePriceArrayCheck],
-                      },
-                      {
-                        $eq: ["$model", new Types.ObjectId(String(modelId))],
-                      },
-                    ],
+                    $and: argArray,
                   },
                 },
               },
