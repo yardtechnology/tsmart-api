@@ -53,7 +53,6 @@ class BillingLogic extends CouponLogic {
           tax,
           subPrice,
         }).save();
-        await bill.save();
         resolve(bill);
       } catch (error) {
         reject(error);

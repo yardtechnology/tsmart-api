@@ -23,6 +23,8 @@ class InvoiceLogic {
           },
         ]);
         if (!orderInfo) throw new Error("Order not found");
+        console.log({ orderInfo });
+        console.log({ billing: orderInfo.billing });
 
         const subTotal = orderInfo?.billing?.orders?.reduce(
           (acc, curr) => (acc += curr?.totalPrice),
@@ -73,12 +75,12 @@ class InvoiceLogic {
                       #td_2 {
                         /* float: right; */
                         /* margin-right: 2rem; */
-                        /* background-color: #065934; */
+                        /* background-color: #e40581; */
                         color: white;
                         /* padding: 10px; */
                       }
                       .invoiceIdWarper {
-                        background-color: #065934;
+                        background-color: #e40581;
                         width: 100%;
                         padding: 1rem;
                       }
@@ -108,14 +110,14 @@ class InvoiceLogic {
                       #td_6 {
                         padding-left: 2rem;
                         padding-bottom: 0.5rem;
-                        color: #065934;
+                        color: #e40581;
                       }
                 
                       #td_7 {
                         float: left;
                         padding-left: 2rem;
                         padding-bottom: 0.5rem;
-                        color: #065934;
+                        color: #e40581;
                       }
                 
                       #td_8 {
@@ -205,7 +207,7 @@ class InvoiceLogic {
                         padding-left: 2rem;
                         padding-top: 0.5rem;
                         padding-bottom: 0.5rem;
-                        background: #065934;
+                        background: #e40581;
                         color: white;
                         text-align: start;
                       }
@@ -214,7 +216,7 @@ class InvoiceLogic {
                         padding-left: 2rem;
                         padding-top: 0.5rem;
                         padding-bottom: 0.5rem;
-                        background: #065934;
+                        background: #e40581;
                         color: white;
                         text-align: start;
                       }
@@ -223,7 +225,7 @@ class InvoiceLogic {
                         padding-left: 2rem;
                         padding-top: 0.5rem;
                         padding-bottom: 0.5rem;
-                        background: #065934;
+                        background: #e40581;
                         color: white;
                         text-align: start;
                       }
@@ -232,7 +234,7 @@ class InvoiceLogic {
                         padding-left: 2rem;
                         padding-top: 0.5rem;
                         padding-bottom: 0.5rem;
-                        background: #065934;
+                        background: #e40581;
                         color: white;
                         text-align: start;
                       }
@@ -241,7 +243,7 @@ class InvoiceLogic {
                         padding-left: 2rem;
                         padding-top: 0.5rem;
                         padding-bottom: 0.5rem;
-                        background: #065934;
+                        background: #e40581;
                         color: white;
                         text-align: start;
                       }
@@ -316,7 +318,7 @@ class InvoiceLogic {
                         font-size: 1px;
                       }
                       .heading {
-                        background: #065934;
+                        background: #e40581;
                       }
                       .table_head {
                         padding-left: 2rem;
@@ -351,7 +353,7 @@ class InvoiceLogic {
                     <div class="container">
                       <table class="table_one">
                         <tr class="tr_one">
-                          <td id="td_1">
+                          <td id="td_1" style="background-color:white">
                             <img
                               src="${process.env.LOGO_URL}"
                               alt=""
@@ -372,10 +374,9 @@ class InvoiceLogic {
                         </tr>
                         <tr>
                           <td class="td_4" style="text-transform: uppercase">
-                            <h3>supplier :</h3>
                           </td>
                           <td class="td_5" style="text-transform: uppercase">
-                            <h3>Client :</h3>
+                            <h3>Address :</h3>
                           </td>
                         </tr>
                         <tr>
@@ -467,12 +468,12 @@ class InvoiceLogic {
                             </td>
                             <td id="td-8">${order.product?.salePrice?.toLocaleString(
                               "en-IN",
-                              { style: "currency", currency: "INR" }
+                              { style: "currency", currency: "GBP" }
                             )}/-</td>
                             <td id="td-9">${order?.quantity}</td>
-                            <td id="td-10">${order?.totalPrice?.toLocaleString(
+                            <td id="td-10">${order?.price?.toLocaleString(
                               "en-IN",
-                              { style: "currency", currency: "INR" }
+                              { style: "currency", currency: "GBP" }
                             )}/-</td>
                           </tr>
                           <tr>
@@ -489,14 +490,17 @@ class InvoiceLogic {
                             <h4>SubTotal</h4>
                             <p style="font-size: 0.8rem;">(Tax ${orderInfo?.billing?.tax?.toLocaleString(
                               "en-IN",
-                              { style: "currency", currency: "INR" }
+                              { style: "currency", currency: "GBP" }
                             )}/-)</p>
                           </th>
                           <th class="table_head">
-                            <h4>${subTotal.toLocaleString("en-IN", {
-                              style: "currency",
-                              currency: "INR",
-                            })}/-</h4>
+                            <h4>${orderInfo?.billing?.subPrice?.toLocaleString(
+                              "en-IN",
+                              {
+                                style: "currency",
+                                currency: "GBP",
+                              }
+                            )}/-</h4>
                           </th>
                         </tr>
                         
@@ -509,9 +513,9 @@ class InvoiceLogic {
                             <h4>Coupon Discount</h4>
                           </td>
                           <td class="table_body">
-                            <h4>${orderInfo?.billing?.couponDiscount?.benefitAmount.toLocaleString(
+                            <h4>${orderInfo?.billing?.couponDiscount?.benefitAmount?.toLocaleString(
                               "en-IN",
-                              { style: "currency", currency: "INR" }
+                              { style: "currency", currency: "GBP" }
                             )}/-</h4>
                           </td>
                         </tr>`
@@ -524,9 +528,9 @@ class InvoiceLogic {
                             <h4>Total</h4>
                           </td>
                           <td class="table_body">
-                            <h4>${orderInfo?.billing?.total.toLocaleString(
+                            <h4>${orderInfo?.billing?.total?.toLocaleString(
                               "en-IN",
-                              { style: "currency", currency: "INR" }
+                              { style: "currency", currency: "GBP" }
                             )}/-</h4>
                           </td>
                         </tr>

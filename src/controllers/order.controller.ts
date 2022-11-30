@@ -431,7 +431,7 @@ class Order extends OrderLogic {
         price: orderData?.price,
       });
       //add billing id in order data
-      OrderModel.findByIdAndUpdate(
+      await OrderModel.findByIdAndUpdate(
         orderData?._id,
         {
           billing: billingData?._id,
