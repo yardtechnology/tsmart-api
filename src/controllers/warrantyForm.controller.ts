@@ -10,14 +10,21 @@ class WarrantyController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       fieldValidateError(req);
-      const { email, phoneNumber, name, makeModel, claimInformation } =
-        req.body;
+      const {
+        email,
+        phoneNumber,
+        name,
+        makeModel,
+        claimInformation,
+        storeVisited,
+      } = req.body;
       const createWarranty = await WarrantySchema.create({
         email,
         phoneNumber,
         name,
         makeModel,
         claimInformation,
+        storeVisited,
       });
       if (!createWarranty)
         throw new InternalServerError(
@@ -106,6 +113,14 @@ export const WarrantyControllerValidation = {
       .withMessage("claimInformation must be at least 3 characters long")
       .isLength({ max: 420 })
       .withMessage("claimInformation must be at most 420 characters long"),
+    body("storeVisited")
+      .not()
+      .isEmpty()
+      .withMessage("storeVisited is required.")
+      .isLength({ min: 3 })
+      .withMessage("storeVisited must be at least 3 characters long")
+      .isLength({ max: 420 })
+      .withMessage("storeVisited must be at most 420 characters long"),
   ],
   getAll: [
     query("warrantyId")
