@@ -55,32 +55,32 @@ class ConfigController {
           tax,
 
           "storeAndroid.message": storeAndroidMessage,
-          "store.Androidversion": storeAndroidVersion,
+          "storeAndroid.version": storeAndroidVersion,
           "storeAndroid.title": storeAndroidTitle,
           "storeAndroid.isDismissible": storeAndroidIsDismissible,
 
           "storeIos.message": storeIosMessage,
-          "store.Iosversion": storeIosVersion,
+          "storeIos.version": storeIosVersion,
           "storeIos.title": storeIosTitle,
           "storeIos.isDismissible": storeIosIsDismissible,
 
           "customerAndroid.message": customerAndroidMessage,
-          "customer.Androidversion": customerAndroidVersion,
+          "customerAndroid.version": customerAndroidVersion,
           "customerAndroid.title": customerAndroidTitle,
           "customerAndroid.isDismissible": customerAndroidIsDismissible,
 
           "customerIos.message": customerIosMessage,
-          "customer.Iosversion": customerIosVersion,
+          "customerIos.version": customerIosVersion,
           "customerIos.title": customerIosTitle,
           "customerIos.isDismissible": customerIosIsDismissible,
 
           "technicianAndroid.message": technicianAndroidMessage,
-          "technician.Androidversion": technicianAndroidVersion,
+          "technicianAndroid.version": technicianAndroidVersion,
           "technicianAndroid.title": technicianAndroidTitle,
           "technicianAndroid.isDismissible": technicianAndroidIsDismissible,
 
           "technicianIos.message": technicianIosMessage,
-          "technician.Iosversion": technicianIosVersion,
+          "technicianIos.version": technicianIosVersion,
           "technicianIos.title": technicianIosTitle,
           "technicianIos.isDismissible": technicianIosIsDismissible,
           mailInInstauration,

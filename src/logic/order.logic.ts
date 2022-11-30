@@ -22,6 +22,7 @@ import MediaLogic from "./media.logic";
 // import NotificationLogic from "./notification.logic";
 import fs from "fs";
 import pdf from "html-pdf";
+import { Types } from "mongoose";
 import path from "path";
 import InvoiceLogic from "./invoice.logic";
 
@@ -364,26 +365,85 @@ class OrderLogic extends MediaLogic {
 
   /**get order details */
   public async getOrderDetails(orderId: string): Promise<OrderType> {
-    const orderData: OrderType | null = await OrderModel.findById(
-      orderId
-    ).populate([
+    const orderData: OrderType | null = null;
+
+    // = await OrderModel.findById(
+    //   orderId
+    // ).populate([
+    //   {
+    //     path: "service",
+    //     populate: {
+    //       path: "service",
+    //     },
+    //   },
+    //   {
+    //     path: "billing",
+    //   },
+    // ]);
+    const orderData2 = await OrderModel.aggregate([
       {
-        path: "service",
-        populate: {
-          path: "service",
+        $match: {
+          _id: new Types.ObjectId(),
         },
       },
       {
-        path: "billing",
+        $lookup: {
+          from: "services",
+          localField: "service",
+          foreignField: "_id",
+          as: "service",
+        },
+      },
+      {
+        $unwind: {
+          path: "$service",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "billings",
+          localField: "billing",
+          foreignField: "_id",
+          as: "billing",
+        },
+      },
+      {
+        $unwind: {
+          path: "$billing",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "reviews",
+          localField: "technicianID",
+          foreignField: "technician",
+          as: "isReview",
+          let: { userID: "$userID" },
+          pipeline: [
+            {
+              $match: {
+                user: "$$userID",
+              },
+            },
+          ],
+        },
+      },
+      {
+        $addFields: {
+          isReview: { $gte: [{ $size: "$isReview" }, 1] },
+        },
       },
       {
         path: "extraBilling",
       },
     ]);
-    if (!orderData) {
+
+    if (!orderData2[0]) {
       throw new Error("order not found");
     }
-    return orderData;
+    return orderData2[0];
   }
   /**update order details */
   public async updateOrderDetails({

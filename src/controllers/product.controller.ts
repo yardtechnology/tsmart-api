@@ -873,7 +873,7 @@ class Product extends ProductLogic {
   async productTemp(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const hubId = "63808bd7be93a20006ce2d05";
-      const updateData = await ProductModel.find({}).select("store");
+      const updateData = await ProductModel.updateMany({}, { store: hubId });
       res.json({ data: updateData });
     } catch (error) {
       next(error);
@@ -937,6 +937,12 @@ class Product extends ProductLogic {
       .withMessage("model is required.")
       .isMongoId()
       .withMessage("model must be mongoes id."),
+    body("storeId")
+      .not()
+      .isEmpty()
+      .withMessage("storeId is required.")
+      .isMongoId()
+      .withMessage("storeId must be mongoes id."),
   ];
 
   /** fields validators for the product variant creation request */
