@@ -230,6 +230,7 @@ class Product extends ProductLogic {
     next: NextFunction
   ): Promise<any> {
     try {
+      const { storeId } = req.query;
       let products;
       if (req.query?.userId) {
         products = await super.getAllProductsOptimized({
@@ -247,6 +248,7 @@ class Product extends ProductLogic {
           type: req.query.type
             ? req.query.type.toString().toUpperCase()
             : undefined,
+          storeId: String(storeId),
         });
       }
       // send response to client

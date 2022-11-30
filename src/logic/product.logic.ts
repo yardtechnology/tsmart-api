@@ -430,17 +430,20 @@ class ProductLogic extends MediaLogic {
     limit,
     chunk,
     type,
+    storeId,
   }: {
     limit?: number;
     chunk?: number;
     type?: string;
+    storeId?: string;
   }): Promise<PaginationResult<ProductType>> {
     return new Promise(async (resolve, reject) => {
       try {
-        const query = {
+        const query: any = {
           type: type,
         };
         !query.type && delete query.type;
+        storeId && (query["store"] = storeId);
         // get all display products
         const productData = await paginationHelper<ProductType>({
           model: ProductModel,
