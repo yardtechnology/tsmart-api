@@ -383,7 +383,7 @@ class OrderLogic extends MediaLogic {
     const orderData2 = await OrderModel.aggregate([
       {
         $match: {
-          _id: new Types.ObjectId(),
+          _id: new Types.ObjectId(orderId),
         },
       },
       {
@@ -416,6 +416,20 @@ class OrderLogic extends MediaLogic {
       },
       {
         $lookup: {
+          from: "billings",
+          localField: "extraBilling",
+          foreignField: "_id",
+          as: "extraBilling",
+        },
+      },
+      {
+        $unwind: {
+          path: "$extraBilling",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
           from: "reviews",
           localField: "technicianID",
           foreignField: "technician",
@@ -434,9 +448,6 @@ class OrderLogic extends MediaLogic {
         $addFields: {
           isReview: { $gte: [{ $size: "$isReview" }, 1] },
         },
-      },
-      {
-        path: "extraBilling",
       },
     ]);
 
