@@ -50,7 +50,8 @@ class User extends MediaLogic {
         documentFile && !Array.isArray(documentFile)
           ? await super.uploadMedia(documentFile, filePath)
           : undefined;
-
+      let updatedUser = await UserModel.findById(req?.currentUser?._id);
+      if (!updatedUser) throw new Error("User not found");
       const deviceMakeType = {
         deviceType: req.body?.deviceType,
         makeType: req.body?.makeType,
@@ -59,35 +60,36 @@ class User extends MediaLogic {
 
       !req.body?.makeType && delete deviceMakeType?.makeType;
       // save user data to database
-      const updatedUser: UserType | null = await UserModel.findByIdAndUpdate(
-        req.currentUser?._id,
-        {
-          displayName,
-          gender,
-          phoneNumber,
-          email,
-          avatar: avatarData?.url,
-          avatarPath: avatarData?.path,
-          "fcmTokens.android":
-            req.body?.fcmTokenAndroid || req.body?.fcmTokens?.android,
-          "fcmTokens.ios": req.body?.fcmTokenIos || req.body?.fcmTokens?.ios,
-          "fcmTokens.web": req.body?.fcmTokenWeb || req.body?.fcmTokens?.web,
-          isOnline: req?.body?.isOnline,
-          faceVideo: faceVideoData?.url,
-          faceVideoPATH: faceVideoData?.path,
-          latitude: req.body?.latitude,
-          longitude: req.body?.longitude,
-          location: req.body?.location,
-          $addToSet: deviceMakeType,
-          isAcademicCourses: req.body?.isAcademicCourses,
-          experience: req.body?.experience,
-          age: req.body?.age,
-          status: email ? undefined : "INACTIVE",
-          documentType: req.body?.documentType,
-          document: documentData?.url,
-          documentPATH: documentData?.path,
-        }
-      );
+      updatedUser = await UserModel.findByIdAndUpdate(req.currentUser?._id, {
+        displayName,
+        gender,
+        phoneNumber,
+        email,
+        avatar: avatarData?.url,
+        avatarPath: avatarData?.path,
+        "fcmTokens.android":
+          req.body?.fcmTokenAndroid || req.body?.fcmTokens?.android,
+        "fcmTokens.ios": req.body?.fcmTokenIos || req.body?.fcmTokens?.ios,
+        "fcmTokens.web": req.body?.fcmTokenWeb || req.body?.fcmTokens?.web,
+        isOnline: req?.body?.isOnline,
+        faceVideo: faceVideoData?.url,
+        faceVideoPATH: faceVideoData?.path,
+        latitude: req.body?.latitude,
+        longitude: req.body?.longitude,
+        location: req.body?.location,
+        $addToSet: deviceMakeType,
+        isAcademicCourses: req.body?.isAcademicCourses,
+        experience: req.body?.experience,
+        age: req.body?.age,
+        status: email
+          ? updatedUser?.email === email
+            ? undefined
+            : "INACTIVE"
+          : undefined,
+        documentType: req.body?.documentType,
+        document: documentData?.url,
+        documentPATH: documentData?.path,
+      });
 
       // delete previous avatar
       avatarData?.path &&
