@@ -82,3 +82,7 @@ export {
   default as VisitorController,
   VisitorControllerValidation,
 } from "./visitor.controller";
+export {
+  default as WarrantyController,
+  WarrantyControllerValidation,
+} from "./warrantyForm.controller";

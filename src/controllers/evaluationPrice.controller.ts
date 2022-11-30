@@ -93,7 +93,7 @@ class EvaluationPriceController {
         populate: [
           {
             path: "evaluation",
-            select: "image title",
+            select: "image title description",
           },
           {
             path: "model",
