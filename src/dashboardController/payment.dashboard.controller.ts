@@ -30,7 +30,7 @@ class PaymentDashboardController {
           $group: {
             _id: null,
             total: { $sum: 1 },
-            refurBish: {
+            refurbish: {
               $sum: {
                 $cond: [
                   {
