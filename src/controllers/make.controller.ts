@@ -4,7 +4,7 @@ import { NotFound } from "http-errors";
 import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import MediaLogic from "../logic/media.logic";
-import { MakeSchema } from "../models";
+import { DevicesSchema, MakeSchema } from "../models";
 import { AuthRequest } from "../types/core";
 
 class MakeController {
@@ -102,7 +102,15 @@ class MakeController {
 
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { limit, chunk, makeId, type, deviceIds, searchTitle } = req.query;
+      const {
+        limit,
+        chunk,
+        makeId,
+        type,
+        deviceIds,
+        searchTitle,
+        excludeMakeDeviceId,
+      } = req.query;
       const deviceIdArrayCheck = deviceIds
         ? Array.isArray(deviceIds)
           ? deviceIds
@@ -113,6 +121,9 @@ class MakeController {
       makeId && (query["_id"] = makeId);
       type && (query["type"] = type);
       deviceIdArrayCheck && (query["devices"] = { $in: deviceIdArrayCheck });
+      const deviceMake = excludeMakeDeviceId
+        ? await DevicesSchema.findById(excludeMakeDeviceId)
+        : undefined;
       if (searchTitle)
         query["$or"] = [{ title: { $regex: searchTitle, $options: "i" } }];
       const getAllData = await paginationHelper({
