@@ -69,7 +69,7 @@ class PaymentDashboardController {
       res.json({
         status: "SUCCESS",
         message: "Order card data found successfully.",
-        data: orderDataAccordingStatus,
+        data: orderDataAccordingStatus?.[0],
       });
     } catch (error) {
       next(error);
