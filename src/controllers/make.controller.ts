@@ -4,7 +4,7 @@ import { NotFound } from "http-errors";
 import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import MediaLogic from "../logic/media.logic";
-import { DevicesSchema, MakeSchema } from "../models";
+import { MakeSchema } from "../models";
 import { AuthRequest } from "../types/core";
 
 class MakeController {
@@ -121,9 +121,11 @@ class MakeController {
       makeId && (query["_id"] = makeId);
       type && (query["type"] = type);
       deviceIdArrayCheck && (query["devices"] = { $in: deviceIdArrayCheck });
-      const deviceMake = excludeMakeDeviceId
-        ? await DevicesSchema.findById(excludeMakeDeviceId)
-        : undefined;
+      excludeMakeDeviceId && (query["devices"] = { $ne: excludeMakeDeviceId });
+      // const deviceMake = excludeMakeDeviceId
+      //   ? await MakeSchema.find(excludeMakeDeviceId)
+      //   : undefined;
+
       if (searchTitle)
         query["$or"] = [{ title: { $regex: searchTitle, $options: "i" } }];
       const getAllData = await paginationHelper({
@@ -163,6 +165,41 @@ class MakeController {
         status: "SUCCESS",
         message: "Make deleted successfully",
         data: deleteMake,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async updateTypeAndDevice(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { makeId } = req.params;
+      const { deviceId, types } = req.body;
+      fieldValidateError(req);
+      const updateQuery: any = {};
+      deviceId &&
+        (updateQuery["$addToSet"] = {
+          devices: deviceId,
+        });
+      types && (updateQuery["type"] = types);
+      const updateMake = await MakeSchema.findByIdAndUpdate(
+        makeId,
+        {
+          ...updateQuery,
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      res.json({
+        status: "SUCCESS",
+        message: "Make updated successfully",
+        data: updateMake,
       });
     } catch (error) {
       next(error);
@@ -243,6 +280,28 @@ export const MakeControllerValidation = {
       .withMessage("makeId is required.")
       .isMongoId()
       .withMessage("makeId most be mongoose id"),
+  ],
+  updateTypeAndDevice: [
+    param("makeId")
+      .not()
+      .isEmpty()
+      .withMessage("makeId is required.")
+      .isMongoId()
+      .withMessage("makeId most be mongoose id"),
+    body("deviceId")
+      .not()
+      .isEmpty()
+      .withMessage("deviceId is required.")
+      .isMongoId()
+      .withMessage("deviceId most be mongoose id"),
+    body("type.*")
+      .optional()
+      .exists()
+      .toUpperCase()
+      .custom((value) =>
+        Boolean(["SERVICE", "SELL"].includes(value?.toString()?.toUpperCase()))
+      )
+      .withMessage("serviceType most be SERVICE or SELL or both."),
   ],
 };
 
