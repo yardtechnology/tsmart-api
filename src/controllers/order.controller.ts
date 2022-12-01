@@ -270,8 +270,12 @@ class Order extends OrderLogic {
       const orderData = await OrderModel.findByIdAndUpdate(
         orderId,
         {
-          extraServices: JSON.parse(JSON.stringify(servicesData)),
-          accessory: JSON.parse(JSON.stringify(accessoriesData)),
+          extraServices: servicesData
+            ? JSON.parse(JSON.stringify(servicesData))
+            : undefined,
+          accessory: accessoriesData
+            ? JSON.parse(JSON.stringify(accessoriesData))
+            : undefined,
         },
         { new: true }
       );
