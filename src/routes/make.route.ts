@@ -35,6 +35,13 @@ export default class MakeRoutes extends AuthenticateMiddleware {
       this.makeController.removeServiceType
     );
     // remove serviceType
+    this.router.put(
+      "/make/update-type-and-device/:makeId",
+      // super.isAuthenticated,
+      MakeControllerValidation.updateTypeAndDevice,
+      this.makeController.updateTypeAndDevice
+    );
+    // remove serviceType
     this.router.delete(
       "/make/delete/:makeId",
       // super.isAuthenticated,

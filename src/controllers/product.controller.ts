@@ -248,7 +248,7 @@ class Product extends ProductLogic {
           type: req.query.type
             ? req.query.type.toString().toUpperCase()
             : undefined,
-          storeId: String(storeId),
+          storeId: storeId ? String(storeId) : undefined,
         });
       }
       // send response to client

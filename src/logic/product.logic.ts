@@ -444,6 +444,7 @@ class ProductLogic extends MediaLogic {
         };
         !query.type && delete query.type;
         storeId && (query["store"] = storeId);
+        console.log(query);
         // get all display products
         const productData = await paginationHelper<ProductType>({
           model: ProductModel,
