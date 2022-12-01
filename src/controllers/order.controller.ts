@@ -223,6 +223,32 @@ class Order extends OrderLogic {
   }
 
   /** get order details*/
+  public async downloadOrderInvoiceController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      // validator error handler
+      fieldValidateError(req);
+
+      const data = super.sendInvoiceToMail({
+        orderId: req.params.orderId,
+        mail: req?.body?.email,
+        isDownload: true,
+      });
+
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Invoice send successfully",
+        data: data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** get order details*/
   public async updateOrderDetailsController(
     req: AuthRequest,
     res: Response,

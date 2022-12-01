@@ -30,6 +30,7 @@ class Order extends AuthenticateMiddleware {
     this.getOrderInvoiceRoute();
     this.updateOrderDetailsRoute();
     this.verifyOrderOtpRoute();
+    this.downloadOrderInvoiceRoute();
   }
 
   //get all orders
@@ -118,6 +119,14 @@ class Order extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.orderController.validateGetOrderInvoice,
       this.orderController.getOrderInvoiceController
+    );
+  }
+  // get order invoice
+  private downloadOrderInvoiceRoute(): void {
+    this.router.get(
+      "/orders/:orderId/invoice",
+      super.isManager,
+      this.orderController.downloadOrderInvoiceController
     );
   }
 

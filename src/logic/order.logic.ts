@@ -598,11 +598,16 @@ class OrderLogic extends MediaLogic {
   public async sendInvoiceToMail({
     orderId,
     mail,
+    isDownload,
   }: {
     orderId: string;
     mail: string;
+    isDownload?: boolean;
   }) {
     const orderData = await new InvoiceLogic().getInvoiceHTML({ orderId });
+    if (isDownload) {
+      return orderData?.invoiceHTML;
+    }
     const invoiceTemplate = orderData?.invoiceHTML;
     const baseDir = path.join(__dirname, "..", "..", "uploads");
     const htmlFilePath = `${baseDir}/invoice-${orderData?.orderData?._id}.html`;
