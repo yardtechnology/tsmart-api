@@ -93,6 +93,16 @@ class UserLogic {
           sort: { createdAt: -1 },
           chunk,
           limit,
+          populate: [
+            {
+              path: "deviceType",
+              select: "-imagePATH -type",
+            },
+            {
+              path: "makeType",
+              select: "-imagePATH -type -devices",
+            },
+          ],
           select: "-encrypted_password -salt -refreshTokens -verificationInfo",
         });
         resolve(allUsers);
