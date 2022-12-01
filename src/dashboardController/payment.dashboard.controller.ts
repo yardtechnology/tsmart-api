@@ -63,6 +63,29 @@ class PaymentDashboardController {
                 ],
               },
             },
+
+            mailInRevenue: {
+              $sum: {
+                $cond: [
+                  {
+                    $eq: ["$serviceType", "MAIL_IN"],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+            calloutRevenue: {
+              $sum: {
+                $cond: [
+                  {
+                    $eq: ["$serviceType", "CALL_OUT"],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
           },
         },
       ]);
