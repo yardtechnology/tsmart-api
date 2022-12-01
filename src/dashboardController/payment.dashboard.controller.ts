@@ -30,7 +30,7 @@ class PaymentDashboardController {
           $group: {
             _id: null,
             total: { $sum: 1 },
-            refurBish: {
+            refurbish: {
               $sum: {
                 $cond: [
                   {
@@ -63,13 +63,36 @@ class PaymentDashboardController {
                 ],
               },
             },
+
+            mailInRevenue: {
+              $sum: {
+                $cond: [
+                  {
+                    $eq: ["$serviceType", "MAIL_IN"],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+            calloutRevenue: {
+              $sum: {
+                $cond: [
+                  {
+                    $eq: ["$serviceType", "CALL_OUT"],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
           },
         },
       ]);
       res.json({
         status: "SUCCESS",
         message: "Order card data found successfully.",
-        data: orderDataAccordingStatus,
+        data: orderDataAccordingStatus?.[0],
       });
     } catch (error) {
       next(error);
