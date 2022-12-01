@@ -1,8 +1,18 @@
 import nodemailer from "nodemailer";
 
 class MailController {
+  // public transporter = nodemailer.createTransport({
+  //   service: "gmail",
+  //   auth: {
+  //     user: process.env.EMAIL,
+  //     pass: process.env.EMAIL_SERVICE_PASSWORD,
+  //   },
+  // });
+
   public transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.zeptomail.com",
+    port: 465,
+    secure: true,
     auth: {
       user: process.env.EMAIL,
       pass: process.env.EMAIL_SERVICE_PASSWORD,
