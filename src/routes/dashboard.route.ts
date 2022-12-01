@@ -6,8 +6,11 @@ import {
 import {
   AccessoryDashboardController,
   BuyDashboardController,
+  OrderDashboardController,
+  PaymentDashboardController,
   RefurbishedDashboardController,
   RepairerDashboardController,
+  ReportDashboardController,
   StoreDashboardController,
   UserDashboardController,
   userDashboardValidation,
@@ -23,6 +26,10 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
   private refurbishedDashboardController: RefurbishedDashboardController;
   private accessoryDashboardController: AccessoryDashboardController;
   private buyDashboardController: BuyDashboardController;
+  private paymentDashboardController: PaymentDashboardController;
+  private reportDashboardController: ReportDashboardController;
+  private orderDashboardController: OrderDashboardController;
+
   constructor() {
     super();
     this.router = Router();
@@ -33,6 +40,9 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
     this.refurbishedDashboardController = new RefurbishedDashboardController();
     this.accessoryDashboardController = new AccessoryDashboardController();
     this.buyDashboardController = new BuyDashboardController();
+    this.paymentDashboardController = new PaymentDashboardController();
+    this.reportDashboardController = new ReportDashboardController();
+    this.orderDashboardController = new OrderDashboardController();
     this.routes();
   }
   private routes() {
@@ -186,6 +196,66 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       "/dashboard/buy/card",
       super.isAuthenticated,
       this.buyDashboardController.card
+    );
+    // ======================== payment <<================================================================
+    this.router.get(
+      "/dashboard/payment/total-revenue",
+      super.isAuthenticated,
+      this.paymentDashboardController.totalRevenue
+    );
+    this.router.get(
+      "/dashboard/payment/refurbish-list",
+      super.isAuthenticated,
+      this.paymentDashboardController.refurbishList
+    );
+    this.router.get(
+      "/dashboard/payment/accessory-list",
+      super.isAuthenticated,
+      this.paymentDashboardController.accessoryList
+    );
+    this.router.get(
+      "/dashboard/payment/in-store-list",
+      super.isAuthenticated,
+      this.paymentDashboardController.inStoreList
+    );
+    this.router.get(
+      "/dashboard/payment/mail-in-list",
+      super.isAuthenticated,
+      this.paymentDashboardController.mailInRevenueList
+    );
+    this.router.get(
+      "/dashboard/payment/call-out-list",
+      super.isAuthenticated,
+      this.paymentDashboardController.callOutRevenue
+    );
+
+    // ======================== Report <<================================================================
+    this.router.get(
+      "/dashboard/report/report-count",
+      super.isAuthenticated,
+      this.reportDashboardController.reportCount
+    );
+    this.router.get(
+      "/dashboard/report/total-brought",
+      super.isAuthenticated,
+      this.reportDashboardController.totalBrought
+    );
+    this.router.get(
+      "/dashboard/report/job-list",
+      super.isAuthenticated,
+      this.reportDashboardController.totalJob
+    );
+    this.router.get(
+      "/dashboard/report/user-list",
+      super.isAuthenticated,
+      this.reportDashboardController.totalUserList
+    );
+
+    // ======================== Order dashboard <<================================================================
+    this.router.get(
+      "/dashboard/order/card",
+      super.isAuthenticated,
+      this.orderDashboardController.card
     );
   }
 }

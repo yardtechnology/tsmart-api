@@ -1,5 +1,6 @@
 import { BadRequest } from "http-errors";
 import { Admin } from "../config";
+import { NotificationSchema } from "../models";
 import { UserModel } from "../models/user.model";
 import USER_TYPE from "../types/user";
 
@@ -36,6 +37,10 @@ export default class NotificationLogic {
             screen: "Notification",
           };
       const tokens: any[] = usersDetails.map((user) => {
+        new NotificationSchema({
+          title,
+          description: body,
+        }).save();
         if (user?.fcmTokens) return Object.values(user.fcmTokens);
         return [];
       });

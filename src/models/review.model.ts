@@ -35,6 +35,11 @@ const reviewSchema = new Schema<REVIEW_TYPE, Model<REVIEW_TYPE>>(
       ref: "User",
       default: undefined,
     },
+    order: {
+      required: [true, "Order is is require."],
+      type: Schema.Types.ObjectId,
+      ref: "Order",
+    },
   },
   { timestamps: true }
 );

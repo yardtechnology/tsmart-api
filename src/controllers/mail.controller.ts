@@ -9,6 +9,16 @@ class MailController {
     },
   });
 
+  // public transporter = nodemailer.createTransport({
+  //   host: "smtp.zeptomail.com",
+  //   port: 465,
+  //   secure: true,
+  //   auth: {
+  //     user: process.env.EMAIL,
+  //     pass: process.env.EMAIL_SERVICE_PASSWORD,
+  //   },
+  // });
+
   // send mail with subject and text
   public async sendMail({
     to,

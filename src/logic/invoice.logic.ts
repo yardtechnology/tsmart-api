@@ -1,4 +1,5 @@
 import { OrderModel } from "../models/order.model";
+import { EVALUATION_PRICE_TYPE } from "../types";
 import OrderType from "../types/order";
 import ServicePriceType from "../types/servicePrice";
 import { ProductType } from "./../types/product.d";
@@ -28,6 +29,7 @@ class InvoiceLogic {
           },
         ]);
         if (!orderInfo) throw new Error("Order not found");
+        // console.log({ orderInfo });
 
         const commonTemplet = `<!DOCTYPE html>
                 <html lang="en">
@@ -361,7 +363,9 @@ class InvoiceLogic {
                           <td id="td_2">
                             <div class="invoiceIdWarper">
                               <h1>INVOICE</h1>
-                              <p>INVOICE NO: ${orderInfo?.billing?._id}</p>
+                              <p>INVOICE NO: ${
+                                orderInfo?.billing?._id || orderInfo?._id
+                              }</p>
                             </div>
                           </td>
                         </tr>
@@ -428,7 +432,10 @@ class InvoiceLogic {
                           </td>
                           <td id="td_18">
                             <p><b>Issue Date : </b>${
-                              new Date(orderInfo?.billing?.createdAt)
+                              new Date(
+                                orderInfo?.billing?.createdAt ||
+                                  orderInfo?.createdAt
+                              )
                                 ?.toLocaleString()
                                 .split(",")[0]
                             }</p>
@@ -451,9 +458,10 @@ class InvoiceLogic {
                           <th id="td-5">Total</th>
                         </tr>
                         <!-- product item start -->
-                        ${orderInfo?.billing?.orders?.map(
-                          (order: OrderType) =>
-                            `<tr>
+                        ${orderInfo?.billing?.orders
+                          ?.map((order: OrderType) => {
+                            order.product
+                              ? `<tr>
                             <td id="td-6">
                               <img src="${
                                 order.product?.displayImage?.url
@@ -477,7 +485,9 @@ class InvoiceLogic {
                           <tr>
                             <td colspan="5" class="border">.</td>
                           </tr>`
-                        )}
+                              : "";
+                          })
+                          .join("")}
                         <!-- product item end -->
                         <!-- accessory item start -->
                         ${orderInfo?.accessory?.map(
@@ -509,9 +519,10 @@ class InvoiceLogic {
                         )}
                         <!-- accessory item end -->
                         <!-- service item start -->
-                        ${orderInfo?.service?.map(
-                          (order: ServicePriceType) =>
-                            `<tr>
+                        ${orderInfo?.service
+                          ?.map(
+                            (order: ServicePriceType) =>
+                              `<tr>
                             <td id="td-6">
                               <img src="${
                                 order.service?.image
@@ -535,12 +546,14 @@ class InvoiceLogic {
                           <tr>
                             <td colspan="5" class="border">.</td>
                           </tr>`
-                        )}
+                          )
+                          .join("")}
                         <!-- service item end -->
                         <!-- extra service item start -->
-                        ${orderInfo?.extraServices?.map(
-                          (order: ServicePriceType) =>
-                            `<tr>
+                        ${orderInfo?.extraServices
+                          ?.map(
+                            (order: ServicePriceType) =>
+                              `<tr>
                             <td id="td-6">
                               <img src="${
                                 order.service?.image
@@ -564,8 +577,40 @@ class InvoiceLogic {
                           <tr>
                             <td colspan="5" class="border">.</td>
                           </tr>`
-                        )}
+                          )
+                          .join("")}
                         <!-- extra service item end -->
+                        <!-- evaluation service item start -->
+                        ${orderInfo?.evaluatedValues
+                          ?.map((evaluated: EVALUATION_PRICE_TYPE) => {
+                            console.log({ evaluated });
+                            return `<tr>
+                            <td id="td-6">
+                              <img src="${
+                                evaluated?.evaluation?.image
+                              }" alt="" class="img_two" />
+                            </td>
+                            <td class="description" id="td-7">
+                              <p>
+                                ${evaluated?.evaluation?.title}
+                              </p>
+                            </td>
+                            <td id="td-8">-${evaluated?.price?.toLocaleString(
+                              "en-IN",
+                              { style: "currency", currency: "GBP" }
+                            )}/-</td>
+                            <td id="td-9">1</td>
+                            <td id="td-10">-${evaluated?.price?.toLocaleString(
+                              "en-IN",
+                              { style: "currency", currency: "GBP" }
+                            )}/-</td>
+                          </tr>
+                          <tr>
+                            <td colspan="5" class="border">.</td>
+                          </tr>`;
+                          })
+                          .join("")}
+                        <!-- evaluation service item end -->
                       </table>
                       <table class="table_three finalCalc">
                         <tr>
@@ -573,18 +618,24 @@ class InvoiceLogic {
                           </th>
                           <th class="table_head">
                             <h4>SubTotal</h4>
-                            <p style="font-size: 0.8rem;">(Tax ${(
-                              (orderInfo?.billing?.tax || 0) +
-                              (orderInfo?.extraBilling?.tax || 0)
-                            )?.toLocaleString("en-IN", {
-                              style: "currency",
-                              currency: "GBP",
-                            })}/-)</p>
+                            ${
+                              orderInfo?.billing?.tax ||
+                              orderInfo?.extraBilling?.tax
+                                ? `<p style="font-size: 0.8rem;">(Tax ${(
+                                    (orderInfo?.billing?.tax || 0) +
+                                    (orderInfo?.extraBilling?.tax || 0)
+                                  )?.toLocaleString("en-IN", {
+                                    style: "currency",
+                                    currency: "GBP",
+                                  })}/-)</p>`
+                                : ""
+                            }
                           </th>
                           <th class="table_head">
                             <h4>${(
-                              (orderInfo?.billing?.subPrice || 0) +
-                              (orderInfo?.extraBilling?.total || 0)
+                              (orderInfo?.billing?.total || 0) +
+                              (orderInfo?.extraBilling?.total || 0) +
+                              (orderInfo?.evaluatedPrice || 0)
                             )?.toLocaleString("en-IN", {
                               style: "currency",
                               currency: "GBP",
@@ -618,7 +669,8 @@ class InvoiceLogic {
                           <td class="table_body">
                             <h4>${(
                               (orderInfo?.billing?.total || 0) +
-                              (orderInfo?.extraBilling?.total || 0)
+                              (orderInfo?.extraBilling?.total || 0) +
+                              (orderInfo?.evaluatedPrice || 0)
                             )?.toLocaleString("en-IN", {
                               style: "currency",
                               currency: "GBP",

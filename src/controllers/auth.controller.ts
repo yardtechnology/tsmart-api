@@ -3,8 +3,8 @@ import { body, validationResult } from "express-validator";
 import md5 from "md5";
 import { fieldValidateError } from "../helper";
 import { createOTP } from "../helper/core.helper";
+import { sendSMS } from "../helper/sms.helper";
 import AuthLogic from "../logic/auth.logic";
-import SMSLogic from "../logic/sms.logic";
 import { AddressModel } from "../models/address.model";
 import { UserModel } from "../models/user.model";
 import { WhiteListModel } from "../models/whitelist.model";
@@ -47,10 +47,15 @@ class Auth extends AuthLogic {
 
       //if the number is not a white listed number then send otp to there number
       if (!whiteListedUserData) {
-        new SMSLogic().sendOTP({
-          message: `your otp is ${activeOTP?.otp}`,
-          phoneNumber: `${newUser?.country?.code}${newUser?.phoneNumber}`,
-        });
+        sendSMS(
+          `+${newUser?.country?.code}${newUser?.phoneNumber}`,
+          `${activeOTP.otp}`,
+          false
+        );
+        // new SMSLogic().sendOTP({
+        //   message: `your otp is ${activeOTP?.otp}`,
+        //   phoneNumber: `${newUser?.country?.code}${newUser?.phoneNumber}`,
+        // });
       }
 
       // send response to client

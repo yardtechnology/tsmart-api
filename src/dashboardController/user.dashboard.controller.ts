@@ -190,7 +190,7 @@ class UserDashboardController {
   // technician details count
   async technician(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const {} = req.params;
+      const { technicianId } = req.params;
       res.json({
         status: "SUCCESS",
         message: "Customer count successfully.",
