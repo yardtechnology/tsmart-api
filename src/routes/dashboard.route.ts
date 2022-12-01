@@ -6,6 +6,7 @@ import {
 import {
   AccessoryDashboardController,
   BuyDashboardController,
+  PaymentDashboardController,
   RefurbishedDashboardController,
   RepairerDashboardController,
   StoreDashboardController,
@@ -23,6 +24,7 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
   private refurbishedDashboardController: RefurbishedDashboardController;
   private accessoryDashboardController: AccessoryDashboardController;
   private buyDashboardController: BuyDashboardController;
+  private paymentDashboardController: PaymentDashboardController;
   constructor() {
     super();
     this.router = Router();
@@ -33,6 +35,7 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
     this.refurbishedDashboardController = new RefurbishedDashboardController();
     this.accessoryDashboardController = new AccessoryDashboardController();
     this.buyDashboardController = new BuyDashboardController();
+    this.paymentDashboardController = new PaymentDashboardController();
     this.routes();
   }
   private routes() {
@@ -186,6 +189,12 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       "/dashboard/buy/card",
       super.isAuthenticated,
       this.buyDashboardController.card
+    );
+    // ======================== payment <<================================================================
+    this.router.get(
+      "/dashboard/payment/total-revenue",
+      super.isAuthenticated,
+      this.paymentDashboardController.totalRevenue
     );
   }
 }
