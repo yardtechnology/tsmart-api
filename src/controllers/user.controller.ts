@@ -4,6 +4,7 @@ import { NotAcceptable } from "http-errors";
 import { getTimeDeference } from "../helper/core.helper";
 import JWTLogic from "../logic/jwt.logic";
 import MediaLogic from "../logic/media.logic";
+import NotificationLogic from "../logic/notification.logics";
 import UserLogic from "../logic/user.logic";
 import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
@@ -356,6 +357,13 @@ class User extends MediaLogic {
         });
       }
       if (userData?.email) {
+        new NotificationLogic().pushNotification({
+          userIds: [userData?._id],
+          title: "Account status change",
+          body: `Your account has been ${req.body?.status
+            ?.toString()
+            ?.toLowerCase()}`,
+        });
         new MailController().sendHtmlMail({
           to: userData?.email,
           subject: `Your account has been ${req.body?.status

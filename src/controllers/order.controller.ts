@@ -6,6 +6,7 @@ import { fieldValidateError, paginationHelper } from "../helper";
 import { getDistance } from "../helper/core.helper";
 import BillingLogic from "../logic/billing.logic";
 import CartLogic from "../logic/cart.logic";
+import NotificationLogic from "../logic/notification.logics";
 import OrderLogic from "../logic/order.logic";
 import StripeLogic from "../logic/stripe.logic";
 import { ConfigSchema } from "../models";
@@ -350,6 +351,74 @@ class Order extends OrderLogic {
         }
         Thanks,`,
       });
+      switch (req.body.status?.toString().toUpperCase()) {
+        case "DELIVERED":
+          new NotificationLogic().pushNotification({
+            userIds: [orderData?.user?._id],
+            title: "Order Delivered",
+            body: `Your order ${orderData?._id} is ${orderData?.status?.replace(
+              /_/g,
+              " "
+            )}`,
+          });
+          break;
+        case "COMPLETED":
+          new NotificationLogic().pushNotification({
+            userIds: [orderData?.user?._id],
+            title: "Order COMPLETED",
+            body: `Your order ${orderData?._id} is ${orderData?.status?.replace(
+              /_/g,
+              " "
+            )}`,
+          });
+          break;
+        case "CANCELLED":
+          //add product stock
+          await ProductModel.findByIdAndUpdate(orderData?.product?._id, {
+            $inc: {
+              stock: orderData?.quantity,
+            },
+          });
+          new NotificationLogic().pushNotification({
+            userIds: [orderData?.user?._id],
+            title: "Order Cancelled",
+            body: `Your order ${orderData?._id} is ${orderData?.status?.replace(
+              /_/g,
+              " "
+            )}`,
+          });
+          break;
+
+        default:
+          new NotificationLogic().pushNotification({
+            userIds: [orderData?.user?._id],
+            title: "Order status updated",
+            body: `Your order ${orderData?._id} is ${orderData?.status?.replace(
+              /_/g,
+              " "
+            )}`,
+          });
+          new MailController().sendMail({
+            to: orderData.user.email,
+            subject: "Order status updated",
+            text: `
+            Hi ${orderData.user.displayName},
+            ${
+              (req.body.status || orderData?.status?.replace(/_/g, " ")) &&
+              `Your order ${orderData.id} has been updated to ${
+                req.body.status || orderData?.status?.replace(/_/g, " ")
+              }.`
+            }
+            ${
+              orderData?.ETA &&
+              `We will deliver your order by ${new Date(
+                orderData?.ETA
+              ).toLocaleString()}.`
+            }
+            Thanks,`,
+          });
+          break;
+      }
       res.status(200).json({
         status: "SUCCESS",
         message: "Order status updated",
@@ -553,6 +622,30 @@ class Order extends OrderLogic {
         { _id: { $in: billingData?.orders?.map((item) => item?._id) } },
         { status: billingData?.type !== "EXTRA" ? "INITIATED" : undefined }
       );
+
+      ProductModel.updateMany(
+        {
+          _id: billingData?.orders?.map((order) => order?.accessory?._id),
+        },
+        {
+          $inc: {
+            stock: -1,
+          },
+        }
+      );
+      for (const order of billingData?.orders) {
+        ProductModel?.findByIdAndUpdate(
+          {
+            _id: order?.product,
+          },
+          {
+            $inc: {
+              stock: -order?.quantity,
+            },
+          }
+        );
+      }
+
       // IF ORDER IS CALLOUT THE SEND REQUEST TO ALL NEAR BY TECHNICIAN
       if (
         billingData?.orders[0]?.serviceType === "CALL_OUT" &&
@@ -577,9 +670,13 @@ class Order extends OrderLogic {
               )
           )
           .map((user) => user?._id);
-        await OrderModel.findByIdAndUpdate(billingData?.orders[0]?._id, {
-          nearByTechnicians,
-        });
+        const orderInfo = await OrderModel.findByIdAndUpdate(
+          billingData?.orders[0]?._id,
+          {
+            nearByTechnicians,
+          }
+        );
+
         //send socket event to every
         const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
         socket.on("connect", () => {
