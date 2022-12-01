@@ -199,6 +199,32 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.paymentDashboardController.totalRevenue
     );
+    this.router.get(
+      "/dashboard/payment/refurbish-list",
+      super.isAuthenticated,
+      this.paymentDashboardController.refurbishList
+    );
+    this.router.get(
+      "/dashboard/payment/accessory-list",
+      super.isAuthenticated,
+      this.paymentDashboardController.accessoryList
+    );
+    this.router.get(
+      "/dashboard/payment/in-store-list",
+      super.isAuthenticated,
+      this.paymentDashboardController.inStoreList
+    );
+    this.router.get(
+      "/dashboard/payment/mail-in-list",
+      super.isAuthenticated,
+      this.paymentDashboardController.mailInRevenueList
+    );
+    this.router.get(
+      "/dashboard/payment/call-out-list",
+      super.isAuthenticated,
+      this.paymentDashboardController.callOutRevenue
+    );
+
     // ======================== Report <<================================================================
     this.router.get(
       "/dashboard/report/report-count",
