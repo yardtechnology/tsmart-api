@@ -379,7 +379,10 @@ class Order extends OrderLogic {
             await OrderModel.findByIdAndUpdate(orderData?._id, {
               "startOTP.verifiedAt": new Date(),
               "startOTP.isVerified": true,
-              status: "TECHNICIAN_REACHED",
+              status:
+                req?.currentUser?.role === "TECHNICIAN"
+                  ? "TECHNICIAN_REACHED"
+                  : "REPAIRING_STATED",
             });
           } else {
             throw new Error("invalid startOtp");
@@ -865,14 +868,18 @@ class Order extends OrderLogic {
       switch (req?.body?.type) {
         case "REJECT":
           const orderInfo = await OrderModel.findById(req?.params?.orderId);
+          const newTech = orderInfo?.nearByTechnicians?.filter(
+            (item) =>
+              !(
+                item?.toString() === req?.currentUser?._id ||
+                item?.toString() === req?.body?.technicianId
+              )
+          );
+          console.log({ newTech });
           const rejectedOrder = await OrderModel.findByIdAndUpdate(
             req?.params?.orderId,
             {
-              nearByTechnicians: orderInfo?.nearByTechnicians?.filter(
-                (item) =>
-                  item !== req?.currentUser?._id ||
-                  item !== req?.body?.technicianId
-              ),
+              nearByTechnicians: newTech,
             }
           );
           res.json({

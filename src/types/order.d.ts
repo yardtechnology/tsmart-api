@@ -28,6 +28,7 @@ export type OrderStatus =
   | "PAID"
   | "TECHNICIAN_ASSIGNED"
   | "TECHNICIAN_REACHED"
+  | "REPAIRING_STATED"
   | "REPAIRED"
   | "ADD_ON_SERVICE";
 
