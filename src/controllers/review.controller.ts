@@ -4,6 +4,7 @@ import { Conflict, NotFound } from "http-errors";
 import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import { ReviewSchema } from "../models";
+import { StoreModel } from "../models/store.model";
 import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
 import { ProductModel } from "./../models/product.model";
@@ -12,7 +13,8 @@ class ReviewController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       fieldValidateError(req);
-      const { comment, ratings, productId, storeId, technicianId } = req.body;
+      const { comment, ratings, productId, storeId, technicianId, orderId } =
+        req.body;
       const user = req?.currentUser?._id;
       let queryArg: any = {};
 
@@ -44,7 +46,7 @@ class ReviewController {
       }
       //if rating for store
       if (storeId) {
-        await ProductModel.findByIdAndUpdate(storeId, {
+        await StoreModel.findByIdAndUpdate(storeId, {
           $inc: {
             "reviews.total": 1,
             "reviews.stars": Number(ratings),
@@ -52,7 +54,7 @@ class ReviewController {
         });
         queryArg = {
           user,
-          store: { $ne: storeId },
+          order: { $ne: orderId },
         };
       }
 
@@ -95,6 +97,7 @@ class ReviewController {
         productId,
         userId,
         technicianId,
+        orderId,
       } = req.query;
 
       const query: any = {};
@@ -103,6 +106,7 @@ class ReviewController {
       productId && (query["product"] = productId);
       userId && (query["user"] = userId);
       technicianId && (query["technician"] = technicianId);
+      orderId && (query["order"] = orderId);
       const getAllData = await paginationHelper({
         model: ReviewSchema,
         query,
@@ -220,6 +224,12 @@ export const ReviewControllerValidation = {
       ],
       "productId or technicianId or storeId one id is required."
     ),
+    body("orderId")
+      .not()
+      .isEmpty()
+      .withMessage("orderId should be required.")
+      .isMongoId()
+      .withMessage("orderId must be mongoose id."),
   ],
   delete: [
     param("reviewId")
