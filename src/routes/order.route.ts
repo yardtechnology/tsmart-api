@@ -71,7 +71,7 @@ class Order extends AuthenticateMiddleware {
   private createSellOrderRoute(): void {
     this.router.post(
       "/order/sell",
-      // super.isAuthenticated,
+      super.isAuthenticated,
       this.orderController.validateSellOrderPlaceFields,
       this.orderController.placeSellOrderController
     );
