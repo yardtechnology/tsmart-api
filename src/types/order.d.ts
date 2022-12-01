@@ -91,5 +91,5 @@ export default interface OrderType extends Document {
   extraServices?: ServicePriceType[];
   accessory?: ProductType[];
   imei: string;
-  nearByTechnicians: [];
+  nearByTechnicians: string[];
 }

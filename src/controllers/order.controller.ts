@@ -864,10 +864,15 @@ class Order extends OrderLogic {
       fieldValidateError(req);
       switch (req?.body?.type) {
         case "REJECT":
+          const orderInfo = await OrderModel.findById(req?.params?.orderId);
           const rejectedOrder = await OrderModel.findByIdAndUpdate(
             req?.params?.orderId,
             {
-              $pull: { nearByTechnicians: req?.currentUser?._id },
+              nearByTechnicians: orderInfo?.nearByTechnicians?.filter(
+                (item) =>
+                  item !== req?.currentUser?._id ||
+                  item !== req?.body?.technicianId
+              ),
             }
           );
           res.json({
