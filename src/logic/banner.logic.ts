@@ -87,7 +87,7 @@ class BillingLogic extends MediaLogic {
       {
         title,
         description,
-        imageURL: imageData?.url,
+        image: imageData?.url,
         imagePath: imageData?.path,
         "data.screen": data.screen,
         "data.id": data.id,
