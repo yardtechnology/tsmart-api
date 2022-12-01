@@ -1,29 +1,39 @@
 import { NextFunction, Response } from "express";
 import { query } from "express-validator";
+import { OrderModel } from "../models/order.model";
 import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
 class ReportDashboardController {
-  async totalUser(req: AuthRequest, res: Response, next: NextFunction) {
+  async reportCount(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { startDate, endDate } = req.query;
       const argQuery: any = {};
       if (startDate && endDate) {
         argQuery["$and"] = [
           {
-            startDate: { $gte: new Date(Number(startDate)) },
+            createdAt: { $gte: new Date(Number(startDate)) },
           },
           {
-            endDate: {
+            createdAt: {
               $lte: new Date(Number(endDate)),
             },
           },
         ];
       }
       const totalUser = await UserModel.find(argQuery).count();
+      const totalJob = await OrderModel.find({
+        serviceType: "CALL_OUT",
+        ...argQuery,
+      }).count();
+      const totalBrought = await OrderModel.find({
+        type: { $in: ["ACCESSORY", "REFURBISH"] },
+        ...argQuery,
+      }).count();
+
       res.json({
         status: "SUCCESS",
-        message: "user count get successfully.",
-        data: totalUser,
+        message: "Report count successfully.",
+        data: { totalUser, totalBrought, totalJob },
       });
     } catch (error) {
       next(error);
