@@ -363,7 +363,9 @@ class InvoiceLogic {
                           <td id="td_2">
                             <div class="invoiceIdWarper">
                               <h1>INVOICE</h1>
-                              <p>INVOICE NO: ${orderInfo?.billing?._id}</p>
+                              <p>INVOICE NO: ${
+                                orderInfo?.billing?._id || orderInfo?._id
+                              }</p>
                             </div>
                           </td>
                         </tr>
@@ -467,7 +469,6 @@ class InvoiceLogic {
                             </td>
                             <td class="description" id="td-7">
                               <p>
-                              orders
                                 ${order?.product?.shortDescription}
                               </p>
                             </td>
@@ -499,7 +500,6 @@ class InvoiceLogic {
                             </td>
                             <td class="description" id="td-7">
                               <p>
-                              accessory
                                 ${product?.shortDescription}
                               </p>
                             </td>
@@ -530,7 +530,6 @@ class InvoiceLogic {
                             </td>
                             <td class="description" id="td-7">
                               <p>
-                              service
                                 ${order?.service?.title}
                               </p>
                             </td>
@@ -562,7 +561,6 @@ class InvoiceLogic {
                             </td>
                             <td class="description" id="td-7">
                               <p>
-                              extraServices
                                 ${order?.service?.title}
                               </p>
                             </td>
@@ -594,7 +592,6 @@ class InvoiceLogic {
                             </td>
                             <td class="description" id="td-7">
                               <p>
-                              extraServices
                                 ${evaluated?.evaluation?.title}
                               </p>
                             </td>
