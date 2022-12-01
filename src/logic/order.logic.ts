@@ -1,4 +1,3 @@
-import MailController from "../controllers/mail.controller";
 import {
   ColorSchema,
   DevicesSchema,
@@ -20,10 +19,11 @@ import { ServicePriceModel } from "./../models/servicePrice.model";
 import EvaluationLogic from "./evaluation.logic";
 import MediaLogic from "./media.logic";
 // import NotificationLogic from "./notification.logic";
-import fs from "fs";
-import pdf from "html-pdf";
+import fs from "fs/promises";
 import { Types } from "mongoose";
 import path from "path";
+import puppeteer from "puppeteer";
+import MailController from "../controllers/mail.controller";
 import InvoiceLogic from "./invoice.logic";
 
 class OrderLogic extends MediaLogic {
@@ -515,6 +515,19 @@ class OrderLogic extends MediaLogic {
   }) {
     return new Promise(async (resolve, reject) => {
       try {
+        console.log({
+          userId,
+          paymentMethod,
+          makeId,
+          modelId,
+          deviceId,
+          falsyEvaluatedIds,
+          addressId,
+          bankDetails,
+          colorId,
+          memoryId,
+          imei,
+        });
         // get user data
         const userData = await UserModel.findById(userId).select(
           "_id displayName email phoneNumber countryCode avatar"
@@ -591,67 +604,33 @@ class OrderLogic extends MediaLogic {
   }) {
     const orderData = await new InvoiceLogic().getInvoiceHTML({ orderId });
     const invoiceTemplate = orderData?.invoiceHTML;
-
-    pdf
-      .create(invoiceTemplate, { format: "A4" })
-      .toFile(
-        path.join(
-          __dirname,
-          "..",
-          "..",
-          "uploads",
-          `invoice-${orderData?.orderData?._id}.pdf`
-        ),
-        (writeFileErr: any, result: any) => {
-          if (writeFileErr) throw new Error(writeFileErr);
-          console.log(
-            path.join(
-              __dirname,
-              "..",
-              "..",
-              "uploads",
-              `invoice-${orderData?.orderData?._id}.pdf`
-            )
-          );
-          fs.readFile(
-            path.join(
-              __dirname,
-              "..",
-              "..",
-              "uploads",
-              `invoice-${orderData?.orderData?._id}.pdf`
-            ),
-            async (err: any, data: any) => {
-              try {
-                if (err)
-                  throw new Error("Error while reading file in Invoice mail");
-                const mailOptions = {
-                  from: process.env.EMAIL,
-                  to: mail,
-                  subject: `Invoice for your ride ${orderData?.orderData?._id}`,
-                  html: invoiceTemplate,
-                  attachments: [
-                    {
-                      filename: `invoice-${orderData?.orderData?._id}.pdf`,
-                      content: data,
-                    },
-                  ],
-                };
-                await new MailController().transporter.sendMail(mailOptions);
-                fs.rm(
-                  `./uploads/invoice-${orderData?.orderData?._id}.pdf`,
-                  () => {
-                    console.log("Invoice file removed");
-                  }
-                );
-              } catch (error) {
-                console.log({ error });
-                throw new Error("Error while reading file");
-              }
-            }
-          );
-        }
-      );
+    const baseDir = path.join(__dirname, "..", "..", "uploads");
+    const htmlFilePath = `${baseDir}/invoice-${orderData?.orderData?._id}.html`;
+    await fs.writeFile(htmlFilePath, invoiceTemplate);
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+    await page.goto(htmlFilePath, {
+      waitUntil: "networkidle0",
+    });
+    const pdf = await page.pdf({
+      printBackground: true,
+      format: "A4",
+    });
+    await fs.rm(htmlFilePath);
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: mail,
+      subject: `Invoice for your ride ${orderData?.orderData?._id}`,
+      html: invoiceTemplate,
+      attachments: [
+        {
+          filename: `invoice-${orderData?.orderData?._id}.pdf`,
+          content: pdf,
+        },
+      ],
+    };
+    await new MailController().transporter.sendMail(mailOptions);
+    await browser.close();
   }
 }
 

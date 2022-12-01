@@ -207,7 +207,7 @@ class Order extends OrderLogic {
       // validator error handler
       fieldValidateError(req);
 
-      await super.sendInvoiceToMail({
+      super.sendInvoiceToMail({
         orderId: req.params.orderId,
         mail: req?.body?.email,
       });
