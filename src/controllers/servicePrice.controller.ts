@@ -203,7 +203,7 @@ class ServicePrice extends MediaLogic {
     next: NextFunction
   ): Promise<any> {
     try {
-      const role = req?.currentUser?.role;
+      // const role = req?.currentUser?.role;
       fieldValidateError(req);
 
       const { model } = req.params;
@@ -436,7 +436,6 @@ class ServicePrice extends MediaLogic {
         couponCalculation,
         findSelectedServices,
         data: serviceId ? servicePriceData?.data?.[0] : servicePriceData,
-        role,
       });
     } catch (error) {
       next(error);

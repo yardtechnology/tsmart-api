@@ -15,17 +15,38 @@ class RefurbishedDashboardController {
             type: "REFURBISHED",
           },
         },
-        {
-          $group: {
-            _id: "$category",
-            count: { $sum: 1 },
-          },
-        },
-        {
-          $sort: {
-            count: 1,
-          },
-        },
+
+        // {
+        //   $group: {
+        //     _id: "$category",
+        //     count: { $sum: 1 },
+        //   },
+        // },
+        // {
+        //   $sort: {
+        //     count: 1,
+        //   },
+        // },
+        // {
+        //   $lookup: {
+        //     from: "categories",
+        //     localField: "category",
+        //     foreignField: "_id",
+        //     as: "category",
+        //   },
+        // },
+        // {
+        //   $unwind: {
+        //     path: "$category",
+        //     preserveNullAndEmptyArrays: true,
+        //   },
+        // },
+        // {
+        //   $project: {
+        //     category: "$category.name",
+        //     count: 1,
+        //   },
+        // },
       ]);
       res.json({
         data: allProduct,

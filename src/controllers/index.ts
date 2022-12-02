@@ -55,6 +55,10 @@ export {
   NotificationControllerValidation,
 } from "./notification.controller";
 export {
+  default as PopularPageController,
+  PopularPageControllerValidation,
+} from "./popularPage.controller";
+export {
   default as ReviewController,
   ReviewControllerValidation,
 } from "./review.controller";

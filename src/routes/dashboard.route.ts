@@ -1,11 +1,8 @@
 import { Router } from "express";
 import {
-  DashboardController,
-  DashboardControllerValidation,
-} from "../controllers";
-import {
   AccessoryDashboardController,
   BuyDashboardController,
+  DashboardDashboardController,
   OrderDashboardController,
   PaymentDashboardController,
   RefurbishedDashboardController,
@@ -19,7 +16,7 @@ import AuthenticateMiddleware from "../middleware/authenticate.middleware";
 
 export default class DashboardRoutes extends AuthenticateMiddleware {
   public router: Router;
-  private dashboardController: DashboardController;
+  // private dashboardController: DashboardController;
   private userDashboardController: UserDashboardController;
   private storeDashboardController: StoreDashboardController;
   private repairerDashboardController: RepairerDashboardController;
@@ -29,11 +26,12 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
   private paymentDashboardController: PaymentDashboardController;
   private reportDashboardController: ReportDashboardController;
   private orderDashboardController: OrderDashboardController;
+  private dashboardDashboardController: DashboardDashboardController;
 
   constructor() {
     super();
     this.router = Router();
-    this.dashboardController = new DashboardController();
+    // this.dashboardController = new DashboardController();
     this.userDashboardController = new UserDashboardController();
     this.storeDashboardController = new StoreDashboardController();
     this.repairerDashboardController = new RepairerDashboardController();
@@ -43,50 +41,51 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
     this.paymentDashboardController = new PaymentDashboardController();
     this.reportDashboardController = new ReportDashboardController();
     this.orderDashboardController = new OrderDashboardController();
+    this.dashboardDashboardController = new DashboardDashboardController();
     this.routes();
   }
   private routes() {
     // create
-    this.router.get(
-      "/dashboard/order-status",
-      super.isAuthenticated,
-      DashboardControllerValidation.orderStatusAndServiceType,
-      this.dashboardController.orderStatusAndServiceType
-    );
+    // this.router.get(
+    //   "/dashboard/order-status",
+    //   super.isAuthenticated,
+    //   DashboardControllerValidation.orderStatusAndServiceType,
+    //   this.dashboardController.orderStatusAndServiceType
+    // );
 
-    // total user count
-    this.router.get(
-      "/dashboard/user-count",
-      super.isAuthenticated,
-      DashboardControllerValidation.totalUserCount,
-      this.dashboardController.totalUserCount
-    );
+    // // total user count
+    // this.router.get(
+    //   "/dashboard/user-count",
+    //   super.isAuthenticated,
+    //   DashboardControllerValidation.totalUserCount,
+    //   this.dashboardController.totalUserCount
+    // );
 
-    //  Repair count
-    this.router.get(
-      "/dashboard/repair-order-count",
-      super.isAuthenticated,
-      this.dashboardController.repairOrderCount
-    );
-    // Refurbished count
-    this.router.get(
-      "/dashboard/refurbish-and-accessory-product-count",
-      super.isAuthenticated,
-      DashboardControllerValidation.refurbishedProductCount,
-      this.dashboardController.refurbishedProductCount
-    );
-    // Revenue generate
-    this.router.get(
-      "/dashboard/revenue",
-      super.isAuthenticated,
-      this.dashboardController.revenue
-    );
-    // Store Count
-    this.router.get(
-      "/dashboard/store-count",
-      super.isAuthenticated,
-      this.dashboardController.storeCount
-    );
+    // //  Repair count
+    // this.router.get(
+    //   "/dashboard/repair-order-count",
+    //   super.isAuthenticated,
+    //   this.dashboardController.repairOrderCount
+    // );
+    // // Refurbished count
+    // this.router.get(
+    //   "/dashboard/refurbish-and-accessory-product-count",
+    //   super.isAuthenticated,
+    //   DashboardControllerValidation.refurbishedProductCount,
+    //   this.dashboardController.refurbishedProductCount
+    // );
+    // // Revenue generate
+    // this.router.get(
+    //   "/dashboard/revenue",
+    //   super.isAuthenticated,
+    //   this.dashboardController.revenue
+    // );
+    // // Store Count
+    // this.router.get(
+    //   "/dashboard/store-count",
+    //   super.isAuthenticated,
+    //   this.dashboardController.storeCount
+    // );
 
     // ================================================================= >>>> USER DASHBOARD <<<< =================================================================
     this.router.get(
@@ -266,6 +265,33 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       "/dashboard/order/delivery-order",
       super.isAuthenticated,
       this.orderDashboardController.deliveryOrder
+    );
+
+    // ======================== Dashboard  <<================================================================
+    this.router.get(
+      "/dashboard/dashboard/card",
+      super.isAuthenticated,
+      this.dashboardDashboardController.card
+    );
+    this.router.get(
+      "/dashboard/dashboard/top-technician",
+      super.isAuthenticated,
+      this.dashboardDashboardController.topTechnician
+    );
+    this.router.get(
+      "/dashboard/dashboard/stock",
+      super.isAuthenticated,
+      this.dashboardDashboardController.stock
+    );
+    this.router.get(
+      "/dashboard/dashboard/visitors",
+      super.isAuthenticated,
+      this.dashboardDashboardController.visitors
+    );
+    this.router.get(
+      "/dashboard/dashboard/popular-page",
+      super.isAuthenticated,
+      this.dashboardDashboardController.popularPage
     );
   }
 }

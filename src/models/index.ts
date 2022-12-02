@@ -11,6 +11,7 @@ export { default as JoinOurTeamSchema } from "./joinOurTeam.model";
 export { default as MakeSchema } from "./make.model";
 export { default as MemorySchema } from "./memory.model";
 export { default as NotificationSchema } from "./notification.model";
+export { default as PopularPageSchema } from "./popularPage.model";
 export { default as ReviewSchema } from "./review.model";
 export { default as SalePriceModel } from "./salePrice.model";
 export { ServicePriceModel } from "./servicePrice.model";

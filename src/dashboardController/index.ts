@@ -1,5 +1,6 @@
 export { default as AccessoryDashboardController } from "./accessory.dashboard.controller";
 export { default as BuyDashboardController } from "./buy.dashboard.controller";
+export { default as DashboardDashboardController } from "./dashboard.dashboard.controller";
 export { default as OrderDashboardController } from "./order.dashboard.controller";
 export { default as PaymentDashboardController } from "./payment.dashboard.controller";
 export { default as RefurbishedDashboardController } from "./refurbished.dashboard.controller";

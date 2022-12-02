@@ -1,7 +1,7 @@
 import { Document } from "mongoose";
 
-export default interface VISITOR_TYPE extends Document {}
-
-// USERNAME = PMAY2
-// PASSWORD === f9PLaZXzDkwDfriF
-// database =  mongodb+srv://PMAY2:f9PLaZXzDkwDfriF@cluster0.ft7h26y.mongodb.net/?retryWrites=true&w=majority
+export default interface POPULAR_PAGE_TYPE extends Document {
+  url: string;
+  title: string;
+  count: number;
+}
