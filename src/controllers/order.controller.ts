@@ -232,17 +232,13 @@ class Order extends OrderLogic {
       // validator error handler
       fieldValidateError(req);
 
-      const data = super.sendInvoiceToMail({
+      const data = await super.sendInvoiceToMail({
         orderId: req.params.orderId,
         mail: req?.body?.email,
         isDownload: true,
       });
 
-      res.status(200).json({
-        status: "SUCCESS",
-        message: "Invoice send successfully",
-        data: data,
-      });
+      res.status(200).send(data);
     } catch (error) {
       next(error);
     }

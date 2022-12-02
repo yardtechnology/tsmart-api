@@ -604,38 +604,43 @@ class OrderLogic extends MediaLogic {
     mail: string;
     isDownload?: boolean;
   }) {
-    const orderData = await new InvoiceLogic().getInvoiceHTML({ orderId });
-    if (isDownload) {
-      return orderData?.invoiceHTML;
+    try {
+      const orderData = await new InvoiceLogic().getInvoiceHTML({ orderId });
+      if (isDownload) {
+        return orderData?.invoiceHTML;
+      }
+      const invoiceTemplate = orderData?.invoiceHTML;
+      const baseDir = path.join(__dirname, "..", "..", "uploads");
+      const htmlFilePath = `${baseDir}/invoice-${orderData?.orderData?._id}.html`;
+      await fs.writeFile(htmlFilePath, invoiceTemplate);
+      const browser = await puppeteer.launch({ headless: true });
+      const page = await browser.newPage();
+      await page.goto(htmlFilePath, {
+        waitUntil: "networkidle0",
+      });
+      const pdf = await page.pdf({
+        printBackground: true,
+        format: "A4",
+      });
+      await fs.rm(htmlFilePath);
+      const mailOptions = {
+        from: process.env.EMAIL,
+        to: mail,
+        subject: `Invoice for your ride ${orderData?.orderData?._id}`,
+        html: invoiceTemplate,
+        attachments: [
+          {
+            filename: `invoice-${orderData?.orderData?._id}.pdf`,
+            content: pdf,
+          },
+        ],
+      };
+      await new MailController().transporter.sendMail(mailOptions);
+      await browser.close();
+    } catch (error: any) {
+      console.log("INVOICE ERROR: ", error);
+      throw new Error(error);
     }
-    const invoiceTemplate = orderData?.invoiceHTML;
-    const baseDir = path.join(__dirname, "..", "..", "uploads");
-    const htmlFilePath = `${baseDir}/invoice-${orderData?.orderData?._id}.html`;
-    await fs.writeFile(htmlFilePath, invoiceTemplate);
-    const browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
-    await page.goto(htmlFilePath, {
-      waitUntil: "networkidle0",
-    });
-    const pdf = await page.pdf({
-      printBackground: true,
-      format: "A4",
-    });
-    await fs.rm(htmlFilePath);
-    const mailOptions = {
-      from: process.env.EMAIL,
-      to: mail,
-      subject: `Invoice for your ride ${orderData?.orderData?._id}`,
-      html: invoiceTemplate,
-      attachments: [
-        {
-          filename: `invoice-${orderData?.orderData?._id}.pdf`,
-          content: pdf,
-        },
-      ],
-    };
-    await new MailController().transporter.sendMail(mailOptions);
-    await browser.close();
   }
 }
 
