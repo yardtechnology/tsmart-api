@@ -2,6 +2,5 @@ node_modules
 build
 disc
 tmp
-.env
 .vscode
 uploads
