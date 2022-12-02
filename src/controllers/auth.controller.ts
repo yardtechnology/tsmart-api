@@ -32,6 +32,7 @@ class Auth extends AuthLogic {
         { phoneNumber },
         {
           activeOTP,
+          "country.code": countryCode,
         }
       );
 
