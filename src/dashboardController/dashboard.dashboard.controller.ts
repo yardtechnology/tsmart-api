@@ -244,8 +244,60 @@ class DashboardDashboardController {
       });
       res.status(200).json({
         status: "SUCCESS",
-        message: "Top Technician get successfully",
+        message: "Popular page get successfully",
         data: popularPage,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async monthWiseOrder(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const currentDateRoot = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        new Date().getDate()
+      );
+
+      const orderData = await OrderModel.aggregate([
+        {
+          $match: {
+            $expr: {
+              $in: ["$type", ["ACCESSORY", "REFURBISH"]],
+            },
+          },
+        },
+        {
+          $addFields: {
+            endDate: new Date(currentDateRoot),
+            startDate: {
+              $dateSubtract: {
+                startDate: new Date(currentDateRoot),
+                unit: "year",
+                amount: 1,
+              },
+            },
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $and: [
+                {
+                  $gte: ["$createdAt", "$startDate"],
+                },
+                {
+                  $lte: ["$createdAt", "$endDate"],
+                },
+              ],
+            },
+          },
+        },
+      ]);
+      res.json({
+        status: "SUCCESS",
+        message: "Order data found successfully.",
+        data: orderData,
       });
     } catch (error) {
       next(error);

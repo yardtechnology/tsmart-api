@@ -293,5 +293,20 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.dashboardDashboardController.popularPage
     );
+    this.router.get(
+      "/dashboard/dashboard/popular-page",
+      super.isAuthenticated,
+      this.dashboardDashboardController.popularPage
+    );
+    this.router.get(
+      "/dashboard/dashboard/month-wise-order",
+      super.isAuthenticated,
+      this.orderDashboardController.lastOneYearData
+    );
+    this.router.get(
+      "/dashboard/dashboard/month-wise-order",
+      super.isAuthenticated,
+      this.orderDashboardController.lastOneYearData
+    );
   }
 }
