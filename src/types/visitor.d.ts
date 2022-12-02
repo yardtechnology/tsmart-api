@@ -1,4 +1,4 @@
-import { Document, ObjectId } from "mongoose";
+import { Document } from "mongoose";
 
 export default interface VISITOR_TYPE extends Document {
   windowsCount: number;

@@ -11,6 +11,7 @@ export { default as MAKE_TYPE } from "./make";
 export { default as MEMORY_TYPE } from "./memory";
 export { default as MODEL_TYPE } from "./model";
 export { default as NOTIFICATION_TYPE } from "./notification";
+export { default as POPULAR_PAGE_TYPE } from "./popularPage";
 export { default as REVIEW_TYPE } from "./review";
 export { default as SALE_PRICE_TYPE } from "./salePrice";
 export { default as SERVICE_PROPERTY_TYPE } from "./serviceProperty";

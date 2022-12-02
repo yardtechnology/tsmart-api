@@ -44,7 +44,7 @@ class ServicePrice extends AuthenticateMiddleware {
     );
     this.router.get(
       "/service-prices/:model",
-      super.isAuthenticated,
+      // super.isAuthenticated,
       ServicePriceControllerValidation.getAllServicePrice,
       this.servicePriceController.getAllServicePrice
     );
