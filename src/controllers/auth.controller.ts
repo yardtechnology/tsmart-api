@@ -498,12 +498,12 @@ class Auth extends AuthLogic {
       if (userData.status !== "INACTIVE")
         throw new Error("Email is already verified");
 
-      res.redirect(`${process.env.WEBSITE_END_POINT}`);
+      res.redirect(`${process.env.WEBSITE_END_POINT}/verify-successful`);
     } catch (error) {
       const err = error as Error;
       // redirect user to website end point if error occurs
       res.redirect(
-        `${process.env.WEBSITE_END_POINT}/verify-email?error=true&errorMessage=${err.message}`
+        `${process.env.WEBSITE_END_POINT}/verify-failed?errorMessage=${err.message}`
       );
     }
   }
