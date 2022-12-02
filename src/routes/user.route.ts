@@ -88,6 +88,14 @@ class Auth extends AuthenticateMiddleware {
       this.userController.onlineRecordController
     );
   }
+  //delete user
+  public deleteUserRoute(): void {
+    this.router.delete(
+      "/user",
+      super.isAuthenticated,
+      this.userController.deleteUserController
+    );
+  }
 }
 
 export default Auth;

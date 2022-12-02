@@ -506,6 +506,23 @@ class User extends MediaLogic {
       next(error);
     }
   }
+  //online record
+  public async deleteUserController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const data = await new UserLogic().deleteUser(req?.body?.userId);
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "User delete successfully",
+        data: data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   // field validators for the user creation request
   public validateUpdateUserFields = [

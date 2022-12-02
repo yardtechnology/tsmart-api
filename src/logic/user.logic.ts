@@ -2,6 +2,7 @@ import MailController from "../controllers/mail.controller";
 import paginationHelper, {
   PaginationResult,
 } from "../helper/pagination.helper";
+import { NotificationSchema } from "../models";
 import { AddressModel } from "../models/address.model";
 import { CartItemModel } from "../models/cartItem.model";
 import { UserModel } from "../models/user.model";
@@ -146,7 +147,7 @@ class UserLogic {
     //delete all addresses
     await AddressModel.deleteMany({ user: userData._id });
     //delete all notifications
-    // await NotificationModel.deleteMany({ user: userData._id });
+    await NotificationSchema.deleteMany({ user: userData._id });
     const mediaLogic = new MediaLogic();
     // delete avatar
     userData.avatarPath && mediaLogic.deleteMedia(userData?.avatarPath);
