@@ -257,5 +257,15 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.orderDashboardController.card
     );
+    this.router.get(
+      "/dashboard/order/monthly",
+      super.isAuthenticated,
+      this.orderDashboardController.lastOneYearData
+    );
+    this.router.get(
+      "/dashboard/order/delivery-order",
+      super.isAuthenticated,
+      this.orderDashboardController.deliveryOrder
+    );
   }
 }
