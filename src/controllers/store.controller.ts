@@ -240,6 +240,7 @@ class Store extends MediaLogic {
     try {
       const { storeId } = req.params;
       // send response to client
+      const data = await new StoreLogic().deleteStore(req?.params.storeId);
       res.json({
         status: "SUCCESS",
         message: `${storeId} Stores delete in the todo list.`,
