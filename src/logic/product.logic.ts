@@ -896,11 +896,18 @@ class ProductLogic extends MediaLogic {
     stock: number;
     storeId: string;
   }) {
-    const productsStockData = await new ProductStockModel({
-      product: productId,
-      stock,
-      store: storeId,
-    }).save();
+    const productsStockData = await ProductStockModel.findOneAndUpdate(
+      {
+        product: productId,
+        store: storeId,
+      },
+      {
+        product: productId,
+        stock,
+        store: storeId,
+      },
+      { upset: true }
+    );
     return productsStockData;
   }
 
