@@ -304,9 +304,9 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       this.orderDashboardController.lastOneYearData
     );
     this.router.get(
-      "/dashboard/dashboard/month-wise-order",
+      "/dashboard/dashboard/repair-report",
       super.isAuthenticated,
-      this.orderDashboardController.lastOneYearData
+      this.dashboardDashboardController.repairReport
     );
   }
 }

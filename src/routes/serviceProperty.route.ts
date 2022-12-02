@@ -26,7 +26,7 @@ export default class ServicePropertyRoutes extends AuthenticateMiddleware {
     // get all
     this.router.get(
       "/service-property/:service",
-      super.isAuthenticated,
+      // super.isAuthenticated,
       ServicePropertyControllerValidation.getAll,
       this.servicePropertyController.getAll
     );
