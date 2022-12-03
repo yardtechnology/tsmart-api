@@ -37,7 +37,7 @@ class PaymentDashboardController {
                   {
                     $eq: ["$type", "REFURBISH"],
                   },
-                  1,
+                  "$price",
                   0,
                 ],
               },
@@ -48,7 +48,7 @@ class PaymentDashboardController {
                   {
                     $eq: ["$type", "ACCESSORY"],
                   },
-                  1,
+                  "$price",
                   0,
                 ],
               },
@@ -59,7 +59,7 @@ class PaymentDashboardController {
                   {
                     $eq: ["$serviceType", "IN_STOR"],
                   },
-                  1,
+                  "$price",
                   0,
                 ],
               },
@@ -71,7 +71,7 @@ class PaymentDashboardController {
                   {
                     $eq: ["$serviceType", "MAIL_IN"],
                   },
-                  1,
+                  "$price",
                   0,
                 ],
               },
@@ -82,7 +82,7 @@ class PaymentDashboardController {
                   {
                     $eq: ["$serviceType", "CALL_OUT"],
                   },
-                  1,
+                  "$price",
                   0,
                 ],
               },
