@@ -1,7 +1,7 @@
 FROM node:14
 ENV API_END_POINT=https://tsmart-api-core.herokuapp.com/api \
     APP_NAME=tSmart \
-    PHONE_NUMBER=+91 9438530447
+    PHONE_NUMBER=+91 9438530447 \
     ADDRESS=jf jyf jyfhukjyrf kyjhf vkujyfh \
     CLOUDINARY_API_KEY=115694213661119 \
     CLOUDINARY_API_SECRET=NzrczDJy3QijdLcqHK73pBMmUMs \
