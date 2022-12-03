@@ -30,14 +30,14 @@ class PaymentDashboardController {
         {
           $group: {
             _id: null,
-            total: { $sum: 1 },
+            total: { $sum: "$price" },
             refurbish: {
               $sum: {
                 $cond: [
                   {
                     $eq: ["$type", "REFURBISH"],
                   },
-                  1,
+                  "$price",
                   0,
                 ],
               },
@@ -48,7 +48,7 @@ class PaymentDashboardController {
                   {
                     $eq: ["$type", "ACCESSORY"],
                   },
-                  1,
+                  "$price",
                   0,
                 ],
               },
@@ -59,7 +59,7 @@ class PaymentDashboardController {
                   {
                     $eq: ["$serviceType", "IN_STOR"],
                   },
-                  1,
+                  "$price",
                   0,
                 ],
               },
@@ -71,7 +71,7 @@ class PaymentDashboardController {
                   {
                     $eq: ["$serviceType", "MAIL_IN"],
                   },
-                  1,
+                  "$price",
                   0,
                 ],
               },
@@ -82,7 +82,7 @@ class PaymentDashboardController {
                   {
                     $eq: ["$serviceType", "CALL_OUT"],
                   },
-                  1,
+                  "$price",
                   0,
                 ],
               },
@@ -188,7 +188,7 @@ class PaymentDashboardController {
           },
         ];
       }
-      query["type"] = "IN_STOR";
+      query["serviceType"] = "IN_STOR";
 
       const inStoreData = await paginationHelper({
         model: OrderModel,
@@ -224,7 +224,7 @@ class PaymentDashboardController {
           },
         ];
       }
-      query["type"] = "MAIL_IN";
+      query["serviceType"] = "MAIL_IN";
 
       const mailInData = await paginationHelper({
         model: OrderModel,
@@ -259,7 +259,7 @@ class PaymentDashboardController {
           },
         ];
       }
-      query["type"] = "CALL_OUT";
+      query["serviceType"] = "CALL_OUT";
 
       const callOutData = await paginationHelper({
         model: OrderModel,

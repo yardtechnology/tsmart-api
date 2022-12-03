@@ -285,6 +285,7 @@ class ServicePrice extends MediaLogic {
             _id: {
               service: "$service",
               model: "$model",
+              store: "$store",
             },
             cardSize: {
               $first: {
@@ -357,6 +358,58 @@ class ServicePrice extends MediaLogic {
             },
           },
         },
+        {
+          $group: {
+            _id: {
+              service: "$_id.service",
+              model: "$_id.model",
+              cardSize: "$cardSize",
+            },
+            cardSize: { $first: "$cardSize" },
+            longCard: { $first: "$longCard" },
+
+            id: {
+              $first: "$id",
+            },
+            service: {
+              $first: "$service",
+            },
+            model: {
+              $first: "$model",
+            },
+            image: {
+              $first: "$image",
+            },
+            // title: {
+            //   $first: "$title",
+            // },
+            // description: {
+            //   $first: "$description",
+            // },
+            store: {
+              $first: "$store",
+            },
+            isInStock: {
+              $first: "$isInStock",
+            },
+            salePrice: {
+              $first: "$salePrice",
+            },
+            mrp: {
+              $first: "$mrp",
+            },
+            type: {
+              $first: "$type",
+            },
+            isMostPopular: {
+              $first: "$isMostPopular",
+            },
+            createdAt: {
+              $first: "$createdAt",
+            },
+          },
+        },
+        //
         {
           $project: {
             longCard: {

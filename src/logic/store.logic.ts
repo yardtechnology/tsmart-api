@@ -180,9 +180,7 @@ class StoreLogic extends MediaLogic {
   //delete store
   public async deleteStore(storeId: string): Promise<StoreType> {
     // get storeData
-    const storeData: StoreType | null = await StoreModel.findByIdAndDelete(
-      storeId
-    );
+    const storeData: StoreType | null = await StoreModel.findById(storeId);
     if (!storeData) throw new Error("Store not found");
 
     //get all stores product

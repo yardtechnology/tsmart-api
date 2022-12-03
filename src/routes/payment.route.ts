@@ -25,3 +25,4 @@ class Payment extends AuthenticateMiddleware {
 }
 
 export default Payment;
+// change

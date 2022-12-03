@@ -473,7 +473,7 @@ class Order extends OrderLogic {
               status:
                 req?.currentUser?.role === "TECHNICIAN"
                   ? "TECHNICIAN_REACHED"
-                  : "REPAIRING_STATED",
+                  : "REPAIRING_STARTED",
             });
           } else {
             throw new Error("invalid startOtp");
