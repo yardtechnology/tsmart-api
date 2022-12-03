@@ -90,7 +90,7 @@ class AboutUs extends AboutUsLogic {
         query,
         limit: req.query.limit,
         chunk: req.query.chunk,
-        sort: { createdAt: -1 },
+        sort: { createdAt: 1 },
       });
       res.status(200).json({
         status: "SUCCESS",
