@@ -25,6 +25,7 @@ class Product extends AuthenticateMiddleware {
     this.getAllProductsIdRoute();
     this.addProductStockRoute();
     this.getProductStocksRoute();
+    this.removeProductStocksRoute();
     this.getStoresStocksRoute();
   }
 
@@ -142,6 +143,14 @@ class Product extends AuthenticateMiddleware {
       "/product-stock",
       this.isManager,
       this.productController.getProductStocksController
+    );
+  }
+  //remove product stock
+  private removeProductStocksRoute(): void {
+    this.router.get(
+      "/product-stock/:productStockId",
+      this.isManager,
+      this.productController.removeProductsStockController
     );
   }
   //add product stock

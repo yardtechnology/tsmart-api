@@ -818,6 +818,28 @@ class Product extends ProductLogic {
       next(error);
     }
   }
+  //remove product stock
+  public async removeProductsStockController(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      fieldValidateError(req);
+      const products = await super.removeProductStock({
+        productStockId: req.params?.productStockId,
+      });
+      // send response to client
+      res.status(200).json({
+        status: "SUCCESS",
+        message: "Product stock removed successfully",
+        data: products,
+      });
+    } catch (error) {
+      // send error to client
+      next(error);
+    }
+  }
 
   //get product stock
   public async getProductStocksController(
