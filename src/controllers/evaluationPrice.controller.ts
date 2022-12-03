@@ -1,6 +1,7 @@
 import { NextFunction, Response } from "express";
 import { body, param, validationResult } from "express-validator";
 import { BadRequest, InternalServerError, NotFound } from "http-errors";
+import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import { EvaluationPriceSchema } from "../models";
 import { AuthRequest } from "../types/core";
@@ -8,16 +9,7 @@ import { AuthRequest } from "../types/core";
 class EvaluationPriceController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new BadRequest(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
       const { price, evaluationId, modelId } = req.body;
 
       const evaluationCreate = await EvaluationPriceSchema.create({

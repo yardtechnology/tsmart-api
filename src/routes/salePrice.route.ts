@@ -33,7 +33,7 @@ export default class SalePriceRoutes extends AuthenticateMiddleware {
     this.router.get(
       "/sale-price/:modelId",
       SalePriceControllerValidation.getAll,
-      super.isAuthenticated,
+      // super.isAuthenticated,
 
       this.salePriceController.getAll
     );
