@@ -896,7 +896,12 @@ class ProductLogic extends MediaLogic {
     stock: number;
     storeId: string;
   }) {
-    const productsStockData = await ProductStockModel.findOneAndUpdate(
+    console.log({
+      productId,
+      stock,
+      storeId,
+    });
+    let productsStockData = await ProductStockModel.findOneAndUpdate(
       {
         product: productId,
         store: storeId,
@@ -905,9 +910,31 @@ class ProductLogic extends MediaLogic {
         product: productId,
         stock,
         store: storeId,
-      },
-      { upset: true }
+      }
     );
+    if (!productsStockData) {
+      productsStockData = await new ProductStockModel({
+        product: productId,
+        stock,
+        store: storeId,
+      }).save();
+    }
+    console.log({ productsStockData });
+    return productsStockData;
+  }
+  /**
+   * remove product stock in store to inform admin
+   */
+  public async removeProductStock({
+    productStockId,
+  }: {
+    productStockId: string;
+  }) {
+    const productsStockData = await ProductStockModel.findByIdAndDelete(
+      productStockId
+    );
+    if (!productsStockData) throw new Error("product stock not found");
+
     return productsStockData;
   }
 
