@@ -188,7 +188,7 @@ class PaymentDashboardController {
           },
         ];
       }
-      query["type"] = "IN_STOR";
+      query["serviceType"] = "IN_STOR";
 
       const inStoreData = await paginationHelper({
         model: OrderModel,
@@ -224,7 +224,7 @@ class PaymentDashboardController {
           },
         ];
       }
-      query["type"] = "MAIL_IN";
+      query["serviceType"] = "MAIL_IN";
 
       const mailInData = await paginationHelper({
         model: OrderModel,
@@ -259,7 +259,7 @@ class PaymentDashboardController {
           },
         ];
       }
-      query["type"] = "CALL_OUT";
+      query["serviceType"] = "CALL_OUT";
 
       const callOutData = await paginationHelper({
         model: OrderModel,
