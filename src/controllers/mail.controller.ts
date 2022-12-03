@@ -469,7 +469,7 @@ class MailController {
             
                                     </a>
                                 </div>
-                                <h3 style="text-align: center; padding: 1rem;">${process.env.PHONE_NUMBER}</h3>
+                                <h3 style="text-align: center; padding: 1rem;">+91 9438530447</h3>
                                 <p>Copyright © 2022 ${process.env.APP_NAME}</p>
                             </td>
                         </tr>
