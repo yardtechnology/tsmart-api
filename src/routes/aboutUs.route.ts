@@ -20,7 +20,7 @@ class AboutUs extends AuthenticateMiddleware {
   private createAboutUsRoute(): void {
     this.router.post(
       "/aboutUs",
-      super.isAdmin,
+      super.isAuthenticated,
       this.AboutUsController.createAboutUsController
     );
   }

@@ -59,6 +59,10 @@ export {
   PopularPageControllerValidation,
 } from "./popularPage.controller";
 export {
+  default as ReplayController,
+  ReplayControllerValidation,
+} from "./replay.controller";
+export {
   default as ReviewController,
   ReviewControllerValidation,
 } from "./review.controller";
