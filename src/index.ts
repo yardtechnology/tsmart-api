@@ -31,7 +31,7 @@ class App {
         {
           METHOD: req.method,
           PATH: req.path,
-          BODY: req?.body,
+          BODY: JSON.stringify(req?.body),
           ip: req.ip,
           AGENT: req?.get("user-agent")?.split("/")[0],
         },

@@ -170,6 +170,11 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.refurbishedDashboardController.card
     );
+    this.router.get(
+      "/dashboard/refurbished/month-wise-repair-in-store",
+      super.isAuthenticated,
+      this.refurbishedDashboardController.managerMonthly
+    );
     /**
      * TODO: total refurbished in percentage has left
      */
@@ -193,6 +198,11 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
     // ========================>>> BUY DASHBOARD <<================================================================
     this.router.get(
       "/dashboard/buy/card",
+      super.isAuthenticated,
+      this.buyDashboardController.card
+    );
+    this.router.get(
+      "/dashboard/buy/circular-graph",
       super.isAuthenticated,
       this.buyDashboardController.card
     );
