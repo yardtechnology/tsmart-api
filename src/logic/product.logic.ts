@@ -1,6 +1,7 @@
 import { Request } from "express";
 import { Types } from "mongoose";
 import paginationHelper, {
+  aggregationData,
   PaginationResult,
 } from "../helper/pagination.helper";
 import { CartItemModel } from "../models/cartItem.model";
@@ -436,23 +437,82 @@ class ProductLogic extends MediaLogic {
     chunk?: number;
     type?: string;
     storeId?: string;
-  }): Promise<PaginationResult<ProductType>> {
+  }): Promise<any> {
     return new Promise(async (resolve, reject) => {
       try {
-        const query: any = {
-          type: type,
-        };
-        !query.type && delete query.type;
-        storeId && (query["store"] = storeId);
-        console.log(query);
+        const matchArray: any[] = [
+          {
+            $eq: ["$_id", "$variantOf"],
+          },
+        ];
+        type &&
+          matchArray.push({
+            $eq: ["$type", type],
+          });
+        storeId &&
+          matchArray.push({
+            $eq: ["$store", new Types.ObjectId(storeId)],
+          });
+
+        const query = [
+          {
+            $match: {
+              $expr: {
+                $and: matchArray,
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: "categories",
+              localField: "category",
+              foreignField: "_id",
+              as: "category",
+            },
+          },
+          {
+            $unwind: {
+              path: "$category",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          {
+            $lookup: {
+              from: "colors",
+              localField: "color",
+              foreignField: "_id",
+              as: "color",
+            },
+          },
+          {
+            $unwind: {
+              path: "$color",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          {
+            $lookup: {
+              from: "memories",
+              localField: "memory",
+              foreignField: "_id",
+              as: "memory",
+            },
+          },
+          {
+            $unwind: {
+              path: "$memory",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+        ];
         // get all display products
-        const productData = await paginationHelper<ProductType>({
+        const productData = await aggregationData<ProductType>({
           model: ProductModel,
-          query,
+          query: query,
+          position: query.length,
           sort: { createdAt: -1 },
-          limit,
-          chunk,
-          populate: "category color memory",
+          limit: limit ? Number(limit) : undefined,
+          chunk: chunk ? Number(chunk) : undefined,
         });
 
         // send response to client
