@@ -147,7 +147,7 @@ class Product extends AuthenticateMiddleware {
   }
   //remove product stock
   private removeProductStocksRoute(): void {
-    this.router.get(
+    this.router.delete(
       "/product-stock/:productStockId",
       this.isManager,
       this.productController.removeProductsStockController
