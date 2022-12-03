@@ -244,8 +244,155 @@ class DashboardDashboardController {
       });
       res.status(200).json({
         status: "SUCCESS",
-        message: "Top Technician get successfully",
+        message: "Popular page get successfully",
         data: popularPage,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async monthWiseOrder(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const currentDateRoot = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        new Date().getDate()
+      );
+
+      const orderData = await OrderModel.aggregate([
+        {
+          $match: {
+            $expr: {
+              $in: ["$type", ["ACCESSORY", "REFURBISH"]],
+            },
+          },
+        },
+        {
+          $addFields: {
+            endDate: new Date(currentDateRoot),
+            startDate: {
+              $dateSubtract: {
+                startDate: new Date(currentDateRoot),
+                unit: "year",
+                amount: 1,
+              },
+            },
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $and: [
+                {
+                  $gte: ["$createdAt", "$startDate"],
+                },
+                {
+                  $lte: ["$createdAt", "$endDate"],
+                },
+              ],
+            },
+          },
+        },
+      ]);
+      res.json({
+        status: "SUCCESS",
+        message: "Order data found successfully.",
+        data: orderData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async repairReport(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const currentDateRoot = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        new Date().getDate()
+      );
+      const orderData = await OrderModel.aggregate([
+        {
+          $match: {
+            type: "REPAIR",
+          },
+        },
+        {
+          $addFields: {
+            endDate: new Date(currentDateRoot),
+            startDate: {
+              $dateSubtract: {
+                startDate: new Date(currentDateRoot),
+                unit: "year",
+                amount: 1,
+              },
+            },
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $and: [
+                {
+                  $gte: ["$createdAt", "$startDate"],
+                },
+                {
+                  $lte: ["$createdAt", "$endDate"],
+                },
+              ],
+            },
+          },
+        },
+        { $sort: { createdAt: -1 } },
+        {
+          $addFields: {
+            monthNumber: { $month: "$createdAt" },
+          },
+        },
+        {
+          $group: {
+            _id: "$monthNumber",
+            inStore: {
+              $sum: {
+                $cond: [
+                  {
+                    $eq: ["$serviceType", "IN_STOR"],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+            mailIn: {
+              $sum: {
+                $cond: [
+                  {
+                    $eq: ["$serviceType", "MAIL_IN"],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+            callIn: {
+              $sum: {
+                $cond: [
+                  {
+                    $eq: ["$serviceType", "CALL_OUT"],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+          },
+        },
+      ]);
+
+      res.json({
+        status: "SUCCESS",
+        message: "Repair graph data found successfully.",
+        data: orderData,
       });
     } catch (error) {
       next(error);
