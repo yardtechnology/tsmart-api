@@ -1346,6 +1346,7 @@ class Order extends OrderLogic {
         "TECHNICIAN_REACHED",
         "REPAIRED",
         "ADD_ON_SERVICE",
+        "REPAIRING_STATED",
       ])
       .withMessage("not a valid status"),
     body("eta")
