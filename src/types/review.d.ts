@@ -8,4 +8,5 @@ export default interface REVIEW_TYPE extends Document {
   user: ObjectId;
   store?: ObjectId;
   technician?: ObjectId;
+  isAdmin?: boolean;
 }
