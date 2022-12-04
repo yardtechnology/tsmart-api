@@ -267,6 +267,11 @@ class TimingController {
             },
           },
         },
+        {
+          $sort: {
+            startDateForm: -1,
+          },
+        },
       ]);
       res.status(200).json({
         status: "SUCCESS",
@@ -305,6 +310,9 @@ class TimingController {
             start: { $first: "$start" },
             end: { $last: "$end" },
           },
+        },
+        {
+          $sort: { _id: -1 },
         },
       ]);
       res.json({
@@ -429,7 +437,7 @@ export const TimingControllerValidation = {
   ],
 
   delete: [
-    param("storeId")
+    body("storeId")
       .not()
       .isEmpty()
       .withMessage("storeId is required.")
