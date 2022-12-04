@@ -78,7 +78,6 @@ class ReviewController {
           technician: technicianId,
           isAdmin,
           order: orderId,
-          user,
         },
         {
           upsert: true,
