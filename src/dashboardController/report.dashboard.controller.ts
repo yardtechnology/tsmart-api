@@ -8,6 +8,13 @@ class ReportDashboardController {
   async reportCount(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { startDate, endDate } = req.query;
+
+      const role = req?.currentUser?.role;
+      let managerQuery = {};
+      if (role === "MANAGER") {
+        const findUser = await UserModel.findById(req?.currentUser?._id);
+        managerQuery = { storeID: findUser?.store };
+      }
       const argQuery: any = {};
       if (startDate && endDate) {
         argQuery["$and"] = [
@@ -25,10 +32,12 @@ class ReportDashboardController {
       const totalJob = await OrderModel.find({
         serviceType: "CALL_OUT",
         ...argQuery,
+        ...managerQuery,
       }).count();
       const totalBrought = await OrderModel.find({
         type: { $in: ["ACCESSORY", "REFURBISH"] },
         ...argQuery,
+        ...managerQuery,
       }).count();
 
       res.json({
@@ -111,6 +120,7 @@ class ReportDashboardController {
   async totalBrought(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { startDate, endDate } = req.query;
+
       const query: any = {};
       if (startDate && endDate) {
         query["$and"] = [
@@ -125,6 +135,12 @@ class ReportDashboardController {
         ];
       }
       query["type"] = { $in: ["ACCESSORY", "REFURBISH"] };
+
+      const role = req?.currentUser?.role;
+      if (role === "MANAGER") {
+        const findUser = await UserModel.findById(req?.currentUser?._id);
+        query["storeID"] = findUser?.store;
+      }
 
       const totalBrought = await paginationHelper({
         model: OrderModel,

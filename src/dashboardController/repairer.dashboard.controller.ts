@@ -1,15 +1,24 @@
 import { NextFunction, Response } from "express";
+import { Types } from "mongoose";
 import { OrderModel } from "../models/order.model";
+import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
-
 class RepairerDashboardController {
   async repairerStatus(req: AuthRequest, res: Response, next: NextFunction) {
     try {
+      const role = req?.currentUser?.role;
+      let managerFilter: any[] = [{ $ifNull: ["$serviceType", false] }];
+      if (role === "MANAGER") {
+        const findUser = await UserModel.findById(req?.currentUser?._id);
+        managerFilter.push({
+          $eq: ["$store", new Types.ObjectId(findUser?.store?.toString())],
+        });
+      }
       const totalRepairerStatus = await OrderModel.aggregate([
         {
           $match: {
             $expr: {
-              $ifNull: ["$serviceType", false],
+              $and: managerFilter,
             },
           },
         },
@@ -83,7 +92,21 @@ class RepairerDashboardController {
         59
       );
       const lastSevenYear = [0, 1, 2, 3, 4, 5, 6];
+
+      const role = req?.currentUser?.role;
+      const managerFilter: any[] = [];
+      if (role === "MANAGER") {
+        const findUser = await UserModel.findById(req?.currentUser?._id);
+        managerFilter.push([
+          {
+            $match: {
+              store: new Types.ObjectId(findUser?.store?.toString()),
+            },
+          },
+        ]);
+      }
       const lastSevenYearData = await OrderModel.aggregate([
+        ...managerFilter,
         {
           $group: {
             _id: null,
@@ -185,26 +208,39 @@ class RepairerDashboardController {
   }
   async card(req: AuthRequest, res: Response, next: NextFunction) {
     try {
+      const role = req?.currentUser?.role;
+      let managerQuery = {};
+      if (role === "MANAGER") {
+        const findUser = await UserModel.findById(req?.currentUser?._id);
+        managerQuery = { store: findUser?.store };
+      }
+
       const inStoreRepairer = await OrderModel.find({
         serviceType: "IN_STOR",
+        ...managerQuery,
       }).count();
       const mailInRepairer = await OrderModel.find({
         serviceType: "MAIL_IN",
+        ...managerQuery,
       }).count();
       const callOutRepairer = await OrderModel.find({
         serviceType: "CALL_OUT",
+        ...managerQuery,
       }).count();
       const completeRepairer = await OrderModel.find({
         serviceType: { $exists: true },
         status: "COMPLETED",
+        ...managerQuery,
       }).count();
       const onGoingRepairer = await OrderModel.find({
         serviceType: { $exists: true },
         status: { $nin: ["COMPLETED", "CANCELLED"] },
+        ...managerQuery,
       }).count();
       const cancelRepairer = await OrderModel.find({
         serviceType: { $exists: true },
         status: "CANCELLED",
+        ...managerQuery,
       }).count();
 
       res.json({

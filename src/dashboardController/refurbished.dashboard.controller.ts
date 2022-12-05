@@ -1,6 +1,8 @@
 import { NextFunction, Response } from "express";
+import { Types } from "mongoose";
 import { OrderModel } from "../models/order.model";
 import { ProductModel } from "../models/product.model";
+import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
 
 class RefurbishedDashboardController {
@@ -10,10 +12,23 @@ class RefurbishedDashboardController {
     next: NextFunction
   ) {
     try {
+      const role = req?.currentUser?.role;
+      let managerFilter: any[] = [{ $eq: ["$type", "REFURBISHED"] }];
+      if (role === "MANAGER") {
+        const findUser = await UserModel.findById(req?.currentUser?._id);
+        managerFilter.push([
+          {
+            $eq: ["$store", new Types.ObjectId(findUser?.store?.toString())],
+          },
+        ]);
+      }
+
       const allProduct = await ProductModel.aggregate([
         {
           $match: {
-            type: "REFURBISHED",
+            $expr: {
+              $and: managerFilter,
+            },
           },
         },
 
@@ -121,8 +136,22 @@ class RefurbishedDashboardController {
         59
       );
 
+      const role = req?.currentUser?.role;
+      let managerQuery = {};
+      const managerFilter: any[] = [];
+      if (role === "MANAGER") {
+        const findUser = await UserModel.findById(req?.currentUser?._id);
+        managerQuery = { store: findUser?.store };
+        managerFilter.push([
+          {
+            $eq: ["$store", new Types.ObjectId(findUser?.store?.toString())],
+          },
+        ]);
+      }
+
       const totalRefurbished = await ProductModel.find({
         type: "REFURBISHED",
+        ...managerQuery,
       }).count();
       const todayRefurbished = await ProductModel.aggregate([
         {
@@ -138,6 +167,7 @@ class RefurbishedDashboardController {
                 {
                   $lte: ["$createdAt", new Date(currentYearHighDate)],
                 },
+                ...managerFilter,
               ],
             },
           },
