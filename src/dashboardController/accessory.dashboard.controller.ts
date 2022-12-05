@@ -1,7 +1,9 @@
 import { NextFunction, Response } from "express";
+import { Types } from "mongoose";
 import paginationHelper, { aggregationData } from "../helper/pagination.helper";
 import { CategoryModel } from "../models/category.model";
 import { ProductModel } from "../models/product.model";
+import { UserModel } from "../models/user.model";
 import CategoryType from "../types/category";
 import { AuthRequest } from "../types/core";
 
@@ -9,6 +11,18 @@ class AccessoryDashboardController {
   async circularGraph(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { limit, chunk } = req.query;
+      const role = req?.currentUser?.role;
+      let managerFilter: any[] = [];
+      if (role === "MANAGER") {
+        const findUser = await UserModel.findById(req?.currentUser?._id);
+        managerFilter = [
+          {
+            $eq: ["$store", new Types.ObjectId(findUser?.store?.toString())],
+          },
+        ];
+      }
+
+      //  req?.currentUser?._id
       const aggregationQuery = [
         {
           $lookup: {
@@ -19,7 +33,14 @@ class AccessoryDashboardController {
             pipeline: [
               {
                 $match: {
-                  type: "ACCESSORY",
+                  $expr: {
+                    $and: [
+                      {
+                        $eq: ["$type", "ACCESSORY"],
+                      },
+                      ...managerFilter,
+                    ],
+                  },
                 },
               },
             ],
