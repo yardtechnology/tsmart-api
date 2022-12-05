@@ -1,12 +1,26 @@
 import { NextFunction, Response } from "express";
+import { Types } from "mongoose";
 import { OrderModel } from "../models/order.model";
-// import { nextTick } from "process";/
+import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
 
 export default class OrderDashboardController {
   async card(req: AuthRequest, res: Response, next: NextFunction) {
     try {
+      const role = req?.currentUser?.role;
+      let managerFilter: any[] = [];
+      if (role === "MANAGER") {
+        const findUser = await UserModel.findById(req?.currentUser?._id);
+        managerFilter = [
+          {
+            $match: {
+              storeID: new Types.ObjectId(findUser?.store?.toString()),
+            },
+          },
+        ];
+      }
       const orderCard = await OrderModel.aggregate([
+        ...managerFilter,
         {
           $match: {
             $expr: {
@@ -97,6 +111,18 @@ export default class OrderDashboardController {
 
   async lastOneYearData(req: AuthRequest, res: Response, next: NextFunction) {
     try {
+      const role = req?.currentUser?.role;
+      let managerFilter: any[] = [];
+      if (role === "MANAGER") {
+        const findUser = await UserModel.findById(req?.currentUser?._id);
+        managerFilter = [
+          {
+            $match: {
+              storeID: new Types.ObjectId(findUser?.store?.toString()),
+            },
+          },
+        ];
+      }
       const currentDateRoot = new Date(
         new Date().getFullYear(),
         new Date().getMonth()
@@ -117,6 +143,7 @@ export default class OrderDashboardController {
         "Dec",
       ];
       const lastOneYearOrder = await OrderModel.aggregate([
+        ...managerFilter,
         {
           $match: {
             $expr: {

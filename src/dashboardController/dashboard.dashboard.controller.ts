@@ -1,4 +1,5 @@
 import { NextFunction, Response } from "express";
+import { Types } from "mongoose";
 import { paginationHelper } from "../helper";
 import { PopularPageSchema, VisitorSchema } from "../models";
 import { OrderModel } from "../models/order.model";
@@ -8,7 +9,21 @@ import { AuthRequest } from "../types/core";
 class DashboardDashboardController {
   async card(req: AuthRequest, res: Response, next: NextFunction) {
     try {
+      const role = req?.currentUser?.role;
+      let managerFilter: any[] = [];
+      if (role === "MANAGER") {
+        const findUser = await UserModel.findById(req?.currentUser?._id);
+        managerFilter = [
+          {
+            $match: {
+              storeID: new Types.ObjectId(findUser?.store?.toString()),
+            },
+          },
+        ];
+      }
+
       const orderCount = await OrderModel.aggregate([
+        ...managerFilter,
         {
           $group: {
             _id: null,
@@ -149,13 +164,39 @@ class DashboardDashboardController {
 
   async stock(req: AuthRequest, res: Response, next: NextFunction) {
     try {
+      const role = req?.currentUser?.role;
+      let managerFilter: any[] = [];
+      let productStuck: any[] = [];
+      if (role === "MANAGER") {
+        const findUser = await UserModel.findById(req?.currentUser?._id);
+        managerFilter = [
+          {
+            store: new Types.ObjectId(findUser?.store?.toString()),
+          },
+        ];
+        productStuck = [
+          {
+            $match: { store: new Types.ObjectId(findUser?.store?.toString()) },
+          },
+        ];
+      }
+      !productStuck?.length &&
+        productStuck.push({
+          $project: {
+            product: 1,
+            stock: 1,
+            store: 1,
+          },
+        });
       const productCount = await ProductModel.aggregate([
+        ...managerFilter,
         {
           $lookup: {
             from: "productstocks",
             localField: "_id",
             foreignField: "product",
             as: "storeStock",
+            pipeline: productStuck,
           },
         },
         {
@@ -174,7 +215,7 @@ class DashboardDashboardController {
                     },
                   },
                 },
-                9,
+                0,
               ],
             },
           },
@@ -258,12 +299,25 @@ class DashboardDashboardController {
         new Date().getMonth(),
         new Date().getDate()
       );
+      const role = req?.currentUser?.role;
+      const managerFilter: any[] = [
+        {
+          $in: ["$type", ["ACCESSORY", "REFURBISH"]],
+        },
+      ];
+      if (role === "MANAGER") {
+        const findUser = await UserModel.findById(req?.currentUser?._id);
+        managerFilter.push({
+          $eq: ["$storeID", new Types.ObjectId(findUser?.store?.toString())],
+        });
+      }
 
       const orderData = await OrderModel.aggregate([
+        ...managerFilter,
         {
           $match: {
             $expr: {
-              $in: ["$type", ["ACCESSORY", "REFURBISH"]],
+              $and: managerFilter,
             },
           },
         },
@@ -311,10 +365,25 @@ class DashboardDashboardController {
         new Date().getMonth(),
         new Date().getDate()
       );
+      const role = req?.currentUser?.role;
+      const managerFilter: any[] = [
+        {
+          $eq: ["$type", "REPAIR"],
+        },
+      ];
+      if (role === "MANAGER") {
+        const findUser = await UserModel.findById(req?.currentUser?._id);
+        managerFilter.push({
+          $eq: ["$storeID", new Types.ObjectId(findUser?.store?.toString())],
+        });
+      }
+
       const orderData = await OrderModel.aggregate([
         {
           $match: {
-            type: "REPAIR",
+            $expr: {
+              $and: managerFilter,
+            },
           },
         },
         {
