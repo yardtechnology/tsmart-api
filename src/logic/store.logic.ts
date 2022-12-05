@@ -181,8 +181,6 @@ class StoreLogic extends MediaLogic {
     // get storeData
     const storeData: StoreType | null = await StoreModel.findById(storeId);
     if (!storeData) throw new Error("Store not found");
-    //if some one delete the hub
-    if (storeData.type === "HUB") throw new Error("Hove can not be deleted");
 
     //get all stores product
     const allStoresProducts = await ProductModel.find({

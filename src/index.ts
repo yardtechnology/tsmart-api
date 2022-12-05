@@ -4,14 +4,37 @@ import uploader from "express-fileupload";
 import fs from "fs";
 import mongoose from "mongoose";
 import path from "path";
+import incomingBookingsRoute from "./socket/incomingBooking.socket";
+import positionRoute from "./socket/position.socket";
+import serviceRoute from "./socket/service.socket";
+import http = require("http");
 require("dotenv").config();
 
 class App {
   public express: express.Application;
   private PORT = process.env.PORT || 8000;
+  private server: any;
+  private Io: any;
+  // = require("socket.io")(server, {
+  //   cors: {
+  //     origin: "*",
+  //     methods: ["GET", "POST"],
+  //     allowedHeaders: ["my-custom-header"],
+  //     credentials: true,
+  //   },
+  // });
 
   constructor() {
     this.express = express();
+    this.server = http.createServer(this.express);
+    this.Io = require("socket.io")(this.server, {
+      cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+        allowedHeaders: ["my-custom-header"],
+        credentials: true,
+      },
+    });
     this.connectDB();
     this.middleware();
     this.routes();
@@ -75,7 +98,13 @@ class App {
   }
 
   public listen(): void {
-    this.express.listen(this.PORT, () => {
+    this.server.listen(this.PORT, () => {
+      this.Io.of("/incoming-job").on(
+        "connection",
+        incomingBookingsRoute(this.Io)
+      );
+      this.Io.of("/service").on("connection", serviceRoute(this.Io));
+      this.Io.of("/position").on("connection", positionRoute(this.Io));
       console.log(
         `>>>>>>>>>>>>>> Listening at port ${this.PORT} <<<<<<<<<<<<<<`
       );
