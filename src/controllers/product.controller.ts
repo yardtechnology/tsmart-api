@@ -896,8 +896,11 @@ class Product extends ProductLogic {
 
   async productTemp(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const hubId = "63808bd7be93a20006ce2d05";
-      const updateData = await ProductModel.updateMany({}, { store: hubId });
+      const hubId = "633e661162ad6ca32d956bcf";
+      const updateData = await ProductModel.updateMany(
+        { store: { $exists: false } },
+        { store: hubId }
+      );
       res.json({ data: updateData });
     } catch (error) {
       next(error);
