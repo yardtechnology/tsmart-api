@@ -40,7 +40,7 @@ class ReviewController {
       }
       //if rating for product
       if (productId) {
-        await ProductModel.findByIdAndUpdate(technicianId, {
+        await ProductModel.findByIdAndUpdate(productId, {
           $inc: {
             "reviews.total": 1,
             "reviews.stars": Number(ratings),
