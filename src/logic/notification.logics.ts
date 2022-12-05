@@ -40,6 +40,7 @@ export default class NotificationLogic {
         new NotificationSchema({
           title,
           description: body,
+          user: user?._id,
         }).save();
         if (user?.fcmTokens) return Object.values(user.fcmTokens);
         return [];
