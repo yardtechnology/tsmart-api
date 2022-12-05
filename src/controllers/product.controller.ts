@@ -879,7 +879,7 @@ class Product extends ProductLogic {
         query: { product: req.params?.productId },
         limit: req.query?.limit ? Number(req.query?.limit) : undefined,
         chunk: req.query?.chunk ? Number(req.query?.chunk) : undefined,
-        populate: "product store",
+        populate: "product store color memory category",
         sort: { createdAt: -1 },
       });
       // send response to client

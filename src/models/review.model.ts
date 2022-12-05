@@ -40,6 +40,10 @@ const reviewSchema = new Schema<REVIEW_TYPE, Model<REVIEW_TYPE>>(
       type: Schema.Types.ObjectId,
       ref: "Order",
     },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

@@ -13,8 +13,15 @@ class ReviewController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       fieldValidateError(req);
-      const { comment, ratings, productId, storeId, technicianId, orderId } =
-        req.body;
+      const {
+        comment,
+        ratings,
+        productId,
+        storeId,
+        technicianId,
+        orderId,
+        isAdmin,
+      } = req.body;
       const user = req?.currentUser?._id;
       let queryArg: any = {};
 
@@ -69,6 +76,8 @@ class ReviewController {
           user,
           store: storeId,
           technician: technicianId,
+          isAdmin,
+          order: orderId,
         },
         {
           upsert: true,
@@ -98,6 +107,7 @@ class ReviewController {
         userId,
         technicianId,
         orderId,
+        isAdmin,
       } = req.query;
 
       const query: any = {};
@@ -107,6 +117,7 @@ class ReviewController {
       userId && (query["user"] = userId);
       technicianId && (query["technician"] = technicianId);
       orderId && (query["order"] = orderId);
+      isAdmin && (query["isAdmin"] = true);
       const getAllData = await paginationHelper({
         model: ReviewSchema,
         query,
@@ -130,6 +141,9 @@ class ReviewController {
             path: "product",
             select:
               "title shortDescription description mrp images displayImage salePrice",
+          },
+          {
+            path: "order",
           },
         ],
         sort: {
@@ -221,6 +235,7 @@ export const ReviewControllerValidation = {
         body("technicianId")
           .isMongoId()
           .withMessage("technicianId should be mongoose id."),
+        body("isAdmin").isBoolean().withMessage("isAdmin should be boolean"),
       ],
       "productId or technicianId or storeId one id is required."
     ),

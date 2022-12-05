@@ -207,7 +207,7 @@ class ServicePrice extends MediaLogic {
       fieldValidateError(req);
 
       const { model } = req.params;
-      const { serviceId, servicePriceId } = req.query;
+      const { serviceId, servicePriceId, storeId } = req.query;
       const serviceArg = [];
       serviceId &&
         serviceArg.push({
@@ -230,6 +230,10 @@ class ServicePrice extends MediaLogic {
       servicePriceId &&
         matchArray.push({
           $eq: ["$_id", new Types.ObjectId(String(servicePriceId))],
+        });
+      storeId &&
+        matchArray.push({
+          $eq: ["$store", new Types.ObjectId(String(storeId))],
         });
       const aggregationQuery: any[] = [
         {
@@ -664,6 +668,11 @@ export const ServicePriceControllerValidation = {
       .withMessage("model id is required.")
       .isMongoId()
       .withMessage("model must be mongoose id."),
+    query("storeId")
+      .optional()
+      .exists()
+      .isMongoId()
+      .withMessage("storeId must be mongoose id."),
     query("serviceId")
       .optional()
       .exists()
