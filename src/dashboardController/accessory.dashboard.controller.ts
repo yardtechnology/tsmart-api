@@ -107,11 +107,19 @@ class AccessoryDashboardController {
         59,
         59
       );
+      const role = req?.currentUser?.role;
+      let managerQuery = {};
+      if (role === "MANAGER") {
+        const findUser = await UserModel.findById(req?.currentUser?._id);
+        managerQuery = { store: findUser?.store };
+      }
       const totalAccessories = await ProductModel.find({
         type: "ACCESSORY",
+        ...managerQuery,
       }).count();
       const totalTodayAccessories = await ProductModel.find({
         type: "ACCESSORY",
+        ...managerQuery,
         $and: [
           { createdAt: { $gte: new Date(currentDateRoot) } },
           {
@@ -132,10 +140,16 @@ class AccessoryDashboardController {
   async topAccessories(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { limit, chunk } = req.query;
+      const role = req?.currentUser?.role;
+      let managerQuery = {};
+      if (role === "MANAGER") {
+        const findUser = await UserModel.findById(req?.currentUser?._id);
+        managerQuery = { store: findUser?.store };
+      }
 
       const getAll = await paginationHelper({
         model: ProductModel,
-        query: { type: "ACCESSORY" },
+        query: { type: "ACCESSORY", ...managerQuery },
         chunk: chunk ? Number(chunk) : undefined,
         limit: limit ? Number(limit) : undefined,
         select: "",
