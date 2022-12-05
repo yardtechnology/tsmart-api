@@ -626,6 +626,78 @@ class Product extends ProductLogic {
         },
         // color lookup end
         ...productVariant,
+
+        // MAKE LOOKUP
+
+        {
+          $lookup: {
+            from: "makes",
+            localField: "make",
+            foreignField: "_id",
+            as: "make",
+            pipeline: [
+              {
+                $project: {
+                  title: 1,
+                  image: 1,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: {
+            path: "$make",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "devices",
+            localField: "device",
+            foreignField: "_id",
+            as: "device",
+            pipeline: [
+              {
+                $project: {
+                  title: 1,
+                  image: 1,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: {
+            path: "$device",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+
+        {
+          $lookup: {
+            from: "models",
+            localField: "model",
+            foreignField: "_id",
+            as: "model",
+            pipeline: [
+              {
+                $project: {
+                  title: 1,
+                  description: 1,
+
+                  image: 1,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: {
+            path: "$model",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
       ]);
 
       res.json({
