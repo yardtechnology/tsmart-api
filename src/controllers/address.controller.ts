@@ -264,11 +264,10 @@ class Address {
       .not()
       .isEmpty()
       .withMessage("zip")
-      .isInt()
       .isLength({ min: 5 })
-      .withMessage("zip code must be grater then 5 digit")
+      .withMessage("zip code must be grater then 5 characters")
       .isLength({ max: 11 })
-      .withMessage("zip code must be at most 11 digit"),
+      .withMessage("zip code must be at most 11 characters"),
     body("isDefault")
       .optional()
       .isBoolean()
@@ -345,11 +344,10 @@ class Address {
       .withMessage("Please enter a valid email"),
     body("zip")
       .optional()
-      .isInt()
       .isLength({ min: 5 })
-      .withMessage("zip code must be grater then 5 digit")
+      .withMessage("zip code must be grater then 5 characters")
       .isLength({ max: 11 })
-      .withMessage("zip code must be at most 11 digit"),
+      .withMessage("zip code must be at most 11 characters"),
     body("isDefault")
       .optional()
       .isBoolean()
