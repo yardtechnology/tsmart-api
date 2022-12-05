@@ -613,7 +613,11 @@ class OrderLogic extends MediaLogic {
       const baseDir = path.join(__dirname, "..", "..", "uploads");
       const htmlFilePath = `${baseDir}/invoice-${orderData?.orderData?._id}.html`;
       await fs.writeFile(htmlFilePath, invoiceTemplate);
-      const browser = await puppeteer.launch({ headless: true });
+      const browser = await puppeteer.launch({
+        headless: true,
+        executablePath: "/usr/bin/google-chrome",
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      });
       const page = await browser.newPage();
       await page.goto(htmlFilePath, {
         waitUntil: "networkidle0",
