@@ -22,7 +22,7 @@ const addressSchema = new Schema<AddressType>(
     city: String,
     state: String,
     country: String,
-    zip: Number,
+    zip: String,
     isDefault: {
       type: Boolean,
       default: false,

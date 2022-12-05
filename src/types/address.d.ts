@@ -13,7 +13,7 @@ export default interface AddressType extends Document {
   city: string;
   state: string;
   country: string;
-  zip: number;
+  zip: string;
   isDefault: boolean;
   latitude: number;
   longitude: number;
