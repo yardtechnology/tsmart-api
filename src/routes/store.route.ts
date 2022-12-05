@@ -55,7 +55,7 @@ class Category extends AuthenticateMiddleware {
     // get store
     this.router.get(
       "/store/:storeId",
-      super.isAuthenticated,
+      // super.isAuthenticated,
       this.storeController.getStore
     );
     // get all stores
