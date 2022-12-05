@@ -48,15 +48,10 @@ class Auth extends AuthLogic {
 
       //if the number is not a white listed number then send otp to there number
       if (!whiteListedUserData) {
-        sendSMS(
-          `+${newUser?.country?.code}${newUser?.phoneNumber}`,
-          `${activeOTP.otp}`,
-          false
-        );
-        // new SMSLogic().sendOTP({
-        //   message: `your otp is ${activeOTP?.otp}`,
-        //   phoneNumber: `${newUser?.country?.code}${newUser?.phoneNumber}`,
-        // });
+        sendSMS({
+          phoneNumber: `+${newUser?.country?.code}${newUser?.phoneNumber}`,
+          message: `your one time password is ${activeOTP.otp}`,
+        });
       }
 
       // send response to client

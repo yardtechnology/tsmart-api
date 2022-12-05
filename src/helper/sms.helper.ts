@@ -1,25 +1,34 @@
 const fetch = require("node-fetch");
 
-export const sendSMS = (
-  phoneNumbers: string,
-  message: string,
-  isCall: boolean
-) =>
+export const sendSMS = ({
+  phoneNumber,
+  message,
+}: {
+  phoneNumber: string;
+  message: string;
+}) =>
   new Promise(async (resolve, reject) => {
     try {
-      const options = {
-        authorization: process.env.FTS_KEY,
-        message,
-        numbers: phoneNumbers,
-      };
-
-      // const data = await fast2sms.sendMessage(options);
-      const response = await fetch(
-        `https://2factor.in/API/V1/${process.env.FTS_KEY}/${
-          isCall ? "VOICE" : "SMS"
-        }/${phoneNumbers}/${isCall ? message : `${message}/temp1`}`
-      );
-      resolve(response);
+      const username = process.env.SMS_USERNAME;
+      const password = process.env.SMS_PASSWORD;
+      const auth =
+        "Basic " + Buffer.from(username + ":" + password).toString("base64");
+      const response = await fetch(`https://rest.clicksend.com/v3/sms/send`, {
+        method: "POST",
+        headers: {
+          Authorization: auth,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              body: message,
+              to: phoneNumber,
+            },
+          ],
+        }),
+      });
+      resolve(await response.json());
     } catch (error) {
       reject(error);
     }
