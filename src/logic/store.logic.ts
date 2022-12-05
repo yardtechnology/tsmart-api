@@ -1,6 +1,5 @@
 import { Types } from "mongoose";
 import paginationHelper from "../helper/pagination.helper";
-import { AddressModel } from "../models/address.model";
 import { ProductModel } from "../models/product.model";
 import { StoreModel } from "../models/store.model";
 import { UserModel } from "../models/user.model";
@@ -205,15 +204,6 @@ class StoreLogic extends MediaLogic {
         store: null,
       }
     );
-
-    // //delete all store manager assigned to store
-    // for (const manager of allStoresManagers) {
-    //   await new UserLogic().deleteUser(manager?._id);
-    // }
-
-    //delete store address
-    await AddressModel.findByIdAndDelete(storeData?.address);
-
     // delete image
     storeData?.imagePath && super.deleteMedia(storeData?.imagePath);
 
