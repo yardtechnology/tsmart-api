@@ -1,23 +1,22 @@
 import nodemailer from "nodemailer";
 
 class MailController {
-  public transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.EMAIL_SERVICE_PASSWORD,
-    },
-  });
-
   // public transporter = nodemailer.createTransport({
-  //   host: "smtp.zoho.eu",
-  //   port: 465,
-  //   secure: true,
+  //   service: "gmail",
   //   auth: {
   //     user: process.env.EMAIL,
   //     pass: process.env.EMAIL_SERVICE_PASSWORD,
   //   },
   // });
+
+  public transporter = nodemailer.createTransport({
+    host: "smtp.zeptomail.eu",
+    port: 587,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_SERVICE_PASSWORD,
+    },
+  });
 
   // send mail with subject and text
   public async sendMail({
