@@ -383,6 +383,20 @@ class Order extends OrderLogic {
               " "
             )}`,
           });
+          //SEND INVOICE TO USER
+          if (orderData?.user?.email) {
+            new OrderLogic().sendInvoiceToMail({
+              mail: orderData?.user?.email,
+              orderId: orderData?._id,
+            });
+          }
+          //SEND INVOICE TO DELIVERED ADDRESS
+          // if (orderData?.address?.email) {
+          //   new OrderLogic().sendInvoiceToMail({
+          //     mail: orderData?.address?.email,
+          //     orderId: orderData?._id,
+          //   });
+          // }
           break;
         case "COMPLETED":
           new NotificationLogic().pushNotification({

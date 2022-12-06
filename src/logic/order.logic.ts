@@ -19,12 +19,8 @@ import { ServicePriceModel } from "./../models/servicePrice.model";
 import EvaluationLogic from "./evaluation.logic";
 import MediaLogic from "./media.logic";
 // import NotificationLogic from "./notification.logic";
-import fs from "fs";
-import fs_promised from "fs/promises";
-import pdf from "html-pdf";
 import { Unauthorized } from "http-errors";
 import { Types } from "mongoose";
-import path from "path";
 import MailController from "../controllers/mail.controller";
 import InvoiceLogic from "./invoice.logic";
 class OrderLogic extends MediaLogic {
@@ -598,7 +594,7 @@ class OrderLogic extends MediaLogic {
   public async sendInvoiceToMail({
     orderId,
     mail,
-    isDownload,
+    isDownload = false,
   }: {
     orderId: string;
     mail: string;
@@ -609,53 +605,64 @@ class OrderLogic extends MediaLogic {
       if (isDownload) {
         return orderData?.invoiceHTML;
       }
-      if (!fs.existsSync(path.join(__dirname, "..", "..", "uploads")))
-        await fs_promised.mkdir(path.join(__dirname, "..", "..", "uploads"));
-      pdf
-        .create(orderData?.invoiceHTML, { format: "A4" })
-        .toFile(
-          path.join(
-            __dirname,
-            "..",
-            "..",
-            "uploads",
-            `invoice-${orderData?.orderData?._id}.pdf`
-          ),
-          (writeFileErr: any, result: any) => {
-            if (writeFileErr) throw new Error("Error in creating pdf");
-            fs.readFile(
-              path.join(
-                __dirname,
-                "..",
-                "..",
-                "uploads",
-                `invoice-${orderData?.orderData?._id}.pdf`
-              ),
-              async (err: any, data: any) => {
-                try {
-                  if (err)
-                    throw new Error("Error while reading file in Invoice mail");
-                  console.log({ data });
-                  const mailOptions = {
-                    from: process.env.EMAIL,
-                    to: mail,
-                    subject: `Invoice for your ride ${orderData?.orderData?._id}`,
-                    html: orderData?.invoiceHTML,
-                    attachments: [
-                      {
-                        filename: `invoice-${orderData?.orderData?._id}.pdf`,
-                        content: data,
-                      },
-                    ],
-                  };
-                  await new MailController().transporter.sendMail(mailOptions);
-                } catch (error) {
-                  throw new Error("Error while reading file");
-                }
-              }
-            );
-          }
-        );
+      const mailOptions = {
+        from: process.env.EMAIL,
+        to: mail,
+        subject: `Invoice for your ride ${orderData?.orderData?._id}`,
+        html: orderData?.invoiceHTML,
+      };
+      return await new MailController().transporter.sendMail(mailOptions);
+
+      /** USING PACKAGE */
+      // if (!fs.existsSync(path.join(__dirname, "..", "..", "uploads")))
+      //   await fs_promised.mkdir(path.join(__dirname, "..", "..", "uploads"));
+      // pdf
+      //   .create(orderData?.invoiceHTML, { format: "A4" })
+      //   .toFile(
+      //     path.join(
+      //       __dirname,
+      //       "..",
+      //       "..",
+      //       "uploads",
+      //       `invoice-${orderData?.orderData?._id}.pdf`
+      //     ),
+      //     (writeFileErr: any, result: any) => {
+      //       if (writeFileErr) throw new Error("Error in creating pdf");
+      //       fs.readFile(
+      //         path.join(
+      //           __dirname,
+      //           "..",
+      //           "..",
+      //           "uploads",
+      //           `invoice-${orderData?.orderData?._id}.pdf`
+      //         ),
+      //         async (err: any, data: any) => {
+      //           try {
+      //             if (err)
+      //               throw new Error("Error while reading file in Invoice mail");
+      //             console.log({ data });
+      //             const mailOptions = {
+      //               from: process.env.EMAIL,
+      //               to: mail,
+      //               subject: `Invoice for your ride ${orderData?.orderData?._id}`,
+      //               html: orderData?.invoiceHTML,
+      //               attachments: [
+      //                 {
+      //                   filename: `invoice-${orderData?.orderData?._id}.pdf`,
+      //                   content: data,
+      //                 },
+      //               ],
+      //             };
+      //             await new MailController().transporter.sendMail(mailOptions);
+      //           } catch (error) {
+      //             throw new Error("Error while reading file");
+      //           }
+      //         }
+      //       );
+      //     }
+      //   );
+
+      /** CUSTOM MADE */
       // const invoiceTemplate = orderData?.invoiceHTML;
       // const baseDir = path.join(__dirname, "..", "..", "uploads");
       // const htmlFilePath = `${baseDir}/invoice-${orderData?.orderData?._id}.html`;
