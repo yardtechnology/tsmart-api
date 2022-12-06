@@ -47,4 +47,5 @@ export default interface CONFIG_TYPE extends Document {
   ourWarranty: string;
   storeRange: number;
   orderCancelTime: number; // in minutes
+  newsLatterEmails: string[];
 }

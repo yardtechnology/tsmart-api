@@ -25,5 +25,11 @@ export default class ConfigRoutes extends AuthenticateMiddleware {
       super.isAuthenticated,
       this.configController.getAll
     );
+    // add news latter
+    this.router.post(
+      "/config/news-latter",
+      ConfigControllerValidation.newsLatter,
+      this.configController.addNewsLatter
+    );
   }
 }

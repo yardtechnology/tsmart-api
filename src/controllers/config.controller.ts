@@ -125,6 +125,22 @@ class ConfigController {
       next(error);
     }
   }
+  async addNewsLatter(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      await ConfigSchema.findOneAndUpdate(
+        {},
+        {
+          $push: { newsLatterEmails: req?.body?.email },
+        }
+      );
+      res.json({
+        status: "SUCCESS",
+        message: "Your email added to news latter successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 export const ConfigControllerValidation = {
   create: [
@@ -247,6 +263,14 @@ export const ConfigControllerValidation = {
       .optional()
       .isBoolean()
       .withMessage("technicianIosIsDismissible must be boolean."),
+  ],
+  newsLatter: [
+    body("email")
+      .not()
+      .isEmpty()
+      .withMessage("email is required")
+      .isEmail()
+      .withMessage("please enter a valid email"),
   ],
 };
 

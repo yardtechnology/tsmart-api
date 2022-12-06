@@ -99,6 +99,7 @@ const configSchema = new Schema<CONFIG_TYPE, Model<CONFIG_TYPE>>(
     ourWarranty: String,
     storeRange: Number,
     orderCancelTime: Number,
+    newsLatterEmails: [],
   },
   { timestamps: true }
 );
