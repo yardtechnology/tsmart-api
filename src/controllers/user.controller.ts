@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body, validationResult } from "express-validator";
-import { NotAcceptable } from "http-errors";
+import { NotAcceptable, Unauthorized } from "http-errors";
 import { getTimeDeference } from "../helper/core.helper";
 import JWTLogic from "../logic/jwt.logic";
 import MediaLogic from "../logic/media.logic";
@@ -174,6 +174,9 @@ class User extends MediaLogic {
         .select("-encrypted_password -salt -verificationInfo -refreshTokens");
 
       if (!userData) throw new Error("User not found");
+      //if user is blocked
+      if (userData?.blockStatus === "BLOCKED")
+        throw new Unauthorized("User is blocked");
 
       let cartCount;
       try {
