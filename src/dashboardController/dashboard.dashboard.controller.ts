@@ -171,7 +171,9 @@ class DashboardDashboardController {
         const findUser = await UserModel.findById(req?.currentUser?._id);
         managerFilter = [
           {
-            store: new Types.ObjectId(findUser?.store?.toString()),
+            $match: {
+              store: new Types.ObjectId(findUser?.store?.toString()),
+            },
           },
         ];
         productStuck = [
