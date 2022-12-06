@@ -1,19 +1,13 @@
-import { v2 as cloudinary } from "cloudinary";
+import AWS, { S3 } from "aws-sdk";
 import { UploadedFile } from "express-fileupload";
-import fs from "fs";
+import { v4 as uuidv4 } from "uuid";
 import { ImageType } from "../types/core";
-
 class MediaLogic {
+  private s3: S3;
   constructor() {
-    this.cloudinaryConfig();
-  }
-
-  //   cloudinary config
-  public cloudinaryConfig() {
-    cloudinary.config({
-      cloud_name: process.env.CLOUDINARY_NAME,
-      api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET,
+    this.s3 = new AWS.S3({
+      accessKeyId: process.env.AWS_ACCESSKEYID,
+      secretAccessKey: process.env.AWS_SECRETACCESSKEY,
     });
   }
 
@@ -24,15 +18,26 @@ class MediaLogic {
   ): Promise<{ url: string; path: string }> {
     return new Promise(async (resolve, reject) => {
       try {
-        const result = await cloudinary.uploader.upload(file.tempFilePath, {
-          folder: `TSMART/${folder || "common"}`,
-          resource_type: file?.mimetype.split("/")[0],
+        const params = {
+          Bucket: process.env.AWS_BUCKET_NAME as string,
+          Key: `${uuidv4()}.${file.mimetype.split("/")[1]}`,
+          Body: file.data,
+          ContentType: file.mimetype,
+        };
+        new AWS.S3({
+          accessKeyId: process.env.AWS_ACCESSKEYID,
+          secretAccessKey: process.env.AWS_SECRETACCESSKEY,
+        })?.upload(params, (err: any, data: any) => {
+          if (err) {
+            console.log(err.message);
+            reject(err);
+          }
+          resolve({
+            url: data?.Location,
+            path: data?.key,
+          });
         });
-        fs.unlinkSync(file.tempFilePath);
-        resolve({
-          url: result.secure_url,
-          path: result.public_id,
-        });
+        // fs.unlinkSync(file.tempFilePath);
       } catch (error) {
         reject(error);
       }
@@ -49,16 +54,25 @@ class MediaLogic {
         let resultArray: ImageType[] = [];
         for (const file of files) {
           // upload media
-          const result = await cloudinary.uploader.upload(file.tempFilePath, {
-            folder: `TSMART/${folder || "common"}`,
-          });
-          // delete temp file
-          fs.unlinkSync(file.tempFilePath);
-
-          // push result to result array
-          resultArray.push({
-            url: result.secure_url,
-            path: result.public_id,
+          const params = {
+            Bucket: process.env.AWS_BUCKET_NAME as string,
+            Key: `${uuidv4()}.${file.mimetype.split("/")[1]}`,
+            Body: file.data,
+            ContentType: file.mimetype,
+          };
+          new AWS.S3({
+            accessKeyId: process.env.AWS_ACCESSKEYID,
+            secretAccessKey: process.env.AWS_SECRETACCESSKEY,
+          })?.upload(params, (err: any, data: any) => {
+            if (err) {
+              console.log(err.message);
+              reject(err);
+            }
+            // push result to result array
+            resultArray.push({
+              url: data?.Location,
+              path: data?.key,
+            });
           });
         }
         // send response to client
@@ -73,8 +87,20 @@ class MediaLogic {
   public deleteMedia(path: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
       try {
-        await cloudinary.uploader.destroy(path);
-        resolve();
+        const params = {
+          Bucket: process.env.AWS_BUCKET_NAME as string,
+          Key: path,
+        };
+        new AWS.S3({
+          accessKeyId: process.env.AWS_ACCESSKEYID,
+          secretAccessKey: process.env.AWS_SECRETACCESSKEY,
+        }).deleteObject(params, function (err, data) {
+          if (err) {
+            console.log(err);
+            reject(err);
+          }
+          resolve();
+        });
       } catch (error) {
         reject(error);
       }
@@ -86,7 +112,19 @@ class MediaLogic {
     return new Promise(async (resolve, reject) => {
       try {
         for (const path of paths) {
-          await cloudinary.uploader.destroy(path);
+          const params = {
+            Bucket: process.env.AWS_BUCKET_NAME as string,
+            Key: path,
+          };
+          new AWS.S3({
+            accessKeyId: process.env.AWS_ACCESSKEYID,
+            secretAccessKey: process.env.AWS_SECRETACCESSKEY,
+          }).deleteObject(params, function (err, data) {
+            if (err) {
+              console.log(err);
+              reject(err);
+            }
+          });
         }
         resolve();
       } catch (error) {

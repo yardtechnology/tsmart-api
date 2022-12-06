@@ -44,11 +44,7 @@ class App {
   private middleware(): void {
     this.express.use(cors());
     this.express.use(express.json());
-    this.express.use(
-      uploader({
-        useTempFiles: true,
-      })
-    );
+    this.express.use(uploader());
     this.express.use((req, res, next) => {
       console.table([
         {
