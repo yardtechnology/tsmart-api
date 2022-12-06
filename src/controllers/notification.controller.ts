@@ -167,14 +167,16 @@ export const NotificationControllerValidation = {
   ],
   update: [
     body("notificationIds")
-      .custom((value, { req }) => Boolean(value || req.body.allRead))
+      .custom((value, { req }) => Boolean(value.length || req.body.allRead))
       .withMessage("notificationIds or allRead is required."),
     body("allRead")
       .optional()
       .exists()
       .isBoolean()
       .withMessage("allRead must be boolean.")
-      .custom((value, { req }) => Boolean(value || req.body.allRead))
+      .custom((value, { req }) =>
+        Boolean(value || req.body.notificationIds.length)
+      )
       .withMessage("notificationIds or allRead is required."),
   ],
   getAll: [
