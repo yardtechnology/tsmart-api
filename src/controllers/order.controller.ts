@@ -1262,11 +1262,10 @@ class Order extends OrderLogic {
       .withMessage("Country must be at most 25 characters long"),
     body("address.zip")
       .optional()
-      .isInt()
       .isLength({ min: 5 })
-      .withMessage("zip code must be grater then 5 digit")
+      .withMessage("zip code must be grater then 5 characters long")
       .isLength({ max: 11 })
-      .withMessage("zip code must be at most 11 digit"),
+      .withMessage("zip code must be at most 11 characters long"),
     body("serviceIds.*")
       .not()
       .isEmpty()
