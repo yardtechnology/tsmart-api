@@ -201,7 +201,7 @@ class User extends MediaLogic {
       res.status(200).json({
         status: "SUCCESS",
         message: "User found successfully",
-        data: { ...userData?._doc, cartCount },
+        data: { ...userData?._doc, cartCount, unreadNotification },
       });
     } catch (error) {
       // send error to client
