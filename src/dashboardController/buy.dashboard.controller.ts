@@ -7,7 +7,7 @@ class BuyDashboardController {
       const orderDataAccordingStatus = await OrderModel.aggregate([
         {
           $match: {
-            type: "BUY",
+            type: "SELL",
           },
         },
         {
