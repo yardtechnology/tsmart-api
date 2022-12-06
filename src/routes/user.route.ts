@@ -17,6 +17,7 @@ class Auth extends AuthenticateMiddleware {
     this.statusChangeRoute();
     this.getAllUsersRoute();
     this.onDutyRecordRoute();
+    this.deleteUserRoute();
   }
 
   // create user
