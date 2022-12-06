@@ -573,6 +573,10 @@ class Order extends OrderLogic {
         });
         //add order item to array
         orderedItems.push(orderData);
+        CartItemModel.findOneAndDelete({
+          product:cartItem?.product,
+          user:req?.currentUser?._id as string,
+        })
       }
       const orderIds = orderedItems?.map((item) => item?._id);
       const price = orderedItems.reduce((acc, item) => acc + item.price, 0);
@@ -591,6 +595,8 @@ class Order extends OrderLogic {
           new: true,
         }
       );
+
+      //remove items from card
 
       res.status(200).json({
         status: "SUCCESS",
