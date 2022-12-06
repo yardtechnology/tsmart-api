@@ -125,7 +125,7 @@ class Order extends AuthenticateMiddleware {
   private downloadOrderInvoiceRoute(): void {
     this.router.get(
       "/orders/:orderId/invoice",
-      super.isManager,
+      super.isAuthenticated,
       this.orderController.downloadOrderInvoiceController
     );
   }
