@@ -22,11 +22,11 @@ import MediaLogic from "./media.logic";
 import fs from "fs";
 import fs_promised from "fs/promises";
 import pdf from "html-pdf";
+import { Unauthorized } from "http-errors";
 import { Types } from "mongoose";
 import path from "path";
 import MailController from "../controllers/mail.controller";
 import InvoiceLogic from "./invoice.logic";
-
 class OrderLogic extends MediaLogic {
   public _orderId: string | undefined;
   constructor(id?: string) {
@@ -59,6 +59,9 @@ class OrderLogic extends MediaLogic {
           "_id displayName email phoneNumber countryCode avatar"
         );
         if (!userData) throw new Error("User not found");
+        //if user is blocked
+        if (userData?.blockStatus === "BLOCKED")
+          throw new Unauthorized("User is blocked");
         // get product data
         const storeData = await StoreModel.findById(storeId).select(
           "_id displayName email phoneNumber countryCode imageURL about address"
@@ -145,6 +148,9 @@ class OrderLogic extends MediaLogic {
           "_id displayName email phoneNumber countryCode avatar"
         );
         if (!userData) throw new Error("User not found");
+        //if user is blocked
+        if (userData?.blockStatus === "BLOCKED")
+          throw new Unauthorized("User is blocked");
         // get product data
         const storeData = await StoreModel.findOne({ type: "HUB" }).select(
           "_id displayName email phoneNumber countryCode imageURL about address"
@@ -236,6 +242,9 @@ class OrderLogic extends MediaLogic {
           "_id displayName email phoneNumber countryCode avatar"
         );
         if (!userData) throw new Error("User not found");
+        //if user is blocked
+        if (userData?.blockStatus === "BLOCKED")
+          throw new Unauthorized("User is blocked");
         //remove duplicate service ids
         const uniqServiceIds = new Set([...serviceIds]);
         let servicePriceDetails = [];
@@ -312,6 +321,9 @@ class OrderLogic extends MediaLogic {
       "_id email country phoneNumber role age "
     );
     if (!userData) throw new Error("User not found");
+    //if user is blocked
+    if (userData?.blockStatus === "BLOCKED")
+      throw new Unauthorized("User is blocked");
     const productData = await ProductModel.findById(productId);
     if (!productData) throw new Error("Product not found");
     const storeData = await StoreModel.findById(productData.store);

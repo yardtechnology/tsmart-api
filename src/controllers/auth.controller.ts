@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { body, validationResult } from "express-validator";
+import { Unauthorized } from "http-errors";
 import md5 from "md5";
 import { fieldValidateError } from "../helper";
 import { createOTP } from "../helper/core.helper";
@@ -45,6 +46,10 @@ class Auth extends AuthLogic {
           activeOTP,
         }).save();
       }
+
+      //if user is blocked
+      if (newUser?.blockStatus === "BLOCKED")
+        throw new Unauthorized("User is blocked");
 
       //if the number is not a white listed number then send otp to there number
       if (!whiteListedUserData) {

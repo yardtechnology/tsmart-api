@@ -574,9 +574,9 @@ class Order extends OrderLogic {
         //add order item to array
         orderedItems.push(orderData);
         CartItemModel.findOneAndDelete({
-          product:cartItem?.product,
-          user:req?.currentUser?._id as string,
-        })
+          product: cartItem?.product,
+          user: req?.currentUser?._id as string,
+        });
       }
       const orderIds = orderedItems?.map((item) => item?._id);
       const price = orderedItems.reduce((acc, item) => acc + item.price, 0);
@@ -857,29 +857,35 @@ class Order extends OrderLogic {
           const productData = await ProductModel.findById(req.query?.productId);
           // check if product is available
           if (!productData) throw new Error("Product not found");
-          let cartItemData;
-          // find cart item
-          cartItemData = await CartItemModel.findOneAndUpdate(
-            {
-              user: req.currentUser?._id,
-              product: req.query.productId,
-            },
-            {
-              quantity: req.query.quantity,
-            },
-            {
-              new: true,
-            }
-          );
-          // if cart item not found create new cart item
-          if (!cartItemData) {
-            //create cart item
-            cartItemData = await new CartItemModel({
-              user: req.currentUser?._id,
-              product: req.query.productId,
-              quantity: req.query.quantity,
-            }).save();
-          }
+          let cartItemData = new CartItemModel({
+            user: req.currentUser?._id,
+            product: req.query.productId,
+            quantity: req.query.quantity,
+          });
+          // // find cart item
+          // cartItemData = await CartItemModel.findOneAndUpdate(
+          //   {
+          //     user: req.currentUser?._id,
+          //     product: req.query.productId,
+          //   },
+          //   {
+          //     quantity: req.query.quantity,
+          //     user: req.currentUser?._id,
+          //     product: req.query.productId,
+          //   },
+          //   {
+          //     new: true,
+          //   }
+          // );
+          // // if cart item not found create new cart item
+          // if (!cartItemData) {
+          //   //create cart item
+          //   cartItemData = await new CartItemModel({
+          //     user: req.currentUser?._id,
+          //     product: req.query.productId,
+          //     quantity: req.query.quantity,
+          //   }).save();
+          // }
           billingData = await new BillingLogic().calculateItemBilling({
             productId: req.query.productId as string,
             quantity: Number(req.query.quantity),
