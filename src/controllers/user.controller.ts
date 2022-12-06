@@ -2,10 +2,12 @@ import { NextFunction, Response } from "express";
 import { body, validationResult } from "express-validator";
 import { NotAcceptable, Unauthorized } from "http-errors";
 import { getTimeDeference } from "../helper/core.helper";
+import CartLogic from "../logic/cart.logic";
 import JWTLogic from "../logic/jwt.logic";
 import MediaLogic from "../logic/media.logic";
 import NotificationLogic from "../logic/notification.logics";
 import UserLogic from "../logic/user.logic";
+import { NotificationSchema } from "../models";
 import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
 import UserType from "../types/user";
@@ -179,11 +181,20 @@ class User extends MediaLogic {
         throw new Unauthorized("User is blocked");
 
       let cartCount;
+      let unreadNotification;
       try {
         //TODO: ADD DYNAMIC CART COUNT
-        cartCount = 0;
+        cartCount =
+          (await new CartLogic().getCartItems(userData._id))?.totalItem || 0;
+        unreadNotification = (
+          await NotificationSchema.find({
+            user: req?.currentUser?._id,
+            readStatus: false,
+          })
+        )?.length;
       } catch (error) {
         cartCount = 0;
+        unreadNotification = 0;
       }
 
       // send response to client
@@ -516,6 +527,7 @@ class User extends MediaLogic {
     next: NextFunction
   ) {
     try {
+      console.log("user delete");
       const data = await new UserLogic().deleteUser(req?.body?.userId);
       res.status(200).json({
         status: "SUCCESS",
