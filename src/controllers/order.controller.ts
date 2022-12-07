@@ -410,11 +410,14 @@ class Order extends OrderLogic {
           break;
         case "CANCELLED":
           //add product stock
-          await ProductModel.findByIdAndUpdate(orderData?.product?._id, {
-            $inc: {
-              stock: orderData?.quantity,
-            },
-          });
+          if (orderData?.quantity){
+
+            await ProductModel.findByIdAndUpdate(orderData?.product?._id, {
+              $inc: {
+                stock: orderData?.quantity,
+              },
+            });
+          }
           new NotificationLogic().pushNotification({
             userIds: [orderData?.user?._id],
             title: "Order Cancelled",
