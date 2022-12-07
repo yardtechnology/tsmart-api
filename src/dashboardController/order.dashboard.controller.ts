@@ -142,7 +142,6 @@ export default class OrderDashboardController {
         "Nov",
         "Dec",
       ];
-      console.log("managerFilter", managerFilter);
       const lastOneYearOrder = await OrderModel.aggregate([
         ...managerFilter,
         {
