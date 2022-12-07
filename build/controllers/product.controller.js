@@ -1383,7 +1383,7 @@ var Product = /** @class */ (function (_super) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         hubId = "633e661162ad6ca32d956bcf";
-                        return [4 /*yield*/, product_model_1.ProductModel.updateMany({ store: { $exists: false } }, { store: hubId })];
+                        return [4 /*yield*/, product_model_1.ProductModel.updateMany({}, { "reviews.total": 0, "reviews.stars": 0 })];
                     case 1:
                         updateData = _a.sent();
                         res.json({ data: updateData });

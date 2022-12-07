@@ -72,7 +72,7 @@ var TimingController = /** @class */ (function () {
                                 numberOfRepairers: numberOfRepairers_1,
                                 start: new Date(new Date(start_1).getTime() + index * (durationInMin_1 * 60 * 1000)),
                                 end: new Date(new Date(start_1).getTime() +
-                                    (index + 1) * ((durationInMin_1 - 1) * 60 * 1000)),
+                                    (index + 1) * (durationInMin_1 * 60 * 1000)),
                             };
                         });
                         return [4 /*yield*/, models_1.TimingSchema.insertMany(dateArray)];
@@ -148,6 +148,7 @@ var TimingController = /** @class */ (function () {
                     case 0:
                         _b.trys.push([0, 2, , 3]);
                         (0, helper_1.fieldValidateError)(req);
+                        console.log("id", req.body);
                         _a = req.body, id = _a.id, storeId = _a.storeId;
                         return [4 /*yield*/, models_1.TimingSchema.deleteMany({
                                 dayOfWeekNumber: { $in: [id] },
@@ -531,9 +532,8 @@ exports.TimingControllerValidation = {
             .not()
             .isEmpty()
             .withMessage("id is required")
-            .isIn([1, 2, 3, 4, 5, 6, 7])
-            .withMessage("id is must be number from 1 to 7")
-            .withMessage("Start day and end day have to same day in week."),
+            .isIn([0, 1, 2, 3, 4, 5, 6, 7])
+            .withMessage("id is must be number from 1 to 7"),
     ],
 };
 exports.default = TimingController;
