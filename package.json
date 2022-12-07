@@ -6,8 +6,8 @@
   "scripts": {
     "heroku-postbuild": "npm run build",
     "start": "node build/index.js",
-    "build": "rimraf ./build && tsc && rimraf ./src ",
-    "dev": "ts-node-dev --poll ./src/index.ts"
+    "build": "rimraf ./build && tsc ",
+    "dev": "rimraf ./build && ts-node-dev --poll ./src/index.ts"
   },
   "license": "ISC",
   "dependencies": {
