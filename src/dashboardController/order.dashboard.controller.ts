@@ -148,19 +148,22 @@ export default class OrderDashboardController {
           $match: {
             $expr: {
               $or: [
-                {
-                  type: "ACCESSORY",
-                },
-                {
-                  type: "REFURBISH",
-                },
+                { $eq: ["$type", "ACCESSORY"] },
+                { $eq: ["$type", "REFURBISH"] },
               ],
             },
           },
         },
         {
           $addFields: {
-            endDate: new Date(currentDateRoot),
+            endDate: {
+              $dateAdd: {
+                startDate: new Date(currentDateRoot),
+                unit: "month",
+                amount: 1,
+              },
+            },
+
             startDate: {
               $dateSubtract: {
                 startDate: new Date(currentDateRoot),
@@ -178,7 +181,7 @@ export default class OrderDashboardController {
                   $gte: ["$createdAt", "$startDate"],
                 },
                 {
-                  $lte: ["$createdAt", "$endDate"],
+                  $lt: ["$createdAt", "$endDate"],
                 },
               ],
             },
@@ -194,12 +197,16 @@ export default class OrderDashboardController {
         {
           $project: {
             monthNumber: 1,
+            type: 1,
+            startDate: 1,
+            endDate: 1,
+            createdAt: 1,
           },
         },
 
         {
           $group: {
-            _id: null,
+            _id: "$type",
             [`${mS[1]}`]: {
               $sum: { $cond: [{ $eq: ["$monthNumber", 1] }, 1, 0] },
             },
