@@ -374,7 +374,7 @@ class Auth extends AuthLogic {
         isEmailVerified: true,
       })
         .populate("store")
-        .select("-encrypted_password -salt -verificationInfo -refreshTokens");
+        .select(" -refreshTokens -fcmTokens");
 
       // check if user exists
       if (!userData) {
@@ -450,7 +450,12 @@ class Auth extends AuthLogic {
         status: "SUCCESS",
         message: "User logged in successfully",
         ACCESS_TOKEN,
-        data: userData,
+        data: {
+          ...userData,
+          salt: undefined,
+          encrypted_password: undefined,
+          verificationInfo: undefined,
+        },
       });
     } catch (error) {
       // send error to client
