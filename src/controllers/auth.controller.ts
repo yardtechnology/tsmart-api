@@ -372,9 +372,7 @@ class Auth extends AuthLogic {
       const userData: UserType | null = await UserModel.findOne({
         email,
         isEmailVerified: true,
-      })
-        .populate("store")
-        .select(" -refreshTokens -fcmTokens");
+      });
 
       // check if user exists
       if (!userData) {
@@ -451,10 +449,10 @@ class Auth extends AuthLogic {
         message: "User logged in successfully",
         ACCESS_TOKEN,
         data: {
-          ...userData,
-          salt: undefined,
-          encrypted_password: undefined,
-          verificationInfo: undefined,
+          _id: userData._id,
+          displayName: userData.displayName,
+          email: userData.email,
+          role: userData.role,
         },
       });
     } catch (error) {
