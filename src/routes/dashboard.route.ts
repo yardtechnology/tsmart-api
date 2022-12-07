@@ -154,15 +154,15 @@ export default class DashboardRoutes extends AuthenticateMiddleware {
       this.accessoryDashboardController.topAccessories
     );
     // ========================>>> BUY DASHBOARD <<================================================================
-    this.router.get(
-      "/dashboard/buy/card",
-      super.isAuthenticated,
-      this.buyDashboardController.card
-    );
+    // this.router.get(
+    //   "/dashboard/buy/card",
+    //   super.isAuthenticated,
+    //   this.buyDashboardController.card
+    // );
     this.router.get(
       "/dashboard/buy/circular-graph",
       super.isAuthenticated,
-      this.buyDashboardController.card
+      this.buyDashboardController.circularGraph
     );
     // ======================== payment <<================================================================
     this.router.get(
