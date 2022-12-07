@@ -266,15 +266,15 @@ export const CouponControllerValidation = {
       .withMessage("maxUses must be number."),
     body("title")
       .not()
-      .exists()
-      .withMessage("title is required")
+      .isEmpty()
+      .withMessage("title is required.")
       .isLength({ min: 3 })
       .withMessage("title must be at least 3 characters long")
       .isLength({ max: 20 })
       .withMessage("title must be at most 20 characters long"),
     body("description")
       .not()
-      .exists()
+      .isEmpty()
       .withMessage("description is required")
       .isLength({ min: 3 })
       .withMessage("description must be at least 3 characters long")

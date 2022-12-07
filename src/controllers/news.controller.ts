@@ -142,12 +142,12 @@ class News extends NewsLogic {
       .withMessage("Title must be between 3 and 25 characters"),
     body("description")
       .optional()
-      .isLength({ min: 11, max: 250 })
-      .withMessage("description must be between 11 and 250 characters"),
+      .isLength({ min: 4, max: 250 })
+      .withMessage("description must be between 4 and 250 characters"),
     body("author")
       .optional()
-      .isLength({ min: 11, max: 21 })
-      .withMessage("author must be between 5 and 21 characters"),
+      .isLength({ min: 3, max: 100 })
+      .withMessage("author must be between 3 and 100 characters"),
     body("tags")
       .optional()
       .isArray()
@@ -160,12 +160,12 @@ class News extends NewsLogic {
       .withMessage("Title must be between 3 and 25 characters"),
     body("description")
       .optional()
-      .isLength({ min: 11, max: 250 })
-      .withMessage("description must be between 11 and 250 characters"),
+      .isLength({ min: 4, max: 250 })
+      .withMessage("description must be between 4 and 250 characters"),
     body("author")
       .optional()
-      .isLength({ min: 11, max: 21 })
-      .withMessage("author must be between 5 and 21 characters"),
+      .isLength({ min: 3, max: 100 })
+      .withMessage("author must be between 3 and 100 characters"),
     body("tags")
       .optional()
       .isArray()
