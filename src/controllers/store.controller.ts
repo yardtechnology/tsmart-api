@@ -244,8 +244,8 @@ class Store extends MediaLogic {
       const data = await new StoreLogic().deleteStore(req?.params.storeId);
       res.json({
         status: "SUCCESS",
-        message: `${storeId} Stores delete in the todo list.`,
-        data: storeId,
+        message: `Store deleted successfully.`,
+        data: data,
       });
     } catch (error) {
       next(error);
