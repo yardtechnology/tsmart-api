@@ -201,6 +201,7 @@ class Store extends MediaLogic {
               zip: req?.query?.zip,
             }
           : undefined,
+        type: "STORE",
       };
       !req?.query?.zip && delete query?.address;
       let categoryData = await StoreModel.find(query)
