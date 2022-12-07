@@ -363,16 +363,7 @@ class Auth extends AuthLogic {
   ): Promise<any> {
     try {
       // validator error handler
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw new Error(
-          errors
-            .array()
-            .map((errors) => errors.msg)
-            .join()
-            .replace(/[,]/g, " and ")
-        );
-      }
+      fieldValidateError(req);
 
       // get provided user data
       const { email, password } = req.body;
@@ -381,7 +372,9 @@ class Auth extends AuthLogic {
       const userData: UserType | null = await UserModel.findOne({
         email,
         isEmailVerified: true,
-      });
+      })
+        .populate("store")
+        .select("-encrypted_password -salt -verificationInfo -refreshTokens");
 
       // check if user exists
       if (!userData) {
@@ -457,12 +450,7 @@ class Auth extends AuthLogic {
         status: "SUCCESS",
         message: "User logged in successfully",
         ACCESS_TOKEN,
-        data: {
-          _id: userData._id,
-          displayName: userData.displayName,
-          email: userData.email,
-          role: userData.role,
-        },
+        data: userData,
       });
     } catch (error) {
       // send error to client
