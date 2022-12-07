@@ -970,8 +970,8 @@ class Product extends ProductLogic {
     try {
       const hubId = "633e661162ad6ca32d956bcf";
       const updateData = await ProductModel.updateMany(
-        { store: { $exists: false } },
-        { store: hubId }
+        {},
+        { "reviews.total": 0, "reviews.stars": 0 }
       );
       res.json({ data: updateData });
     } catch (error) {

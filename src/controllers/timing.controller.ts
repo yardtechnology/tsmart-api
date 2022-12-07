@@ -31,7 +31,7 @@ class TimingController {
           ),
           end: new Date(
             new Date(start).getTime() +
-              (index + 1) * ((durationInMin - 1) * 60 * 1000)
+              (index + 1) * (durationInMin * 60 * 1000)
           ),
         };
       });
@@ -90,6 +90,7 @@ class TimingController {
   async delete(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       fieldValidateError(req);
+      console.log("id", req.body);
       const { id, storeId } = req.body;
       const deleteFirst = await TimingSchema.deleteMany({
         dayOfWeekNumber: { $in: [id] },
@@ -447,10 +448,8 @@ export const TimingControllerValidation = {
       .not()
       .isEmpty()
       .withMessage("id is required")
-      .isIn([1, 2, 3, 4, 5, 6, 7])
-      .withMessage("id is must be number from 1 to 7")
-
-      .withMessage("Start day and end day have to same day in week."),
+      .isIn([0, 1, 2, 3, 4, 5, 6, 7])
+      .withMessage("id is must be number from 1 to 7"),
   ],
 };
 
