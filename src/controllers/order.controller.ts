@@ -410,8 +410,7 @@ class Order extends OrderLogic {
           break;
         case "CANCELLED":
           //add product stock
-          if (orderData?.quantity){
-
+          if (orderData?.quantity) {
             await ProductModel.findByIdAndUpdate(orderData?.product?._id, {
               $inc: {
                 stock: orderData?.quantity,
@@ -806,6 +805,15 @@ class Order extends OrderLogic {
         { _id: { $in: billingData?.orders?.map((item) => item?._id) } },
         { status: billingData?.type !== "EXTRA" ? "INITIATED" : undefined }
       );
+      console.log(
+        billingData?.orders[0]?.serviceType === "CALL_OUT" &&
+          billingData?.type !== "EXTRA"
+      );
+      console.log(
+        billingData?.orders[0]?.serviceType,
+        billingData?.type,
+        "EXTRA"
+      );
       // IF ORDER IS CALLOUT THE SEND REQUEST TO ALL NEAR BY TECHNICIAN
       if (
         billingData?.orders[0]?.serviceType === "CALL_OUT" &&
@@ -836,7 +844,9 @@ class Order extends OrderLogic {
         //send socket event to every
         const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
         socket.on("connect", () => {
+          console.log("CONNECTED");
           for (const technicianId of nearByTechnicians) {
+            console.log("TECHNICIAN", technicianId);
             socket.emit("NEW-JOB-REQUEST", {
               technicianId,
             });

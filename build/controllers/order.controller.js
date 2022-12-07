@@ -1227,19 +1227,19 @@ var Order = /** @class */ (function (_super) {
      * make order paid
      */
     Order.prototype.makeOrderPaidController = function (req, res, next) {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
         return __awaiter(this, void 0, void 0, function () {
-            var _j, billingId, paymentId, clientSecret, billingData_2, orderData, allTechnician, nearByTechnicians_3, socket_2, error_15;
-            return __generator(this, function (_k) {
-                switch (_k.label) {
+            var _l, billingId, paymentId, clientSecret, billingData_2, orderData, allTechnician, nearByTechnicians_3, socket_2, error_15;
+            return __generator(this, function (_m) {
+                switch (_m.label) {
                     case 0:
-                        _k.trys.push([0, 7, , 8]);
+                        _m.trys.push([0, 7, , 8]);
                         // validator error handler
                         (0, helper_1.fieldValidateError)(req);
-                        _j = req.body, billingId = _j.billingId, paymentId = _j.paymentId, clientSecret = _j.clientSecret;
+                        _l = req.body, billingId = _l.billingId, paymentId = _l.paymentId, clientSecret = _l.clientSecret;
                         return [4 /*yield*/, billing_model_1.BillingModel.findById(billingId).populate("orders")];
                     case 1:
-                        billingData_2 = _k.sent();
+                        billingData_2 = _m.sent();
                         if (!billingData_2)
                             throw new Error("billingData not found");
                         //update payment status on billing
@@ -1252,19 +1252,22 @@ var Order = /** @class */ (function (_super) {
                             })];
                     case 2:
                         //update payment status on billing
-                        _k.sent();
+                        _m.sent();
                         return [4 /*yield*/, order_model_1.OrderModel.updateMany({ _id: { $in: (_a = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders) === null || _a === void 0 ? void 0 : _a.map(function (item) { return item === null || item === void 0 ? void 0 : item._id; }) } }, { status: (billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.type) !== "EXTRA" ? "INITIATED" : undefined })];
                     case 3:
-                        orderData = _k.sent();
-                        if (!(((_b = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _b === void 0 ? void 0 : _b.serviceType) === "CALL_OUT" &&
+                        orderData = _m.sent();
+                        console.log(((_b = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _b === void 0 ? void 0 : _b.serviceType) === "CALL_OUT" &&
+                            (billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.type) !== "EXTRA");
+                        console.log((_c = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _c === void 0 ? void 0 : _c.serviceType, billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.type, "EXTRA");
+                        if (!(((_d = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _d === void 0 ? void 0 : _d.serviceType) === "CALL_OUT" &&
                             (billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.type) !== "EXTRA")) return [3 /*break*/, 6];
                         return [4 /*yield*/, user_model_1.UserModel.find({
                                 role: "TECHNICIAN",
-                                deviceType: (_d = (_c = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _c === void 0 ? void 0 : _c.device) === null || _d === void 0 ? void 0 : _d._id,
-                                makeType: (_f = (_e = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _e === void 0 ? void 0 : _e.make) === null || _f === void 0 ? void 0 : _f._id,
+                                deviceType: (_f = (_e = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _e === void 0 ? void 0 : _e.device) === null || _f === void 0 ? void 0 : _f._id,
+                                makeType: (_h = (_g = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _g === void 0 ? void 0 : _g.make) === null || _h === void 0 ? void 0 : _h._id,
                             })];
                     case 4:
-                        allTechnician = _k.sent();
+                        allTechnician = _m.sent();
                         nearByTechnicians_3 = allTechnician
                             .filter(function (user) {
                             var _a, _b, _c, _d;
@@ -1272,21 +1275,23 @@ var Order = /** @class */ (function (_super) {
                                 (0, core_helper_1.getDistance)((_b = (_a = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _a === void 0 ? void 0 : _a.address) === null || _b === void 0 ? void 0 : _b.latitude, (_d = (_c = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _c === void 0 ? void 0 : _c.address) === null || _d === void 0 ? void 0 : _d.longitude, user === null || user === void 0 ? void 0 : user.latitude, user === null || user === void 0 ? void 0 : user.longitude, "K");
                         })
                             .map(function (user) { return user === null || user === void 0 ? void 0 : user._id; });
-                        return [4 /*yield*/, order_model_1.OrderModel.findByIdAndUpdate((_g = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _g === void 0 ? void 0 : _g._id, {
+                        return [4 /*yield*/, order_model_1.OrderModel.findByIdAndUpdate((_j = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _j === void 0 ? void 0 : _j._id, {
                                 nearByTechnicians: nearByTechnicians_3,
                             })];
                     case 5:
-                        _k.sent();
-                        socket_2 = (0, socket_io_client_1.io)("".concat((_h = process === null || process === void 0 ? void 0 : process.env) === null || _h === void 0 ? void 0 : _h.SOCKET_URL, "/incoming-job"));
+                        _m.sent();
+                        socket_2 = (0, socket_io_client_1.io)("".concat((_k = process === null || process === void 0 ? void 0 : process.env) === null || _k === void 0 ? void 0 : _k.SOCKET_URL, "/incoming-job"));
                         socket_2.on("connect", function () {
+                            console.log("CONNECTED");
                             for (var _i = 0, nearByTechnicians_4 = nearByTechnicians_3; _i < nearByTechnicians_4.length; _i++) {
                                 var technicianId = nearByTechnicians_4[_i];
+                                console.log("TECHNICIAN", technicianId);
                                 socket_2.emit("NEW-JOB-REQUEST", {
                                     technicianId: technicianId,
                                 });
                             }
                         });
-                        _k.label = 6;
+                        _m.label = 6;
                     case 6:
                         res.status(200).json({
                             status: "SUCCESS",
@@ -1295,7 +1300,7 @@ var Order = /** @class */ (function (_super) {
                         });
                         return [3 /*break*/, 8];
                     case 7:
-                        error_15 = _k.sent();
+                        error_15 = _m.sent();
                         next(error_15);
                         return [3 /*break*/, 8];
                     case 8: return [2 /*return*/];
