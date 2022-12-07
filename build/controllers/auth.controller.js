@@ -581,19 +581,13 @@ var Auth = /** @class */ (function (_super) {
     Auth.prototype.loginUser = function (req, res, next) {
         var _a;
         return __awaiter(this, void 0, void 0, function () {
-            var errors, _b, email, password, userData, ACCESS_TOKEN, userAgent, error_5;
+            var _b, email, password, userData, ACCESS_TOKEN, userAgent, error_5;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
                         _c.trys.push([0, 4, , 5]);
-                        errors = (0, express_validator_1.validationResult)(req);
-                        if (!errors.isEmpty()) {
-                            throw new Error(errors
-                                .array()
-                                .map(function (errors) { return errors.msg; })
-                                .join()
-                                .replace(/[,]/g, " and "));
-                        }
+                        // validator error handler
+                        (0, helper_1.fieldValidateError)(req);
                         _b = req.body, email = _b.email, password = _b.password;
                         return [4 /*yield*/, user_model_1.UserModel.findOne({
                                 email: email,
