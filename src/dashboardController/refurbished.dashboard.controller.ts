@@ -142,17 +142,20 @@ class RefurbishedDashboardController {
       if (role === "MANAGER") {
         const findUser = await UserModel.findById(req?.currentUser?._id);
         managerQuery = { store: findUser?.store };
-        managerFilter.push([
-          {
+        findUser?.store &&
+          managerFilter.push({
             $eq: ["$store", new Types.ObjectId(findUser?.store?.toString())],
-          },
-        ]);
+          });
       }
 
       const totalRefurbished = await ProductModel.find({
         type: "REFURBISHED",
         ...managerQuery,
       }).count();
+      const totalRefurbishedDatabase = await ProductModel.find({
+        type: "REFURBISHED",
+      }).count();
+      console.log(managerFilter);
       const todayRefurbished = await ProductModel.aggregate([
         {
           $match: {
@@ -182,6 +185,7 @@ class RefurbishedDashboardController {
         data: {
           totalRefurbished,
           todayRefurbished: todayRefurbished?.[0]?.total || 0,
+          totalRefurbishedDatabase,
         },
       });
     } catch (error) {
