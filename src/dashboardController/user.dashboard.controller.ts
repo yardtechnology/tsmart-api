@@ -1,5 +1,7 @@
 import { NextFunction, Response } from "express";
 import { param } from "express-validator";
+import { Types } from "mongoose";
+import { OrderModel } from "../models/order.model";
 import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
 class UserDashboardController {
@@ -191,14 +193,127 @@ class UserDashboardController {
   async technician(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { technicianId } = req.params;
+
+      const currentDateRoot = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        new Date().getDate()
+      );
+      const currentDateHigh = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        new Date().getDate(),
+        23,
+        59,
+        59
+      );
+
+      const orderData = await OrderModel.aggregate([
+        {
+          $match: {
+            technicianID: new Types.ObjectId(technicianId),
+          },
+        },
+        {
+          $lookup: {
+            from: "billings",
+            localField: "billing",
+            foreignField: "_id",
+            as: "billing",
+            pipeline: [
+              {
+                $project: {
+                  total: 1,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: {
+            path: "$billing",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "billings",
+            localField: "extraBilling",
+            foreignField: "_id",
+            as: "extraBilling",
+            pipeline: [
+              {
+                $project: {
+                  total: 1,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: {
+            path: "$extraBilling",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+
+        {
+          $group: {
+            _id: "$technicianID",
+            completeJob: {
+              $sum: { $cond: [{ $eq: ["$status", "COMPLETED"] }, 1, 0] },
+            },
+            todayJobs: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      {
+                        $gte: ["$scheduledTime", new Date(currentDateRoot)],
+                      },
+                      {
+                        $lte: ["$createdAt", new Date(currentDateHigh)],
+                      },
+                      {
+                        $ne: ["$status", "COMPLETED"],
+                      },
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+            totalSale: {
+              $sum: {
+                $cond: [
+                  { $eq: ["$status", "COMPLETED"] },
+                  {
+                    $add: [
+                      "$billing.total",
+                      { $ifNull: ["$extraBilling.total", 0] },
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
+      ]);
+      const findUser = await UserModel.findById(technicianId);
+      const ratings =
+        (findUser?.reviews?.stars || 0) / (findUser?.reviews?.total || 1);
+
       res.json({
         status: "SUCCESS",
         message: "Customer count successfully.",
+
         data: {
-          completeJob: 1,
-          todayJobs: 1,
-          totalSale: 100,
-          ratings: 1,
+          ...orderData?.[0],
+
+          ratings,
+          _id: undefined,
         },
       });
     } catch (error) {
