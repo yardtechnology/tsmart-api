@@ -45,6 +45,8 @@ class Order extends OrderLogic {
         orderIds: orderData?._id,
         status: "PENDING",
         price: orderData?.price,
+        couponId: req?.body?.couponId,
+        userId: req.currentUser?._id as string,
       });
       orderData = (await OrderModel?.findByIdAndUpdate(
         orderData?._id,
@@ -85,6 +87,8 @@ class Order extends OrderLogic {
         orderIds: orderData?._id,
         status: "PENDING",
         price: orderData?.price,
+        couponId: req?.body?.couponId,
+        userId: req.currentUser?._id as string,
       });
       orderData = (await OrderModel?.findByIdAndUpdate(
         orderData?._id,
@@ -126,6 +130,8 @@ class Order extends OrderLogic {
         orderIds: orderData?._id,
         status: "PENDING",
         price: orderData?.price,
+        couponId: req?.body?.couponId,
+        userId: req.currentUser?._id as string,
       });
       orderData = (await OrderModel?.findByIdAndUpdate(
         orderData?._id,
@@ -543,6 +549,8 @@ class Order extends OrderLogic {
         orderIds: orderData?._id,
         status: "PENDING",
         price: orderData?.price,
+        couponId: req?.body?.couponId,
+        userId: req.currentUser?._id as string,
       });
       //add billing id in order data
       await OrderModel.findByIdAndUpdate(
@@ -600,6 +608,8 @@ class Order extends OrderLogic {
         orderIds,
         status: "PENDING",
         price,
+        couponId: req?.body?.couponId,
+        userId: req.currentUser?._id as string,
       });
       //add billing id in order data
       OrderModel.updateMany(

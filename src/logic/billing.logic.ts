@@ -21,6 +21,8 @@ class BillingLogic extends CouponLogic {
     razorpay_signature,
     payment_order_id,
     status,
+    couponId,
+    userId,
   }: {
     orderIds: string[];
     price: number;
@@ -30,6 +32,8 @@ class BillingLogic extends CouponLogic {
     razorpay_signature?: string;
     payment_order_id?: string;
     status?: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "FAILED";
+    couponId?: string;
+    userId: string;
   }): Promise<BillingType> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -38,6 +42,17 @@ class BillingLogic extends CouponLogic {
         };
         //TODO:calculate after coupon discount price
         const total = price;
+        let couponValue = 0;
+        let couponData;
+        if (couponId) {
+          couponData = await CouponSchema.findById(couponId);
+          if (!couponData) throw new Error("Coupon not found");
+          couponValue = await super.getCouponDiscount({
+            couponId,
+            currentUserId: userId as string,
+            price: price,
+          });
+        }
         const tax = configData?.tax ? (total * configData.tax) / 100 : 0;
         const subPrice = total - tax;
         const bill: BillingType = await new BillingModel({
@@ -52,6 +67,14 @@ class BillingLogic extends CouponLogic {
           },
           tax,
           subPrice,
+          couponDiscount: couponData
+            ? {
+                coupon: couponData?.code,
+                benefitAmount: couponValue,
+                activeAt: new Date(),
+                couponId: couponData?._id,
+              }
+            : {},
         }).save();
         resolve(bill);
       } catch (error) {
