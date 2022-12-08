@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body, param, query } from "express-validator";
-import { InternalServerError } from "http-errors";
+import { BadRequest, InternalServerError } from "http-errors";
 import { Types } from "mongoose";
 import {
   aggregationData,
@@ -43,7 +43,13 @@ class ServicePrice extends MediaLogic {
         imageFile && !Array.isArray(imageFile)
           ? await super.uploadMedia(imageFile, filePath)
           : undefined;
-
+      const servicePriceCountCheck = await ServicePriceModel.find({
+        model: modelId,
+        store: storeId,
+        service: serviceId,
+      });
+      if (servicePriceCountCheck?.length > 3)
+        throw new BadRequest("You can't add more than 3 services.");
       // save servicePrice data to database
       const servicePriceData: ServicePriceType = await new ServicePriceModel({
         title: title,
