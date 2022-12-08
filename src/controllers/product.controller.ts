@@ -2,6 +2,7 @@ import { NextFunction, Response } from "express";
 import { body } from "express-validator";
 import { NotFound } from "http-errors";
 import { Types } from "mongoose";
+import { io } from "socket.io-client";
 import { fieldValidateError } from "../helper";
 import aggregationHelper, {
   PaginationResult,
@@ -968,12 +969,24 @@ class Product extends ProductLogic {
 
   async productTemp(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const hubId = "633e661162ad6ca32d956bcf";
-      const updateData = await ProductModel.updateMany(
-        { store: "633e661162ad6ca32d956bcf" },
-        { store: "63906b028141dbe3da16dafe" }
-      );
-      res.json({ data: updateData });
+      // const hubId = "633e661162ad6ca32d956bcf";
+      // const updateData = await ProductModel.updateMany(
+      //   { store: "633e661162ad6ca32d956bcf" },
+      //   { store: "63906b028141dbe3da16dafe" }
+      // );
+      // res.json({ data: updateData });
+
+      const socket = io(`${req.protocol}://${req.headers.host}/incoming-job`);
+      socket.on("error", () => {
+        console.log("ERROR");
+      });
+      socket.on("close", () => {
+        console.log("close");
+      });
+      socket.on("connect", () => {
+        console.log("connected");
+      });
+      res.json({ data: `${req.protocol}://${req.headers.host}` });
     } catch (error) {
       next(error);
     }
