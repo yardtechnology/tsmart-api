@@ -815,19 +815,14 @@ class Order extends OrderLogic {
         { _id: { $in: billingData?.orders?.map((item) => item?._id) } },
         { status: billingData?.type !== "EXTRA" ? "INITIATED" : undefined }
       );
-<<<<<<< HEAD
-=======
 
->>>>>>> a9ffc16 (chnage made)
       // IF ORDER IS CALLOUT THE SEND REQUEST TO ALL NEAR BY TECHNICIAN
       if (
         billingData?.orders[0]?.serviceType === "CALL_OUT" &&
         billingData?.type !== "EXTRA"
       ) {
-<<<<<<< HEAD
-=======
         // console.log("INSIDE SOCKET CONDITION");
->>>>>>> a9ffc16 (chnage made)
+
         //find all technician nearby
         const allTechnician = await UserModel.find({
           role: "TECHNICIAN",
