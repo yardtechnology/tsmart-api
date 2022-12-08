@@ -1256,11 +1256,12 @@ var Order = /** @class */ (function (_super) {
                         return [4 /*yield*/, order_model_1.OrderModel.updateMany({ _id: { $in: (_a = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders) === null || _a === void 0 ? void 0 : _a.map(function (item) { return item === null || item === void 0 ? void 0 : item._id; }) } }, { status: (billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.type) !== "EXTRA" ? "INITIATED" : undefined })];
                     case 3:
                         orderData = _m.sent();
-                        console.log(((_b = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _b === void 0 ? void 0 : _b.serviceType) === "CALL_OUT" &&
+                        console.log("SOCKET CONDITION", ((_b = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _b === void 0 ? void 0 : _b.serviceType) === "CALL_OUT" &&
                             (billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.type) !== "EXTRA");
                         console.log((_c = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _c === void 0 ? void 0 : _c.serviceType, billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.type, "EXTRA");
                         if (!(((_d = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _d === void 0 ? void 0 : _d.serviceType) === "CALL_OUT" &&
                             (billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.type) !== "EXTRA")) return [3 /*break*/, 6];
+                        console.log("INSIDE SOCKET CONDITION");
                         return [4 /*yield*/, user_model_1.UserModel.find({
                                 role: "TECHNICIAN",
                                 deviceType: (_f = (_e = billingData_2 === null || billingData_2 === void 0 ? void 0 : billingData_2.orders[0]) === null || _e === void 0 ? void 0 : _e.device) === null || _f === void 0 ? void 0 : _f._id,
@@ -1290,6 +1291,9 @@ var Order = /** @class */ (function (_super) {
                                     technicianId: technicianId,
                                 });
                             }
+                        });
+                        socket_2.on("error", function (error) {
+                            console.log("SOCKET ERROR", error);
                         });
                         _m.label = 6;
                     case 6:
@@ -1576,7 +1580,13 @@ var Order = /** @class */ (function (_super) {
                         query = {
                             status: ((_b = (_a = req === null || req === void 0 ? void 0 : req.query.status) === null || _a === void 0 ? void 0 : _a.toString()) === null || _b === void 0 ? void 0 : _b.toUpperCase()) === "ONGOING"
                                 ? {
-                                    $nin: ["PENDING", "COMPLETED", "CANCELLED", "DELIVERED"],
+                                    $nin: [
+                                        "PENDING",
+                                        "COMPLETED",
+                                        "CANCELLED",
+                                        "DELIVERED",
+                                        "PAID",
+                                    ],
                                 }
                                 : (_d = (_c = req.query.status) === null || _c === void 0 ? void 0 : _c.toString()) === null || _d === void 0 ? void 0 : _d.toUpperCase(),
                             userID: (_e = req === null || req === void 0 ? void 0 : req.currentUser) === null || _e === void 0 ? void 0 : _e._id,

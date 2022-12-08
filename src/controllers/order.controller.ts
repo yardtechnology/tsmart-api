@@ -806,6 +806,7 @@ class Order extends OrderLogic {
         { status: billingData?.type !== "EXTRA" ? "INITIATED" : undefined }
       );
       console.log(
+        "SOCKET CONDITION",
         billingData?.orders[0]?.serviceType === "CALL_OUT" &&
           billingData?.type !== "EXTRA"
       );
@@ -819,6 +820,7 @@ class Order extends OrderLogic {
         billingData?.orders[0]?.serviceType === "CALL_OUT" &&
         billingData?.type !== "EXTRA"
       ) {
+        console.log("INSIDE SOCKET CONDITION");
         //find all technician nearby
         const allTechnician = await UserModel.find({
           role: "TECHNICIAN",
@@ -851,6 +853,9 @@ class Order extends OrderLogic {
               technicianId,
             });
           }
+        });
+        socket.on("error", (error) => {
+          console.log("SOCKET ERROR", error);
         });
       }
       res.status(200).json({
@@ -1100,7 +1105,13 @@ class Order extends OrderLogic {
         status:
           req?.query.status?.toString()?.toUpperCase() === "ONGOING"
             ? {
-                $nin: ["PENDING", "COMPLETED", "CANCELLED", "DELIVERED"],
+                $nin: [
+                  "PENDING",
+                  "COMPLETED",
+                  "CANCELLED",
+                  "DELIVERED",
+                  "PAID",
+                ],
               }
             : req.query.status?.toString()?.toUpperCase(),
         userID: req?.currentUser?._id,
