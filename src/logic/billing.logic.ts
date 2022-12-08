@@ -1,4 +1,4 @@
-import { CouponSchema } from "../models";
+import { ConfigSchema, CouponSchema } from "../models";
 import { BillingModel } from "../models/billing.model";
 // import { ConfigModel } from "../models/config.model";
 // import { CouponModel } from "../models/coupon.models";
@@ -37,9 +37,7 @@ class BillingLogic extends CouponLogic {
   }): Promise<BillingType> {
     return new Promise(async (resolve, reject) => {
       try {
-        const configData = {
-          tax: 15,
-        };
+        const configData = await ConfigSchema.findOne({});
         //TODO:calculate after coupon discount price
         const total = price;
         let couponValue = 0;
@@ -53,7 +51,7 @@ class BillingLogic extends CouponLogic {
             price: price,
           });
         }
-        const tax = configData?.tax ? (total * configData.tax) / 100 : 0;
+        const tax = configData?.tax ? (total * (configData.tax || 1)) / 100 : 0;
         const subPrice = total - tax;
         const bill: BillingType = await new BillingModel({
           orders: orderIds,
@@ -100,7 +98,7 @@ class BillingLogic extends CouponLogic {
     amount: number;
     couponInfo?: any;
   }> {
-    const configData = {};
+    const configData = await CouponSchema.findById(couponId);
     const productData = await ProductModel.findById(productId);
     if (!productData) throw new Error("Product not found");
     const amount = productData.salePrice * quantity;
@@ -140,7 +138,7 @@ class BillingLogic extends CouponLogic {
     amount: number;
     couponInfo: any;
   }> {
-    const configData = {};
+    const configData = await CouponSchema.findById(couponId);
     const cartData = await new CartLogic().getCartItems(userId);
     const amount = cartData?.subTotal;
     let couponValue = 0;
@@ -199,7 +197,7 @@ class BillingLogic extends CouponLogic {
         const bill: BillingType = await new BillingModel({
           orders: ordersIdArr,
           subTotal: basePrice,
-          tax: configData?.tax ? (basePrice * configData.tax) / 100 : 0,
+          tax: configData?.tax ? (basePrice * (configData.tax || 1)) / 100 : 0,
           total: basePrice - (couponDiscount?.benefitAmount || 0),
           paymentMethod: paymentMethod,
           metadata: {
@@ -248,7 +246,9 @@ class BillingLogic extends CouponLogic {
           },
           {
             subTotal: basePrice,
-            tax: configData?.tax ? (basePrice * configData.tax) / 100 : 0,
+            tax: configData?.tax
+              ? (basePrice * (configData.tax || 1)) / 100
+              : 0,
             total: basePrice - (couponDiscount?.benefitAmount || 0),
             paymentMethod: paymentMethod,
             couponDiscount,
@@ -262,7 +262,9 @@ class BillingLogic extends CouponLogic {
         if (!bill) {
           bill = await new BillingModel({
             subTotal: basePrice,
-            tax: configData?.tax ? (basePrice * configData.tax) / 100 : 0,
+            tax: configData?.tax
+              ? (basePrice * (configData.tax || 1)) / 100
+              : 0,
             total: basePrice - (couponDiscount?.benefitAmount || 0),
             paymentMethod: paymentMethod,
             couponDiscount,

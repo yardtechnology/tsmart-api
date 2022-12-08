@@ -1016,6 +1016,11 @@ class Order extends OrderLogic {
             nearByTechnicians: new Types.ObjectId(req?.currentUser?._id),
           },
         },
+        {
+          $sort: {
+            createdAt: -1,
+          },
+        },
       ]);
       res.json({
         status: "SUCCESS",
