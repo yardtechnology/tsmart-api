@@ -66,6 +66,7 @@ class OrderLogic extends MediaLogic {
         const scheduledTime = new Date(serviceTime);
         const makeData = await MakeSchema.findById(makeId);
         if (!makeData) throw new Error("make not found");
+        //test
         //check model if exist or not
         const modelData = await ModelModel.findById(modelId);
         if (!modelData) throw new Error("model not found");
