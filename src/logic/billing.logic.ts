@@ -57,7 +57,7 @@ class BillingLogic extends CouponLogic {
         const subPrice = total - tax;
         const bill: BillingType = await new BillingModel({
           orders: orderIds,
-          total,
+          total: total - couponValue,
           status,
           metadata: {
             payment_order_id,
