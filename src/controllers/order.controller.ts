@@ -384,10 +384,9 @@ class Order extends OrderLogic {
           new NotificationLogic().pushNotification({
             userIds: [orderData?.user?._id],
             title: "Order Delivered",
-            body: `Your order ${orderData?._id} is ${orderData?.status?.replace(
-              /_/g,
-              " "
-            )}`,
+            body: `Your order ${orderData?._id} is ${(
+              req.body.status || orderData?.status
+            )?.replace(/_/g, " ")}`,
           });
           //SEND INVOICE TO USER
           if (orderData?.user?.email) {
@@ -408,10 +407,9 @@ class Order extends OrderLogic {
           new NotificationLogic().pushNotification({
             userIds: [orderData?.user?._id],
             title: "Order COMPLETED",
-            body: `Your order ${orderData?._id} is ${orderData?.status?.replace(
-              /_/g,
-              " "
-            )}`,
+            body: `Your order ${orderData?._id} is ${(
+              req.body.status || orderData?.status
+            )?.replace(/_/g, " ")}`,
           });
           break;
         case "CANCELLED":
@@ -426,10 +424,9 @@ class Order extends OrderLogic {
           new NotificationLogic().pushNotification({
             userIds: [orderData?.user?._id],
             title: "Order Cancelled",
-            body: `Your order ${orderData?._id} is ${orderData?.status?.replace(
-              /_/g,
-              " "
-            )}`,
+            body: `Your order ${orderData?._id} is ${(
+              req.body.status || orderData?.status
+            )?.replace(/_/g, " ")}`,
           });
           break;
 
@@ -437,10 +434,9 @@ class Order extends OrderLogic {
           new NotificationLogic().pushNotification({
             userIds: [orderData?.user?._id],
             title: "Order status updated",
-            body: `Your order ${orderData?._id} is ${orderData?.status?.replace(
-              /_/g,
-              " "
-            )}`,
+            body: `Your order ${orderData?._id} is ${(
+              req.body.status || orderData?.status
+            )?.replace(/_/g, " ")}`,
           });
           new MailController().sendMail({
             to: orderData.user.email,
