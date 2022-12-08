@@ -23,7 +23,7 @@ export default class ReviewRoutes extends AuthenticateMiddleware {
     // get all
     this.router.get(
       "/review",
-      super.isAuthenticated,
+      // super.isAuthenticated,
 
       this.reviewController.getAll
     );

@@ -126,11 +126,15 @@ class RefurbishedDashboardController {
   }
   async card(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const currentYearLowDate = new Date(new Date().getFullYear(), 0);
-      const currentYearHighDate = new Date(
+      const currentDateRoot = new Date(
         new Date().getFullYear(),
-        11,
-        31,
+        new Date().getMonth(),
+        new Date().getDate()
+      );
+      const currentDateHigh = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        new Date().getDate(),
         23,
         59,
         59
@@ -142,17 +146,29 @@ class RefurbishedDashboardController {
       if (role === "MANAGER") {
         const findUser = await UserModel.findById(req?.currentUser?._id);
         managerQuery = { store: findUser?.store };
-        managerFilter.push([
-          {
+        findUser?.store &&
+          managerFilter.push({
             $eq: ["$store", new Types.ObjectId(findUser?.store?.toString())],
-          },
-        ]);
+          });
       }
 
       const totalRefurbished = await ProductModel.find({
         type: "REFURBISHED",
         ...managerQuery,
       }).count();
+      const totalRefurbishedDatabase = await ProductModel.find({
+        type: "REFURBISHED",
+      }).count();
+      const totalRefurbishedAddedTodayDatabase = await ProductModel.find({
+        type: "REFURBISHED",
+        $and: [
+          { createdAt: { $gte: new Date(currentDateRoot) } },
+          {
+            createdAt: { $lte: new Date(currentDateHigh) },
+          },
+        ],
+      }).count();
+
       const todayRefurbished = await ProductModel.aggregate([
         {
           $match: {
@@ -162,10 +178,10 @@ class RefurbishedDashboardController {
                   $eq: ["$type", "REFURBISHED"],
                 },
                 {
-                  $gte: ["$createdAt", new Date(currentYearLowDate)],
+                  $gte: ["$createdAt", new Date(currentDateRoot)],
                 },
                 {
-                  $lte: ["$createdAt", new Date(currentYearHighDate)],
+                  $lte: ["$createdAt", new Date(currentDateHigh)],
                 },
                 ...managerFilter,
               ],
@@ -182,6 +198,8 @@ class RefurbishedDashboardController {
         data: {
           totalRefurbished,
           todayRefurbished: todayRefurbished?.[0]?.total || 0,
+          totalRefurbishedDatabase,
+          totalRefurbishedAddedTodayDatabase,
         },
       });
     } catch (error) {
