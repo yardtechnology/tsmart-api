@@ -732,7 +732,7 @@ class Order extends OrderLogic {
         );
 
         //send socket event to every
-        const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
+        const socket = io(`${req.protocol}://${req.headers.host}/incoming-job`);
         socket.on("connect", () => {
           for (const technicianId of nearByTechnicians) {
             socket.emit("NEW-JOB-REQUEST", {
@@ -815,22 +815,11 @@ class Order extends OrderLogic {
         { _id: { $in: billingData?.orders?.map((item) => item?._id) } },
         { status: billingData?.type !== "EXTRA" ? "INITIATED" : undefined }
       );
-      console.log(
-        "SOCKET CONDITION",
-        billingData?.orders[0]?.serviceType === "CALL_OUT" &&
-          billingData?.type !== "EXTRA"
-      );
-      console.log(
-        billingData?.orders[0]?.serviceType,
-        billingData?.type,
-        "EXTRA"
-      );
       // IF ORDER IS CALLOUT THE SEND REQUEST TO ALL NEAR BY TECHNICIAN
       if (
         billingData?.orders[0]?.serviceType === "CALL_OUT" &&
         billingData?.type !== "EXTRA"
       ) {
-        console.log("INSIDE SOCKET CONDITION");
         //find all technician nearby
         const allTechnician = await UserModel.find({
           role: "TECHNICIAN",
@@ -854,15 +843,21 @@ class Order extends OrderLogic {
           nearByTechnicians,
         });
         //send socket event to every
-        const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
+        console.log({
+          socketUrl: `${req.protocol}://${req.headers.host}/incoming-job`,
+        });
+        const socket = io(`${req.protocol}://${req.headers.host}/incoming-job`);
         socket.on("connect", () => {
           console.log("CONNECTED");
           for (const technicianId of nearByTechnicians) {
-            console.log("TECHNICIAN", technicianId);
+            // console.log("TECHNICIAN", technicianId);
             socket.emit("NEW-JOB-REQUEST", {
               technicianId,
             });
           }
+        });
+        socket.on("close", () => {
+          console.log("close");
         });
         socket.on("error", (error) => {
           console.log("SOCKET ERROR", error);
@@ -1080,7 +1075,9 @@ class Order extends OrderLogic {
             }
           );
           //send socket event to every
-          const socket = io(`${process?.env?.SOCKET_URL}/incoming-job`);
+          const socket = io(
+            `${req.protocol}://${req.headers.host}/incoming-job`
+          );
           socket.on("connect", () => {
             for (const technicianId in jobRequests?.nearByTechnicians) {
               socket.emit("NEW-JOB-REQUEST", {
