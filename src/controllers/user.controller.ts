@@ -105,7 +105,7 @@ class User extends MediaLogic {
 
       if (!updatedUser) throw new Error("User not found");
 
-      if (email) {
+      if (email && !(updatedUser?.email === email)) {
         // create secret
         const secret: string = await new JWTLogic().getAccessToken(
           {
