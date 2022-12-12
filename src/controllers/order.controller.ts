@@ -611,7 +611,7 @@ class Order extends OrderLogic {
       });
       //add billing id in order data
       OrderModel.updateMany(
-        [{ _id: { $in: orderIds } }],
+        { _id: { $in: orderIds } },
         {
           billing: billingData?._id,
         },
