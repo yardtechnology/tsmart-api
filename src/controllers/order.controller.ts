@@ -728,6 +728,11 @@ class Order extends OrderLogic {
             nearByTechnicians,
           }
         );
+        new NotificationLogic().pushNotification({
+          title: "New job request",
+          body: "",
+          userIds: nearByTechnicians,
+        });
 
         //send socket event to every
         const socket = io(`${req.protocol}://${req.headers.host}/incoming-job`);
@@ -738,6 +743,37 @@ class Order extends OrderLogic {
             });
           }
         });
+      }
+      if (billingData?.type === "EXTRA") {
+        //confirmation mail for user
+        new MailController().sendMail({
+          to: billingData?.orders[0].user.email,
+          subject: "Extra bill paid successfully",
+          text: `
+          Hi ${billingData?.orders[0].user.displayName},
+          your extra bill paid successfully for order #${billingData.orders[0]?._id}
+          Thanks,`,
+        });
+        //confirmation mail for technician
+        billingData?.orders[0].technician.email &&
+          new MailController().sendMail({
+            to: billingData?.orders[0].technician.email,
+            subject: "Extra bill paid successfully",
+            text: `
+          Hi ${billingData?.orders[0].technician.displayName},
+          Extra bill paid successfully for order #${billingData.orders[0]?._id}, by ${billingData?.orders[0].user.displayName}
+          Thanks,`,
+          });
+        //confirmation mail for store
+        billingData?.orders[0].store.email &&
+          new MailController().sendMail({
+            to: billingData?.orders[0].store.email,
+            subject: "Extra bill paid successfully",
+            text: `
+          Hi ${billingData?.orders[0].store.displayName} store manager,
+          Extra bill paid successfully for order #${billingData.orders[0]?._id}, by ${billingData?.orders[0].user.displayName}
+          Thanks,`,
+          });
       }
       res.status(200).json({
         status: "SUCCESS",
@@ -842,6 +878,11 @@ class Order extends OrderLogic {
           .map((user) => user?._id);
         await OrderModel.findByIdAndUpdate(billingData?.orders[0]?._id, {
           nearByTechnicians,
+        });
+        new NotificationLogic().pushNotification({
+          title: "New job request",
+          body: "",
+          userIds: nearByTechnicians,
         });
         //send socket event to every
         console.log({
