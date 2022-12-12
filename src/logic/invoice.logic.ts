@@ -29,7 +29,6 @@ class InvoiceLogic {
           },
         ]);
         if (!orderInfo) throw new Error("Order not found");
-        // console.log({ orderInfo });
 
         const commonTemplet = `<!DOCTYPE html>
                 <html lang="en">
@@ -471,7 +470,7 @@ class InvoiceLogic {
                         <!-- product item start -->
                         ${orderInfo?.billing?.orders
                           ?.map((order: OrderType) => {
-                            order.product
+                            return order.product
                               ? `<tr>
                             <td id="td-6">
                               <img src="${
@@ -594,7 +593,6 @@ class InvoiceLogic {
                         <!-- evaluation service item start -->
                         ${orderInfo?.evaluatedValues
                           ?.map((evaluated: EVALUATION_PRICE_TYPE) => {
-                            console.log({ evaluated });
                             return `<tr>
                             <td id="td-6">
                               <img src="${
