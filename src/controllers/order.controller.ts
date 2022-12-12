@@ -1226,6 +1226,7 @@ class Order extends OrderLogic {
         sort: { createdAt: -1 },
         limit: req.query.limit ? Number(req.query.limit) : undefined,
         chunk: req.query.chunk ? Number(req.query.chunk) : undefined,
+        populate: "billing extraBilling",
       });
 
       res.json({
