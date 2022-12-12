@@ -36,8 +36,10 @@ class MailController {
           subject,
           text,
         };
+        console.log({ mailOptions });
 
         this.transporter.sendMail(mailOptions, function (error, info) {
+          console.log({ info });
           if (error) {
             reject(error);
           } else {
@@ -500,6 +502,7 @@ class MailController {
           subject,
           html: htmlTemplet,
         };
+        console.log({ mailOptions });
 
         this.transporter.sendMail(mailOptions, function (error, info) {
           if (error) {
