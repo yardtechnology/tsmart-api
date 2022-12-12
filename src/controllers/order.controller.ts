@@ -372,10 +372,11 @@ class Order extends OrderLogic {
           }.`
         }
         ${
-          orderData?.ETA &&
-          `We will deliver your order by ${new Date(
-            orderData?.ETA
-          ).toLocaleString()}.`
+          orderData?.ETA
+            ? `We will deliver your order by ${new Date(
+                orderData?.ETA
+              ).toLocaleString()}.`
+            : ""
         }
         Thanks,`,
       });
@@ -450,10 +451,11 @@ class Order extends OrderLogic {
               }.`
             }
             ${
-              orderData?.ETA &&
-              `We will deliver your order by ${new Date(
-                orderData?.ETA
-              ).toLocaleString()}.`
+              orderData?.ETA
+                ? `We will deliver your order by ${new Date(
+                    orderData?.ETA
+                  ).toLocaleString()}.`
+                : ""
             }
             Thanks,`,
           });
