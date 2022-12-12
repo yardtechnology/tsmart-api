@@ -609,7 +609,7 @@ class OrderLogic extends MediaLogic {
       const mailOptions = {
         from: process.env.EMAIL,
         to: mail,
-        subject: `Invoice for your ride ${orderData?.orderData?._id}`,
+        subject: `Invoice for your order ${orderData?.orderData?._id}`,
         html: orderData?.invoiceHTML,
       };
       return await new MailController().transporter.sendMail(mailOptions);
@@ -645,7 +645,7 @@ class OrderLogic extends MediaLogic {
       //             const mailOptions = {
       //               from: process.env.EMAIL,
       //               to: mail,
-      //               subject: `Invoice for your ride ${orderData?.orderData?._id}`,
+      //               subject: `Invoice for your order ${orderData?.orderData?._id}`,
       //               html: orderData?.invoiceHTML,
       //               attachments: [
       //                 {
@@ -685,7 +685,7 @@ class OrderLogic extends MediaLogic {
       // const mailOptions = {
       //   from: process.env.EMAIL,
       //   to: mail,
-      //   subject: `Invoice for your ride ${orderData?.orderData?._id}`,
+      //   subject: `Invoice for your order ${orderData?.orderData?._id}`,
       //   html: invoiceTemplate,
       //   attachments: [
       //     {
