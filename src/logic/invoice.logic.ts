@@ -250,6 +250,7 @@ class InvoiceLogic {
                       .img_two {
                         height: 2.5rem;
                         width: 2.5rem;
+                        object-fit: contain;
                       }
                 
                       #td-6 {
@@ -378,7 +379,7 @@ class InvoiceLogic {
                           <td class="td_4" style="text-transform: uppercase">
                           </td>
                           <td class="td_5" style="text-transform: uppercase">
-                            <h3>Address :</h3>
+                            ${orderInfo?.address ? `<h3>Address :</h3>` : ""}
                           </td>
                         </tr>
                         <tr>
@@ -386,7 +387,11 @@ class InvoiceLogic {
                             
                           </td>
                           <td id="td_7">
-                            <h3>${orderInfo?.address?.name}</h3>
+                            ${
+                              orderInfo?.address?.name
+                                ? `<h3>${orderInfo?.address?.name}</h3>`
+                                : ""
+                            }
                             ${
                               orderInfo?.address?.street
                                 ? `<b>${orderInfo?.address?.street}, </b>`
@@ -417,10 +422,16 @@ class InvoiceLogic {
                                 ? `<b>${orderInfo?.address?.email}, </b>`
                                 : ""
                             }
-                            <b>+${
-                              (orderInfo?.address?.country,
-                              orderInfo?.address?.phoneNumber)
-                            }</b>
+                            ${
+                              orderInfo?.address?.country &&
+                              orderInfo?.address?.phoneNumber
+                                ? `<b>+${
+                                    (orderInfo?.address?.country,
+                                    orderInfo?.address?.phoneNumber)
+                                  }
+                            </b>`
+                                : ""
+                            }
                           </td>
                         </tr>
                         <tr>
