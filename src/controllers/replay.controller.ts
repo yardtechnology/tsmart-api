@@ -12,6 +12,7 @@ class ReplayController {
       //   fieldValidateError(req);
       const { subject, body, userId, isEmailSend, isNotification, email } =
         req.body;
+      console.log({ body: req.body });
       isNotification &&
         (await new NotificationLogic().pushNotification({
           title: subject,
@@ -19,16 +20,16 @@ class ReplayController {
           userIds: [userId],
         }));
       // email send
-      if (isEmailSend && userId && !email) {
-        const userData = await UserModel.findById(userId);
-        if (!userData?.email)
-          throw new BadRequest("No email found in this user");
-        await new MailController().sendHtmlMail({
-          to: userData?.email || email,
-          subject: subject,
-          html: body,
-        });
-      }
+
+      const userData = userId ? await UserModel.findById(userId) : undefined;
+      if (userId && !userData?.email)
+        throw new BadRequest("No email found in this user");
+      console.log({ email });
+      await new MailController().sendHtmlMail({
+        to: userData?.email || email,
+        subject: subject,
+        html: body,
+      });
 
       res.json({
         status: "SUCCESS",
