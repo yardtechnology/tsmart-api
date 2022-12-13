@@ -911,12 +911,6 @@ class Order extends OrderLogic {
       }
       if (billingData?.type === "EXTRA") {
         //confirmation mail for user
-        console.log(billingData);
-        console.log(billingData?.orders);
-        console.log(
-          "billingData?.orders[0]?.user?.email",
-          billingData?.orders[0]?.user?.email
-        );
         billingData?.orders[0]?.user?.email &&
           new MailController().sendMail({
             to: billingData?.orders[0]?.user?.email,
@@ -927,10 +921,6 @@ class Order extends OrderLogic {
           Thanks,`,
           });
         //confirmation mail for technician
-        console.log(
-          "billingData?.orders[0]?.technician?.email",
-          billingData?.orders[0]?.technician?.email
-        );
         billingData?.orders[0]?.technician?.email &&
           new MailController().sendMail({
             to: billingData?.orders[0]?.technician?.email,
@@ -941,10 +931,6 @@ class Order extends OrderLogic {
           Thanks,`,
           });
         //confirmation mail for store
-        console.log(
-          "billingData?.orders[0]?.store?.email",
-          billingData?.orders[0]?.store?.email
-        );
         billingData?.orders[0]?.store?.email &&
           new MailController().sendMail({
             to: billingData?.orders[0]?.store?.email,
@@ -1268,12 +1254,12 @@ class Order extends OrderLogic {
       let orderData = await OrderModel?.findById(req?.params?.orderId);
       if (!orderData) throw new Error("Order not found");
       const orderPlacedTime =
-        new Date().getTime() -
-        new Date(orderData?.createdAt).getTime() / (1000 * 60);
+        (new Date().getTime() - new Date(orderData?.createdAt).getTime()) /
+        (1000 * 60);
       if (configData?.orderCancelTime) {
         if (orderPlacedTime >= configData?.orderCancelTime)
           throw new Error(
-            "Order cannot be canceled after order cancelation time has passed"
+            `Order cannot be canceled after order cancellation time has passed i.e: ${configData?.orderCancelTime} mins`
           );
       }
       orderData = await OrderModel.findByIdAndUpdate(req?.params?.orderId, {
