@@ -1,5 +1,6 @@
 import { NextFunction, Response } from "express";
 import { body } from "express-validator";
+import { BadRequest } from "http-errors";
 import NotificationLogic from "../logic/notification.logics";
 import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
@@ -9,7 +10,8 @@ class ReplayController {
   async replay(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       //   fieldValidateError(req);
-      const { subject, body, userId, isEmailSend, isNotification } = req.body;
+      const { subject, body, userId, isEmailSend, isNotification, email } =
+        req.body;
       isNotification &&
         (await new NotificationLogic().pushNotification({
           title: subject,
@@ -17,10 +19,12 @@ class ReplayController {
           userIds: [userId],
         }));
       // email send
-      if (isEmailSend && userId) {
+      if (isEmailSend && userId && !email) {
         const userData = await UserModel.findById(userId);
+        if (!userData?.email)
+          throw new BadRequest("No email found in this user");
         await new MailController().sendHtmlMail({
-          to: userData?.email || "",
+          to: userData?.email || email,
           subject: subject,
           html: body,
         });
@@ -41,6 +45,7 @@ export const ReplayControllerValidation = {
     body("subject").not().exists().withMessage("subject is required."),
     body("body").not().exists().withMessage("body is required."),
     body("userId")
+      .optional()
       .if(
         (value: string, { req }: any) =>
           req.body?.isEmailSend || req?.body?.isNotification
