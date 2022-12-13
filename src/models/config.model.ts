@@ -100,6 +100,7 @@ const configSchema = new Schema<CONFIG_TYPE, Model<CONFIG_TYPE>>(
     storeRange: Number,
     orderCancelTime: Number,
     newsLatterEmails: [],
+    technicianSearchRange: Number,
   },
   { timestamps: true }
 );

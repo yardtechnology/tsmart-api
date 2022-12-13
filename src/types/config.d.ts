@@ -48,4 +48,5 @@ export default interface CONFIG_TYPE extends Document {
   storeRange: number;
   orderCancelTime: number; // in minutes
   newsLatterEmails: string[];
+  technicianSearchRange: number;
 }

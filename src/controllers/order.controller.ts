@@ -709,17 +709,19 @@ class Order extends OrderLogic {
           deviceType: billingData?.orders[0]?.device?._id,
           makeType: billingData?.orders[0]?.make?._id,
         });
+        const configData = await ConfigSchema.findOne({});
         const nearByTechnicians: string[] = allTechnician
-          .filter(
-            (user: any) =>
-              50 >=
-              getDistance(
-                billingData?.orders[0]?.address?.latitude as number,
-                billingData?.orders[0]?.address?.longitude as number,
-                user?.latitude,
-                user?.longitude,
-                "K"
-              )
+          .filter((user: any) =>
+            configData?.technicianSearchRange
+              ? configData?.technicianSearchRange >=
+                getDistance(
+                  billingData?.orders[0]?.address?.latitude as number,
+                  billingData?.orders[0]?.address?.longitude as number,
+                  user?.latitude,
+                  user?.longitude,
+                  "K"
+                )
+              : true
           )
           .map((user) => user?._id);
         const orderInfo = await OrderModel.findByIdAndUpdate(
@@ -864,17 +866,19 @@ class Order extends OrderLogic {
           deviceType: billingData?.orders[0]?.device?._id,
           makeType: billingData?.orders[0]?.make?._id,
         });
+        const configData = await ConfigSchema.findOne({});
         const nearByTechnicians: string[] = allTechnician
-          .filter(
-            (user: any) =>
-              50 >=
-              getDistance(
-                billingData?.orders[0]?.address?.latitude as number,
-                billingData?.orders[0]?.address?.longitude as number,
-                user?.latitude,
-                user?.longitude,
-                "K"
-              )
+          .filter((user: any) =>
+            configData?.technicianSearchRange
+              ? configData?.technicianSearchRange >=
+                getDistance(
+                  billingData?.orders[0]?.address?.latitude as number,
+                  billingData?.orders[0]?.address?.longitude as number,
+                  user?.latitude,
+                  user?.longitude,
+                  "K"
+                )
+              : true
           )
           .map((user) => user?._id);
         await OrderModel.findByIdAndUpdate(billingData?.orders[0]?._id, {
