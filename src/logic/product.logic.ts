@@ -432,11 +432,13 @@ class ProductLogic extends MediaLogic {
     chunk,
     type,
     storeId,
+    excludeAccessoryIdsArrayCheck,
   }: {
     limit?: number;
     chunk?: number;
     type?: string;
     storeId?: string;
+    excludeAccessoryIdsArrayCheck?: any[];
   }): Promise<any> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -452,6 +454,11 @@ class ProductLogic extends MediaLogic {
         storeId &&
           matchArray.push({
             $eq: ["$store", new Types.ObjectId(storeId)],
+          });
+
+        excludeAccessoryIdsArrayCheck?.length &&
+          matchArray.push({
+            $not: [{ $in: ["$_id", excludeAccessoryIdsArrayCheck] }],
           });
 
         const query = [
@@ -510,7 +517,7 @@ class ProductLogic extends MediaLogic {
           model: ProductModel,
           query: query,
           position: query.length,
-          sort: { createdAt: -1 },
+          sort: { createdAt: 1 },
           limit: limit ? Number(limit) : undefined,
           chunk: chunk ? Number(chunk) : undefined,
         });
@@ -567,6 +574,7 @@ class ProductLogic extends MediaLogic {
     userId,
     isFeatured,
     categoryId,
+    excludeAccessoryIdsArrayCheck,
   }: {
     limit?: number;
     chunk?: number;
@@ -574,6 +582,7 @@ class ProductLogic extends MediaLogic {
     type?: any;
     isFeatured?: boolean;
     categoryId?: Types.ObjectId;
+    excludeAccessoryIdsArrayCheck?: any[];
   }): Promise<
     PaginationResult<ProductType & { isInWishList: boolean; isInCart: boolean }>
   > {
@@ -600,8 +609,20 @@ class ProductLogic extends MediaLogic {
     !type && delete query.type;
     !isFeatured && delete query.isFeatured;
     !categoryId && delete query.category;
+    const excludeHaveThenQuery = excludeAccessoryIdsArrayCheck?.length
+      ? [
+          {
+            $match: {
+              $expr: {
+                $not: [{ $in: ["$_id", excludeAccessoryIdsArrayCheck] }],
+              },
+            },
+          },
+        ]
+      : [];
     const products = await ProductModel.aggregate([
       { $match: query },
+      ...excludeHaveThenQuery,
       {
         $lookup: {
           from: "colors",
@@ -660,7 +681,7 @@ class ProductLogic extends MediaLogic {
         },
       },
       {
-        $sort: { createdAt: -1 },
+        $sort: { createdAt: 1 },
       },
       {
         $skip: chunk * limit,

@@ -270,7 +270,7 @@ class TimingController {
         },
         {
           $sort: {
-            startDateForm: -1,
+            startDateForm: 1,
           },
         },
       ]);

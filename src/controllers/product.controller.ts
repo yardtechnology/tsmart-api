@@ -231,7 +231,13 @@ class Product extends ProductLogic {
     next: NextFunction
   ): Promise<any> {
     try {
-      const { storeId } = req.query;
+      const { storeId, excludeAccessoryIds } = req.query;
+
+      const excludeAccessoryIdsArrayCheck = excludeAccessoryIds
+        ? Array.isArray(excludeAccessoryIds)
+          ? (excludeAccessoryIds as string[])
+          : [excludeAccessoryIds as string]
+        : undefined;
       let products;
       if (req.query?.userId) {
         products = await super.getAllProductsOptimized({
@@ -241,6 +247,10 @@ class Product extends ProductLogic {
             ? req.query.type.toString().toUpperCase()
             : undefined,
           userId: req.query?.userId as string,
+          excludeAccessoryIdsArrayCheck:
+            excludeAccessoryIdsArrayCheck?.map(
+              (item: any) => new Types.ObjectId(item)
+            ) || [],
         });
       } else {
         products = await super.getAllDisplayProducts({
@@ -250,6 +260,10 @@ class Product extends ProductLogic {
             ? req.query.type.toString().toUpperCase()
             : undefined,
           storeId: storeId ? String(storeId) : undefined,
+          excludeAccessoryIdsArrayCheck:
+            excludeAccessoryIdsArrayCheck?.map(
+              (item: any) => new Types.ObjectId(item)
+            ) || [],
         });
       }
       // send response to client
