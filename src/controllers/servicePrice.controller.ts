@@ -368,6 +368,7 @@ class ServicePrice extends MediaLogic {
             },
           },
         },
+
         {
           $group: {
             _id: {
@@ -450,6 +451,13 @@ class ServicePrice extends MediaLogic {
       aggregationQuery.push({
         $sort: {
           cardSize: 1,
+        },
+      });
+      aggregationQuery.push({
+        $addFields: {
+          longCard: {
+            $slice: ["$longCard", 3],
+          },
         },
       });
       // }
