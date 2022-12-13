@@ -31,9 +31,9 @@ export async function aggregationData<T>({
   chunk,
 }: PAGINATION_AGGREGATION_TYPE): Promise<PaginationResult<T>> {
   try {
+    const limitSkipArgs: any[] = [];
+    sort && limitSkipArgs.push({ $sort: sort });
     if (limit && chunk && typeof position === "number") {
-      const limitSkipArgs: any[] = [];
-      sort && limitSkipArgs.push({ $sort: sort });
       const skip =
         chunk || limit ? Number(limit) * (Number(chunk) - 1) : undefined;
       const limitData = chunk || limit ? Number(limit) + 1 : undefined;
@@ -58,7 +58,7 @@ export async function aggregationData<T>({
         isLastChunk: !isLastChunk,
       };
     } else {
-      const dataGet = await model.aggregate(query);
+      const dataGet = await model.aggregate([...query, ...limitSkipArgs]);
       return {
         data: dataGet,
         isLastChunk: false,

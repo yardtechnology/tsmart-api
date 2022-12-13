@@ -517,7 +517,7 @@ class ProductLogic extends MediaLogic {
           model: ProductModel,
           query: query,
           position: query.length,
-          sort: { createdAt: 1 },
+          sort: { createdAt: -1 },
           limit: limit ? Number(limit) : undefined,
           chunk: chunk ? Number(chunk) : undefined,
         });
