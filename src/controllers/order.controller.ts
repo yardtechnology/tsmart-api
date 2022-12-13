@@ -911,6 +911,12 @@ class Order extends OrderLogic {
       }
       if (billingData?.type === "EXTRA") {
         //confirmation mail for user
+        console.log(billingData);
+        console.log(billingData?.orders);
+        console.log(
+          "billingData?.orders[0]?.user?.email",
+          billingData?.orders[0]?.user?.email
+        );
         billingData?.orders[0]?.user?.email &&
           new MailController().sendMail({
             to: billingData?.orders[0]?.user?.email,
@@ -921,6 +927,10 @@ class Order extends OrderLogic {
           Thanks,`,
           });
         //confirmation mail for technician
+        console.log(
+          "billingData?.orders[0]?.technician?.email",
+          billingData?.orders[0]?.technician?.email
+        );
         billingData?.orders[0]?.technician?.email &&
           new MailController().sendMail({
             to: billingData?.orders[0]?.technician?.email,
@@ -931,6 +941,10 @@ class Order extends OrderLogic {
           Thanks,`,
           });
         //confirmation mail for store
+        console.log(
+          "billingData?.orders[0]?.store?.email",
+          billingData?.orders[0]?.store?.email
+        );
         billingData?.orders[0]?.store?.email &&
           new MailController().sendMail({
             to: billingData?.orders[0]?.store?.email,
