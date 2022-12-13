@@ -746,32 +746,33 @@ class Order extends OrderLogic {
       }
       if (billingData?.type === "EXTRA") {
         //confirmation mail for user
-        new MailController().sendMail({
-          to: billingData?.orders[0].user.email,
-          subject: "Extra bill paid successfully",
-          text: `
-          Hi ${billingData?.orders[0].user.displayName},
-          your extra bill paid successfully for order #${billingData.orders[0]?._id}
-          Thanks,`,
-        });
-        //confirmation mail for technician
-        billingData?.orders[0].technician.email &&
+        billingData?.orders[0]?.user?.email &&
           new MailController().sendMail({
-            to: billingData?.orders[0].technician.email,
+            to: billingData?.orders[0]?.user?.email,
             subject: "Extra bill paid successfully",
             text: `
-          Hi ${billingData?.orders[0].technician.displayName},
-          Extra bill paid successfully for order #${billingData.orders[0]?._id}, by ${billingData?.orders[0].user.displayName}
+          Hi ${billingData?.orders[0]?.user?.displayName},
+          your extra bill paid successfully for order #${billingData?.orders[0]?._id}
+          Thanks,`,
+          });
+        //confirmation mail for technician
+        billingData?.orders[0]?.technician?.email &&
+          new MailController().sendMail({
+            to: billingData?.orders[0]?.technician?.email,
+            subject: "Extra bill paid successfully",
+            text: `
+          Hi ${billingData?.orders[0]?.technician?.displayName},
+          Extra bill paid successfully for order #${billingData?.orders[0]?._id}, by ${billingData?.orders[0]?.user?.displayName}
           Thanks,`,
           });
         //confirmation mail for store
-        billingData?.orders[0].store.email &&
+        billingData?.orders[0]?.store?.email &&
           new MailController().sendMail({
-            to: billingData?.orders[0].store.email,
+            to: billingData?.orders[0]?.store?.email,
             subject: "Extra bill paid successfully",
             text: `
-          Hi ${billingData?.orders[0].store.displayName} store manager,
-          Extra bill paid successfully for order #${billingData.orders[0]?._id}, by ${billingData?.orders[0].user.displayName}
+          Hi ${billingData?.orders[0]?.store?.displayName} store manager,
+          Extra bill paid successfully for order #${billingData?.orders[0]?._id}, by ${billingData?.orders[0]?.user?.displayName}
           Thanks,`,
           });
       }
