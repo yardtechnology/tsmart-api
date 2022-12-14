@@ -51,7 +51,7 @@ class ServicePrice extends AuthenticateMiddleware {
 
     this.router.post(
       "/service-price/summery",
-      super.isAuthenticated,
+      super.isAuthenticatedNoError,
       ServicePriceControllerValidation.serviceSummery,
       this.servicePriceController.serviceSummery
     );

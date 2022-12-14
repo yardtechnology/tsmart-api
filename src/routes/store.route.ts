@@ -21,7 +21,7 @@ class Category extends AuthenticateMiddleware {
     // get service store
     this.router.get(
       "/store/service-store",
-      super.isAuthenticated,
+      super.isAuthenticatedNoError,
       storeControlValidator.getStoreListAccordingServiceAvailability,
       this.storeController.getStoreListAccordingServiceAvailability
     );

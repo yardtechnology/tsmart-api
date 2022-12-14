@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { extractToken } from "../helper/jwt.helper";
+import { extractToken, extractTokenNoError } from "../helper/jwt.helper";
 import JWT from "../logic/jwt.logic";
 import { AuthRequest } from "../types/core";
 
@@ -14,12 +14,43 @@ class AuthenticateMiddleware extends JWT {
       if (req) {
         // extract token from header
         const decoded = await extractToken(req);
-        req.currentUser = {
-          _id: decoded._id,
-          email: decoded.email,
-          role: decoded.role,
-          store: decoded.store,
-        };
+
+        decoded &&
+          (req.currentUser = {
+            _id: decoded._id,
+            email: decoded.email,
+            role: decoded.role,
+            store: decoded.store,
+          });
+        next();
+      } else {
+        throw new Error("User is not authenticated");
+      }
+    } catch (error) {
+      const err = error as Error;
+      res.status(401).json({
+        status: "FAIL",
+        error: err.message,
+      });
+    }
+  }
+  public async isAuthenticatedNoError(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      if (req) {
+        // extract token from header
+        const decoded = await extractTokenNoError(req);
+
+        decoded &&
+          (req.currentUser = {
+            _id: decoded._id,
+            email: decoded.email,
+            role: decoded.role,
+            store: decoded.store,
+          });
         next();
       } else {
         throw new Error("User is not authenticated");
@@ -116,6 +147,7 @@ class AuthenticateMiddleware extends JWT {
       if (req) {
         // extract token from header
         const decoded = await extractToken(req);
+
         if (decoded.role !== "ADMIN") {
           return res.status(403).json({
             status: "FAIL",

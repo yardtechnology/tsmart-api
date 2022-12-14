@@ -23,3 +23,26 @@ export const extractToken = (req: AuthRequest): Promise<JwtDecodedType> => {
     }
   });
 };
+export const extractTokenNoError = (
+  req: AuthRequest
+): Promise<JwtDecodedType | any> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // get token from header
+      const token = req.headers.authorization;
+      if (!token) throw new Error("Authentication token is required");
+
+      // extract token from header
+      const tokenParts = token.split(" ");
+      const tokenValue = tokenParts[1];
+      if (!tokenValue) throw new Error("Invalid authentication token");
+
+      // verify token
+      const decoded = await new JWTLogic().verifyAccessToken(tokenValue);
+      if (!decoded) throw new Error("Invalid authentication token");
+      resolve(decoded);
+    } catch (error) {
+      resolve(false);
+    }
+  });
+};
