@@ -22,7 +22,6 @@ export default class ConfigRoutes extends AuthenticateMiddleware {
     // get all
     this.router.get(
       "/config",
-      super.isAuthenticated,
       this.configController.getAll
     );
     // add news latter
