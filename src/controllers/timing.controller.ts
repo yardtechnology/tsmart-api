@@ -71,7 +71,7 @@ class TimingController {
           ),
           end: new Date(
             new Date(start).getTime() +
-              (index + 1) * ((durationInMin - 1) * 60 * 1000)
+              (index + 1) * (durationInMin * 60 * 1000)
           ),
         };
       });
