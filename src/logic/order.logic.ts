@@ -504,7 +504,7 @@ class OrderLogic extends MediaLogic {
     makeId,
     modelId,
     deviceId,
-    falsyEvaluatedIds,
+    falsyEvaluatedIds = [],
     addressId,
     bankDetails,
     colorId,

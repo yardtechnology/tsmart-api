@@ -1565,13 +1565,7 @@ class Order extends OrderLogic {
       .not()
       .isEmpty()
       .withMessage("bankDetails.sortCode is required"),
-    body("falsyEvaluatedIds")
-      .not()
-      .isEmpty()
-      .withMessage("falsyEvaluatedIds is required")
-      .isArray()
-      .isMongoId()
-      .withMessage("falsyEvaluatedIds must be an array of evaluatedPriceIds"),
+    body("falsyEvaluatedIds").optional(),
     body("imei").not().isEmpty().withMessage("IMEI number is required"),
   ];
   public validateAddExtraChargesFields = [
