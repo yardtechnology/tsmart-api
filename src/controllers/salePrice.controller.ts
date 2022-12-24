@@ -108,7 +108,9 @@ class SalePriceController {
       fieldValidateError(req);
       const arrayCheck = Array.isArray(evaluationPriceIds)
         ? evaluationPriceIds
-        : [evaluationPriceIds];
+        : evaluationPriceIds
+        ? [evaluationPriceIds]
+        : undefined;
       const saleSummery = await new EvaluationLogic().sellSummery({
         evaluationPriceIds: arrayCheck,
         sellPriceId,
