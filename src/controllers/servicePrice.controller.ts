@@ -287,9 +287,9 @@ class ServicePrice extends MediaLogic {
         {
           $unwind: {
             path: "$service",
-            preserveNullAndEmptyArrays: true,
           },
         },
+
         {
           $group: {
             _id: {
