@@ -4,21 +4,18 @@ import { InternalServerError, NotFound } from "http-errors";
 import { fieldValidateError } from "../helper";
 import paginationHelper from "../helper/pagination.helper";
 import { ContactUsSchema } from "../models";
-import { UserModel } from "../models/user.model";
 import { AuthRequest } from "../types/core";
 
 class ContactUsController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       fieldValidateError(req);
-      const { subject, message, storeId: store } = req.body;
-      const userId = req.currentUser?._id;
-      const userData = await UserModel.findById(userId);
+      const { subject, message, storeId: store, email, displayName } = req.body;
       const createContactUs = await ContactUsSchema.create({
-        email: userData?.email,
-        name: userData?.displayName,
-        phoneNumber: userData?.phoneNumber,
-        countryCode: userData?.country?.code,
+        email,
+        name: displayName,
+        // phoneNumber: userData?.phoneNumber,
+        // countryCode: userData?.country?.code,
         subject,
         message,
         store,
@@ -105,6 +102,20 @@ export const ContactUsControllerValidation = {
       .withMessage("subject must be at least 3 characters long")
       .isLength({ max: 100 })
       .withMessage("subject must be at most 100 characters long"),
+    body("email")
+      .not()
+      .isEmpty()
+      .withMessage("email is required.")
+      .isEmail()
+      .withMessage("not a valid email"),
+    body("displayName")
+      .not()
+      .isEmpty()
+      .withMessage("displayName is required.")
+      .isLength({ min: 3 })
+      .withMessage("displayName must be at least 3 characters long")
+      .isLength({ max: 51 })
+      .withMessage("displayName must be at most 420 characters long"),
     body("storeId")
       .optional()
       .isMongoId()

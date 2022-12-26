@@ -1,4 +1,4 @@
-import { Model, model, Schema } from "mongoose";
+import { Model, Schema, model } from "mongoose";
 import { CONTACT_US_TYPE } from "../types";
 
 const contactUsSchema = new Schema<CONTACT_US_TYPE, Model<CONTACT_US_TYPE>>(
@@ -11,14 +11,14 @@ const contactUsSchema = new Schema<CONTACT_US_TYPE, Model<CONTACT_US_TYPE>>(
       type: String,
       required: [true, "email is required."],
     },
-    phoneNumber: {
-      type: String,
-      required: [true, "phoneNumber is required."],
-    },
-    countryCode: {
-      type: String,
-      required: [true, "countryCode is required."],
-    },
+    // phoneNumber: {
+    //   type: String,
+    //   required: [true, "phoneNumber is required."],
+    // },
+    // countryCode: {
+    //   type: String,
+    //   required: [true, "countryCode is required."],
+    // },
     subject: {
       type: String,
       required: [true, "subject is required."],

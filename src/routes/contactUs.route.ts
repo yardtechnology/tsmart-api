@@ -19,7 +19,6 @@ export default class ContactUsRoutes extends AuthenticateMiddleware {
     // create
     this.router.post(
       "/contactUs/",
-      super.isAuthenticated,
       ContactUsControllerValidation.create,
       this.contactUsController.create
     );
