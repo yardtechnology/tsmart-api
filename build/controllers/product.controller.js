@@ -194,20 +194,20 @@ var Product = /** @class */ (function (_super) {
                 .optional()
                 .isLength({ min: 3 })
                 .withMessage("title must be at least 3 characters long")
-                .isLength({ max: 20 })
-                .withMessage("title must be at most 20 characters long"),
+                .isLength({ max: 100 })
+                .withMessage("title must be at most 100 characters long"),
             (0, express_validator_1.body)("shortDescription")
                 .optional()
                 .isLength({ min: 3 })
                 .withMessage("Short description must be at least 8 characters long")
                 .isLength({ max: 250 })
-                .withMessage("Short description must be at most 51 characters long"),
+                .withMessage("Short description must be at most 250 characters long"),
             (0, express_validator_1.body)("description")
                 .optional()
                 .isLength({ min: 11 })
                 .withMessage("Description must be at least 11 characters long")
-                .isLength({ max: 501 })
-                .withMessage("Description must be at most 501 characters long"),
+                .isLength({ max: 1600 })
+                .withMessage("Description must be at most 1600 characters long"),
             (0, express_validator_1.body)("stock").optional().isNumeric().withMessage("Stock must be a number"),
             (0, express_validator_1.body)("salePrice")
                 .optional()
