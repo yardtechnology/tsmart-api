@@ -1014,8 +1014,8 @@ class Product extends ProductLogic {
       .withMessage("title must be required.")
       .isLength({ min: 3 })
       .withMessage("title must be at least 3 characters long")
-      .isLength({ max: 20 })
-      .withMessage("title must be at most 20 characters long"),
+      .isLength({ max: 100 })
+      .withMessage("title must be at most 100 characters long"),
     body("shortDescription")
       .not()
       .isEmpty()
