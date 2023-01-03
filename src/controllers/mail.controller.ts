@@ -423,7 +423,7 @@ class MailController {
                     >
                       <div class="button-warper">
                         <a
-                          href="${process.env.WEBSITE_END_POINT}/signin"
+                          href="${process.env.WEBSITE_END_POINT}/my-account"
                           style="
                             padding: 0.7rem 3rem;
                             background-color: #400524;
@@ -470,7 +470,7 @@ class MailController {
             
                                     </a>
                                 </div>
-                                <h3 style="text-align: center; padding: 1rem;">+91 9438530447</h3>
+                                <h3 style="text-align: center; padding: 1rem;">+02081680433</h3>
                                 <p>Copyright © 2022 ${process.env.APP_NAME}</p>
                             </td>
                         </tr>
@@ -479,7 +479,7 @@ class MailController {
                     </table>
                     <div style="width: 100%; text-align: center; padding: 2rem;">
                         <p style="color: rgb(113, 113, 113) ;">${process.env.APP_NAME}</p>
-                        <p style="color: rgb(113, 113, 113) ;">${process.env.ADDRESS}</p>
+                        <p style="color: rgb(113, 113, 113) ;">73 Victoria Street, London. SWIH 0HW</p>
                     </div>
                     <div style="width: 100%; text-align: center; padding: 2rem;">
                         <p style="color: rgb(113, 113, 113) ; font-size: 12px;">You're receiving this email because you
