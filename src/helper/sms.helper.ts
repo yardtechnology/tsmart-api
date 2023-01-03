@@ -24,6 +24,7 @@ export const sendSMS = ({
             {
               body: message,
               to: phoneNumber,
+              from: "tSmart",
             },
           ],
         }),
