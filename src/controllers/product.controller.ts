@@ -1014,8 +1014,8 @@ class Product extends ProductLogic {
       .withMessage("title must be required.")
       .isLength({ min: 3 })
       .withMessage("title must be at least 3 characters long")
-      .isLength({ max: 20 })
-      .withMessage("title must be at most 20 characters long"),
+      .isLength({ max: 100 })
+      .withMessage("title must be at most 100 characters long"),
     body("shortDescription")
       .not()
       .isEmpty()
@@ -1117,20 +1117,20 @@ class Product extends ProductLogic {
       .optional()
       .isLength({ min: 3 })
       .withMessage("title must be at least 3 characters long")
-      .isLength({ max: 20 })
-      .withMessage("title must be at most 20 characters long"),
+      .isLength({ max: 100 })
+      .withMessage("title must be at most 100 characters long"),
     body("shortDescription")
       .optional()
       .isLength({ min: 3 })
       .withMessage("Short description must be at least 8 characters long")
       .isLength({ max: 250 })
-      .withMessage("Short description must be at most 51 characters long"),
+      .withMessage("Short description must be at most 250 characters long"),
     body("description")
       .optional()
       .isLength({ min: 11 })
       .withMessage("Description must be at least 11 characters long")
-      .isLength({ max: 501 })
-      .withMessage("Description must be at most 501 characters long"),
+      .isLength({ max: 1600 })
+      .withMessage("Description must be at most 1600 characters long"),
     body("stock").optional().isNumeric().withMessage("Stock must be a number"),
     body("salePrice")
       .optional()
